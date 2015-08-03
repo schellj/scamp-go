@@ -1,55 +1,54 @@
-SCAMP
-=====
+SCAMP Go Lang Edition
+=====================
 
-Single Connection Asynchronous Multiplexing Protocol
+The `scamp` package provides all the facilities necessary for participating in a SCAMP environment:
 
-Setup
-=============
+  * Parsing the discovery cache and building a directory of available services
+  * Parsing packets streams
+  * Parsing and verifying messages
 
-Setup config and keys for helloworld
------------------------------------
+Architecture
+--------
 
-    sudo mkdir /etc/SCAMP
-    sudo chown $USER /etc/SCAMP
-    sudo mkdir /var/log/scamp
-    sudo chown $USER /var/log/scamp
-    sh scripts/init-system-config
-    sh scripts/provision-soa-service helloworld main
+Remote services are invoked by first establishing a `Connection` (TLS under the hood). This `Connection` can then be used to spawn `Sessions` which send a `Request` and block until a `Reply` is provided.
 
-Node dependencies
------------------
+Usage
+-----
 
-    npm install
+	func main() {
+		scamp.Initialize()
 
-Run Hello World
----------------
+		conn := new(scamp.Connection)
+		err := conn.Connect("127.0.0.1:30100")
+		defer conn.Close()
 
-    node js/script/cache-manager.js
-    node examples/hello_world_service.js
-    node examples/hello_world_service.js
+		if err != nil {
+			scamp.Error.Printf("could not connect! `%s`\n", err)
+			return
+		}
 
-Using Vagrant with VirtualBox Provider
---------------------------------------
+		request := scamp.Request{
+			Action:         "helloworld.hello",
+			envelopeFormat: scamp.ENVELOPE_JSON,
+			Version:        1,
+		}
+		conn.SendRequest(request)
+		reply, err := conn.RecvReply()
+		if err != nil {
+			scamp.Error.Printf("error receving reply: `%s`", err)
+		}
+		scamp.Info.Printf("got reply: `%s`", reply)
+	}
 
-Prerequisites:
+Running the test suite
+----------------------
 
-  * [vagrant](https://www.vagrantup.com/)
-  * [virtualbox](https://www.virtualbox.org/wiki/Downloads)
+  export GOPATH=$PWD
+  go test scamp
 
-Note: [brew cask](https://github.com/caskroom/homebrew-cask) is a good option for managing the installation of Vagrant and VirtualBox.
+Documentation
+-------------
 
-Initializing the VM:
-
-    vagrant init chef/centos-6.6; vagrant up --provider virtualbox
-
-Note: VMWare Fusion is a fully supported provider for Vagrant. Please feel free to provide documentation for its setup.
-
-The vagrant image is provisioned through a shell script. An inline bash script found in this project's `Vagrantfile`. The script will install basic dependencies for running scamp. To rerun the provisioning script on a running vagrant instance: `vagrant provision`.
-
-Logging in to the VM:
-
-    vagrant ssh
-
-The `vagrant` user has sudo.
-
-Note: You will find this code synced to `/vagrant`.
+	export GOPATH=$PWD
+	godoc -http=:6060
+	# open http://localhost:6060/
