@@ -30,7 +30,7 @@ func TestWritePacketHeader(t *testing.T) {
 		MessageId: "0123456789012345",
 		Version:   1,
 	}
-	expected := []byte("{\"action\":\"hello.helloworld\",\"envelope\":\"json\",\"request_id\":\"0123456789012345\",\"type\":\"request\",\"version\":1}\n")
+	expected := []byte("{\"action\":\"hello.helloworld\",\"envelope\":\"json\",\"request_id\":\"0123456789012345\",\"version\":1}\n")
 
 	buf := new(bytes.Buffer)
 	packetHeader.Write(buf)

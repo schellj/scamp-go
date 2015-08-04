@@ -55,7 +55,7 @@ vTK9LN2g3yixLZdO8GeH/AjpNn3a10lGoC67ETOJsfozHxJXE2gs/qiUeoqEgg==
 	}
 
 	expected_fingerprint := "3B:1C:53:11:78:8B:70:71:07:00:FE:29:2F:AA:22:82:57:26:4A:09"
-	if SHA1FingerPrint(cert) != expected_fingerprint {
+	if sha1FingerPrint(cert) != expected_fingerprint {
 		t.Errorf("cert fingerprints did not match")
 		t.FailNow()
 	}

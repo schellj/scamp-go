@@ -14,7 +14,7 @@ func TestGenerateMessageId(t *testing.T) {
 func TestHeaderRequestToPackets(t *testing.T) {
 	req := Request{
 		Action:         "hello.helloworld",
-		envelopeFormat: ENVELOPE_JSON,
+		EnvelopeFormat: ENVELOPE_JSON,
 		Version:        1,
 	}
 

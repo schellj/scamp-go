@@ -7,7 +7,7 @@ import "sync"
 
 type msgNoType int64;
 
-type connection struct {
+type Connection struct {
 	conn        *tls.Conn
 	Fingerprint string
 	msgCnt      msgNoType
@@ -20,7 +20,7 @@ type connection struct {
 // Establish secure connection to remote service.
 // You must use the *connection.Fingerprint to verify the
 // remote host
-func Connect(connspec string) (conn *connection, err error) {
+func Connect(connspec string) (conn *Connection, err error) {
 	config := &tls.Config{
 		InsecureSkipVerify: true,
 	}
@@ -42,8 +42,8 @@ func Connect(connspec string) (conn *connection, err error) {
 	return
 }
 
-func newConnection(tlsConn *tls.Conn, sessChan (chan *Session)) (conn *connection, err error) {
-	conn = new(connection)
+func newConnection(tlsConn *tls.Conn, sessChan (chan *Session)) (conn *Connection, err error) {
+	conn = new(Connection)
 	conn.conn = tlsConn
 
 	conn.sessDemuxMutex = new(sync.Mutex)
@@ -61,7 +61,7 @@ func newConnection(tlsConn *tls.Conn, sessChan (chan *Session)) (conn *connectio
 }
 
 // Demultiplex packets to their proper buffers.
-func (conn *connection) packetRouter(ignoreUnknownSessions bool, isService bool) (err error) {
+func (conn *Connection) packetRouter(ignoreUnknownSessions bool, isService bool) (err error) {
 	var pkt Packet
 	var sess *Session
 
@@ -122,7 +122,7 @@ func (conn *connection) packetRouter(ignoreUnknownSessions bool, isService bool)
 	return
 }
 
-func (conn *connection) NewSession() (sess *Session, err error) {
+func (conn *Connection) NewSession() (sess *Session, err error) {
 	sess = new(Session)
 
 	sess.conn = conn
@@ -137,7 +137,7 @@ func (conn *connection) NewSession() (sess *Session, err error) {
 	return
 }
 
-func (conn *connection) Send(req Request) (sess *Session, err error) {
+func (conn *Connection) Send(req Request) (sess *Session, err error) {
 	// The lock must be held until the first packet is sent. 
 	// With the current structure it will hold the lock until all
 	// packets for req are sent
@@ -157,20 +157,20 @@ func (conn *connection) Send(req Request) (sess *Session, err error) {
 }
 
 // Pulls full Requests out of master Request chan
-// func (conn *connection) Recv() Session {
+// func (conn *Connection) Recv() Session {
 // 	return <-conn.sessionChan
 // }
 
-func (conn *connection) Close() {
+func (conn *Connection) Close() {
 	conn.conn.Close()
 }
 
-func (conn *connection) Recv() (sess *Session) {
+func (conn *Connection) Recv() (sess *Session) {
 	sess = <-conn.newSessions
 	return
 }
 
-func (conn *connection) Free(sess *Session) {
+func (conn *Connection) Free(sess *Session) {
 	conn.sessDemuxMutex.Lock()
 	msgNo := sess.packets[0].msgNo
 	delete(conn.sessDemux, msgNo)

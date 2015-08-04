@@ -4,13 +4,13 @@ import "bytes"
 
 type Session struct {
 	msgNo msgNoType
-	conn *connection
+	conn *Connection
 	packets []Packet
 	replyChan (chan Reply)
 	requestChan (chan Request)
 }
 
-func newSession(newMsgNo msgNoType, conn *connection) (sess *Session) {
+func newSession(newMsgNo msgNoType, conn *Connection) (sess *Session) {
 	sess = new(Session)
 	sess.msgNo = newMsgNo
 	sess.conn = conn
