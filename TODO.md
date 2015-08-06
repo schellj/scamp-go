@@ -18,9 +18,24 @@ Features
  - [x] Use go logging library
  - [ ] AuthZ service support
  - [ ] Chunk body to 128k
+ - [ ] Reconnect logic (`scamp.Connection` connects with exponential backoff)
+  - [ ] What to do if connection goes down during `Session` exchange?
+
+Important Restructuring
+===
+
+ - [ ] Stream messages bodies
+   - [ ] Session stream interface? `Reader`/`Writer` for bytes? Benefit: integration with patterns/helpers in (io lib)[http://golang.org/pkg/io]
+ - [ ] Unify concepts of `Request`/`Reply` with `Message` and move that distinction to the direction of the `Session`
+   - [ ] Rewrite `Request`/`Reply` code to reuse `session` `Reader`/`Writer` under the hood
  
- Bugs
- ====
+Rad Ideas
+===
+
+ - [ ] Ragel state machine specification to generate go code
+
+Bugs
+====
  - [ ] Fix bug where sending envelope type `JSON` fails silently (should at least emit 'unknown type' to STDERR)
  - [ ] Fix bug where header `"type": "request"` fails silently (should at least emit 'unknown type' to STDERR)
  - [ ] Fix reference to documentation `message_id` which should read `request_id`
