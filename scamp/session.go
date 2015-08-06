@@ -73,11 +73,18 @@ func (sess *Session) DeliverReply() {
 }
 
 func (sess *Session) DeliverRequest() {
+	var bodyBlob []byte
+
 	hdrPkt := sess.packets[0].packetHeader
+
+	for _,pkt := range sess.packets {
+		// TODO: should this be converted to use a buffer?
+		bodyBlob = append(bodyBlob[:], pkt.body[:]...)
+	}
 
 	req := Request {
 		Action: hdrPkt.Action,
-
+		Blob: bodyBlob,
 	}
 	sess.requestChan <- req
 }

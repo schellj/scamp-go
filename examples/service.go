@@ -12,6 +12,12 @@ func main() {
 		scamp.Error.Fatalf("error creating new service: `%s`", err)
 	}
 	service.Register("helloworld.hello", func(req scamp.Request, sess *scamp.Session){
+		if len(req.Blob) > 0 {
+			scamp.Info.Printf("helloworld had data: %s", req.Blob)
+		} else {
+			scamp.Trace.Printf("helloworld was called without data")
+		}
+
 		err = sess.SendReply(scamp.Reply{
 			Blob: famous_words,
 		})

@@ -9,6 +9,7 @@ type Request struct {
 	EnvelopeFormat envelopeFormat
 	Version        int64
 	MessageId      string
+	Blob           []byte
 }
 
 var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
@@ -36,16 +37,27 @@ func (req *Request) ToPackets(msgNo msgNoType) []Packet {
 		messageType: request,
 	}
 	
-	headerPacket := Packet{
+	headerPacket := Packet {
 		packetHeader: headerHeader,
 		packetType:   HEADER,
 		msgNo:  msgNo,
 	}
 
-	eofPacket := Packet{
+	eofPacket := Packet {
 		packetType:  EOF,
 		msgNo: msgNo,
 	}
 
-	return []Packet{headerPacket, eofPacket}
+	if len(req.Blob) > 0 {
+		dataPacket := Packet {
+			packetType: DATA,
+			msgNo: msgNo,
+			body: req.Blob,
+		}
+
+		return []Packet{headerPacket, dataPacket, eofPacket}
+	} else {
+		return []Packet{headerPacket, eofPacket}
+	}
+
 }

@@ -91,13 +91,13 @@ func (conn *Connection) packetRouter(ignoreUnknownSessions bool, isService bool)
 		}
 
 		if pkt.packetType == HEADER {
-			Trace.Printf("(SESS %d) HEADER packet\n", pkt.msgNo)
+			Trace.Printf("(incoming SESS %d) HEADER packet\n", pkt.msgNo)
 			sess.Append(pkt)
 		} else if pkt.packetType == DATA {
-			Trace.Printf("(SESS %d) DATA packet\n", pkt.msgNo)
+			Trace.Printf("(incoming SESS %d) DATA packet (%d bytes)\n", pkt.msgNo, len(pkt.body))
 			sess.Append(pkt)
 		} else if pkt.packetType == EOF {
-			Trace.Printf("(SESS %d) EOF packet\n", pkt.msgNo)
+			Trace.Printf("(incoming SESS %d) EOF packet\n", pkt.msgNo)
 			// TODO: need polymorphism on Req/Reply so they can be delivered
 			if isService {
 				Trace.Printf("session delivering request")
@@ -107,7 +107,7 @@ func (conn *Connection) packetRouter(ignoreUnknownSessions bool, isService bool)
 				go sess.DeliverReply()
 			}
 		} else if pkt.packetType == TXERR {
-			Trace.Printf("(SESS %d) TXERR\n`%s`", pkt.msgNo, pkt.body)
+			Trace.Printf("(incoming SESS %d) TXERR\n`%s`", pkt.msgNo, pkt.body)
 			// TODO: need polymorphism on Req/Reply so they can be delivered
 			if isService {
 				sess.DeliverRequest()
@@ -115,7 +115,7 @@ func (conn *Connection) packetRouter(ignoreUnknownSessions bool, isService bool)
 				go sess.DeliverReply()
 			}
 		} else {
-			Trace.Printf("(SESS %d) unknown packet type %d\n", pkt.packetType)
+			Trace.Printf("(incoming SESS %d) unknown packet type %d\n", pkt.packetType)
 		}
 	}
 
@@ -148,6 +148,7 @@ func (conn *Connection) Send(req Request) (sess *Session, err error) {
 	}
 
 	err = sess.SendRequest(req)
+	Trace.Printf("sending request (%d bytes)", len(req.Blob) )
 	if err != nil {
 		return
 	}
