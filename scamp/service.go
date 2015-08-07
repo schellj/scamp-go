@@ -11,12 +11,12 @@ type Service struct {
 	sessChan (chan *Session)
 }
 
-func NewService(port int64) (serv *Service, err error){
+func NewService(serviceSpec string) (serv *Service, err error){
 	serv = new(Service)
 	serv.actions = make(map[string]ServiceAction)
 	serv.sessChan = make(chan *Session, 100)
 
-	err = serv.listen(port)
+	err = serv.listen(serviceSpec)
 	if err != nil {
 		return
 	}
@@ -24,7 +24,7 @@ func NewService(port int64) (serv *Service, err error){
 	return
 }
 
-func (serv *Service)listen(port int64) (err error) {
+func (serv *Service)listen(serviceSpec string) (err error) {
 	cert, err := tls.LoadX509KeyPair( "/etc/SCAMP/services/helloworld.crt","/etc/SCAMP/services/helloworld.key" )
 	if err != nil {
 		return
@@ -34,7 +34,7 @@ func (serv *Service)listen(port int64) (err error) {
 		Certificates: []tls.Certificate{ cert },
 	}
 
-	serv.listener,err = tls.Listen("tcp", ":30101", config)
+	serv.listener,err = tls.Listen("tcp", serviceSpec, config)
 	if err != nil {
 		return err
 	}

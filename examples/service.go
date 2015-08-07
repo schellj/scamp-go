@@ -7,7 +7,7 @@ var famous_words = []byte("SCAMP SAYS HELLO WORLD")
 func main() {
 	scamp.Initialize()
 
-	service,err := scamp.NewService(30100)
+	service,err := scamp.NewService(":30100")
 	if err != nil {
 		scamp.Error.Fatalf("error creating new service: `%s`", err)
 	}

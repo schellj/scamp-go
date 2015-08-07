@@ -15,7 +15,7 @@ func main() {
 	var sess *scamp.Session
 
 	sess, err = conn.Send(scamp.Request{
-		Action:         "helloworld.hello",
+		Action:         "sup.dude",
 		EnvelopeFormat: scamp.ENVELOPE_JSON,
 		Version:        1,
 	})
