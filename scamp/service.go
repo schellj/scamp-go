@@ -7,10 +7,11 @@ import "crypto/tls"
 type ServiceAction func(Request,*Session)
 
 type Service struct {
-	listener    net.Listener
-	actions     map[string]ServiceAction
-	sessChan   (chan *Session)
-	isRunning   bool
+	listener      net.Listener
+	actions       map[string]ServiceAction
+	sessChan      (chan *Session)
+	isRunning     bool
+	openConns     []*Connection
 }
 
 func NewService(serviceSpec string) (serv *Service, err error){
@@ -61,34 +62,44 @@ func (serv *Service)Run() {
 		netConn,err := serv.listener.Accept()
 		if err != nil {
 			Info.Printf("accept returned error. exiting service Run()")
-			return
+			break
 		}
 
 		var tlsConn (*tls.Conn) = (netConn).(*tls.Conn)
 		if tlsConn == nil {
 			Error.Fatalf("could not create tlsConn")
+			break
 		}
 
 		conn,err := newConnection(tlsConn, serv.sessChan)
 		if err != nil {
 			Error.Fatalf("error with new connection: `%s`", err)
+			break
 		}
+		serv.openConns = append(serv.openConns, conn)
 
 		go conn.packetRouter(false, true)
 	}
+
+	close(serv.sessChan)
 }
 
-func (serv *Service)RouteSessions(){
+// Spawn a router for each new session received over sessChan
+func (serv *Service)RouteSessions() (err error){
 
-	for {
-		newSess := <- serv.sessChan
+	for newSess := range serv.sessChan {
+		
+		// if !stillOpen {
+		// 	Trace.Printf("sessChan was closed. server is probably shutting down.")
+		// 	break
+		// }
+
 		go func(){
 			var action ServiceAction
 
 			Trace.Printf("waiting for request to be received")
 			request,err := newSess.RecvRequest()
 			if err != nil {
-				Error.Printf("error receving request %d", err)
 				return
 			}
 			Trace.Printf("request came in for action `%s`", request.Action)
@@ -102,9 +113,13 @@ func (serv *Service)RouteSessions(){
 			}
 		}()
 	}
+
+	return
 }
 
 func (serv *Service)Stop(){
 	serv.listener.Close()
-	close(serv.sessChan)
+	for _,conn := range serv.openConns {
+		conn.Close()
+	}
 }

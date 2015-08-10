@@ -6,11 +6,16 @@ import "bytes"
 
 func TestServiceHandlesRequest(t *testing.T) {
 	Initialize()
-	spawnTestService()
+
+	hasStopped := make(chan bool, 1)
+	service := spawnTestService(hasStopped)
 	connectToTestService(t)
+	service.Stop()
+	<-hasStopped
+
 }
 
-func spawnTestService() (service *Service) {
+func spawnTestService(hasStopped (chan bool)) (service *Service) {
 	service,err := NewService(":30100")
 	if err != nil {
 		Error.Fatalf("error creating new service: `%s`", err)
@@ -32,7 +37,10 @@ func spawnTestService() (service *Service) {
 		Trace.Printf("successfully responded to hello world")
 	})
 
-	go service.Run()
+	go func(){
+		service.Run()
+		hasStopped <- true
+	}()
 	return
 }
 
