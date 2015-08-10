@@ -50,6 +50,10 @@ func (sess *Session) RecvReply() (rep Reply, err error) {
 	return
 }
 
+func (sess *Session) RecvChan() (chan Reply) {
+	return sess.replyChan
+}
+
 func (sess *Session) RecvRequest() (req Request, err error){
 	req = <- sess.requestChan
 	return

@@ -1,5 +1,6 @@
 package scamp
 
+import "errors"
 import "net"
 import "crypto/tls"
 
@@ -8,7 +9,8 @@ type ServiceAction func(Request,*Session)
 type Service struct {
 	listener    net.Listener
 	actions     map[string]ServiceAction
-	sessChan (chan *Session)
+	sessChan   (chan *Session)
+	isRunning   bool
 }
 
 func NewService(serviceSpec string) (serv *Service, err error){
@@ -42,8 +44,14 @@ func (serv *Service)listen(serviceSpec string) (err error) {
 	return
 }
 
-func (serv *Service)Register(name string, action ServiceAction) {
+func (serv *Service)Register(name string, action ServiceAction) (err error) {
+	if serv.isRunning {
+		return errors.New("cannot register handlers while server is running")
+	}
+
 	serv.actions[name] = action
+
+	return
 }
 
 func (serv *Service)Run() {
@@ -51,11 +59,16 @@ func (serv *Service)Run() {
 
 	for {
 		netConn,err := serv.listener.Accept()
-		var tlsConn (*tls.Conn) = (netConn).(*tls.Conn)
+		if err != nil {
+			Info.Printf("accept returned error. exiting service Run()")
+			return
+		}
 
+		var tlsConn (*tls.Conn) = (netConn).(*tls.Conn)
 		if tlsConn == nil {
 			Error.Fatalf("could not create tlsConn")
 		}
+
 		conn,err := newConnection(tlsConn, serv.sessChan)
 		if err != nil {
 			Error.Fatalf("error with new connection: `%s`", err)
@@ -89,4 +102,9 @@ func (serv *Service)RouteSessions(){
 			}
 		}()
 	}
+}
+
+func (serv *Service)Stop(){
+	serv.listener.Close()
+	close(serv.sessChan)
 }
