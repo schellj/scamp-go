@@ -74,7 +74,10 @@ Features
  - [ ] Parse service cache
  - [ ] Route RPC based on service cache
  - [x] Use go logging library
- - [ ] AuthZ service support
+ - [] AuthZ service support
+   - [x] Ticket parsing
+   - [ ] Ticket verification
+   - [ ] 
  - [ ] Chunk body to 128k
  - [ ] Reconnect logic (`scamp.Connection` connects with exponential backoff)
   - [ ] What to do if connection goes down during `Session` exchange?
@@ -86,7 +89,7 @@ Important Restructuring
  - [ ] Unify concepts of `Request`/`Reply` with `Message` and move that distinction to the direction of the `Session`
    - [ ] Rewrite `Request`/`Reply` code to reuse `session` `Reader`/`Writer` under the hood
  
-Rad Ideas
+Rad/Cool Ideas
 
  - [ ] Ragel state machine specification to generate go code
 
