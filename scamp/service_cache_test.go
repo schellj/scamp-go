@@ -21,6 +21,8 @@ func TestScanCertificate(t *testing.T) {
 }
 
 func TestReadAnnounceCache(t *testing.T) {
+	initSCAMPLogger()
+
 	file,err := os.Open("/Users/xavierlange/code/gudtech/scamp-go/fixtures/announce_cache")
 	if err != nil {
 		return
@@ -33,14 +35,19 @@ func TestReadAnnounceCache(t *testing.T) {
 	if err != nil {
 		t.Errorf("unexpected error parsing announce cache: `%s`", err)
 	}
+
+	if cache.Size() != 32 {
+		t.Errorf("expected cache size to be 32 but was %d", cache.Size())
+	}
 }
 
 func TestRegisterOnServiceCache(t *testing.T) {
 	cache := NewServiceCache()
-	serviceInstace := new(ServiceProxy)
+	serviceInstance := new(ServiceProxy)
+	serviceInstance.ident = "bob"
 
-	cache.Store("auth.by_email", serviceInstace)
-	retrieved := cache.Retrieve("auth.by_email")
+	cache.Store(serviceInstance)
+	retrieved := cache.Retrieve("bob")
 	if retrieved == nil {
 		t.Errorf("retrieved `%s`", retrieved)
 	}
