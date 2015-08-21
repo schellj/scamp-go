@@ -1,6 +1,10 @@
 package scamp
 
 import "encoding/json"
+import "encoding/pem"
+import "crypto/x509"
+import "crypto/rsa"
+
 import "fmt"
 import "errors"
 
@@ -13,6 +17,10 @@ type ServiceProxy struct {
 	connspec string
 	protocols []string
 	actions []ServiceProxyClass
+
+	rawClassRecords []byte
+	rawCert []byte
+	rawSig []byte
 
 	conn *Connection
 }
@@ -30,6 +38,9 @@ type actionDescription struct {
 
 func NewServiceProxy(classRecordsRaw []byte, certRaw []byte, sigRaw []byte) (proxy *ServiceProxy, err error) {
 	proxy = new(ServiceProxy)
+	proxy.rawClassRecords = classRecordsRaw
+	proxy.rawCert = certRaw
+	proxy.rawSig = sigRaw
 
 	var classRecords []json.RawMessage
 	err = json.Unmarshal(classRecordsRaw, &classRecords)
@@ -122,6 +133,34 @@ func NewServiceProxy(classRecordsRaw []byte, certRaw []byte, sigRaw []byte) (pro
 
 	proxy.conn = nil // we connect on demand
 	return
+}
+
+func (proxy *ServiceProxy)Validate() (err error) {
+	decoded,_ := pem.Decode(proxy.rawCert)
+	if decoded == nil {
+		err = errors.New( fmt.Sprintf("could not find valid cert in `%s`", proxy.rawCert) )
+		return
+	}
+
+	cert,err := x509.ParseCertificate(decoded.Bytes)
+	if err != nil {
+		return err
+	}
+	fingerprint := sha1FingerPrint(cert)
+
+	pkixInterface, err := x509.ParsePKIXPublicKey(decoded.Bytes)
+	if err != nil {
+		return
+	}
+
+	_, ok := pkixInterface.(*rsa.PublicKey)
+	if !ok {
+		err = errors.New("could not cast parsed value to rsa.PublicKey")
+		return
+	}
+
+
+	return errors.New( fmt.Sprintf("sup %s", fingerprint) )
 }
 
 func (proxy *ServiceProxy)GetConnection() (conn *Connection, err error) {

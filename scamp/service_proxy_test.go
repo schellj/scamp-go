@@ -35,4 +35,13 @@ ufE+JwYJoqxEszo6Adg+VTqt0gPNYu+zdElSTg==`)
 	if err != nil {
 		t.Errorf("failed to instantiate new proxy: %s/%s", proxy, err)
 	}
+
+	if len(classRecordsRaw) != len(proxy.rawClassRecords) {
+		t.Errorf("something mucked with the classRecordsRaw")
+	}
+
+	err = proxy.Validate()
+	if err != nil {
+		t.Errorf("failed to validate: `%s`", err)
+	}
 }
