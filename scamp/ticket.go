@@ -2,14 +2,10 @@ package scamp
 
 import "bytes"
 import "errors"
-import "encoding/base64"
 import "strconv"
-import "fmt"
 
 import "encoding/pem"
-import "crypto"
 import "crypto/rsa"
-import "crypto/sha256"
 import "crypto/x509"
 
 type Ticket struct {
@@ -35,17 +31,9 @@ func ReadTicket(incoming []byte, signingPubKey []byte) (ticket Ticket, err error
 
 	ticketBytes, signature := splitTicketPayload(incoming)
 
-	decodedSignature,err := decodeUnpaddedBase64(signature)
-	if err != nil {
-		return
-	}
+	valid,err := VerifySHA256(ticketBytes, rsaPubKey, signature, true)
 
-	h := sha256.New()
-	h.Write(ticketBytes)
-	digest := h.Sum(nil)
-
-	err = rsa.VerifyPKCS1v15(rsaPubKey, crypto.SHA256, digest, decodedSignature)
-	if err != nil {
+	if !valid || err != nil {
 		return
 	}
 
@@ -122,21 +110,6 @@ func parseTicketBytes(ticketBytes []byte) (ticket Ticket, err error) {
 		return
 	}
 	ticket.ValidityEnd = ticket.ValidityStart + validityDuration
-
-	return
-}
-
-func decodeUnpaddedBase64(incoming []byte) (decoded []byte, err error) {
-	if m := len(incoming) % 4; m != 0 {
-		paddingBytes := bytes.Repeat(padding, 4-m)
-		incoming = append(incoming, paddingBytes[:]...)
-	}
-
-	decoded,err = base64.URLEncoding.DecodeString(string(incoming))
-	if(err != nil){
-		err = errors.New( fmt.Sprintf("err: `%s` could not decode `%s`", err, incoming) )
-		return
-	}
 
 	return
 }

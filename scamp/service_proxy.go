@@ -142,25 +142,27 @@ func (proxy *ServiceProxy)Validate() (err error) {
 		return
 	}
 
+	// Put pem in form useful for fingerprinting
 	cert,err := x509.ParseCertificate(decoded.Bytes)
 	if err != nil {
 		return err
 	}
-	fingerprint := sha1FingerPrint(cert)
 
-	pkixInterface, err := x509.ParsePKIXPublicKey(decoded.Bytes)
-	if err != nil {
-		return
-	}
-
-	_, ok := pkixInterface.(*rsa.PublicKey)
+	pkixInterface := cert.PublicKey
+	rsaPubKey, ok := pkixInterface.(*rsa.PublicKey)
 	if !ok {
 		err = errors.New("could not cast parsed value to rsa.PublicKey")
 		return
 	}
 
+	valid,err := VerifySHA256(proxy.rawClassRecords, rsaPubKey, proxy.rawSig, false)
+	if !valid {
+		return
+	}
 
-	return errors.New( fmt.Sprintf("sup %s", fingerprint) )
+	_ = sha1FingerPrint(cert)
+
+	return nil
 }
 
 func (proxy *ServiceProxy)GetConnection() (conn *Connection, err error) {
