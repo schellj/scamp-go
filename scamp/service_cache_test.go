@@ -3,7 +3,7 @@ package scamp
 import "testing"
 import "bytes"
 import "bufio"
-// import "os"
+import "os"
 
 func TestScanCertificate(t *testing.T) {
 	reader := bytes.NewReader(testCertificateToScan)
@@ -20,26 +20,26 @@ func TestScanCertificate(t *testing.T) {
 	}
 }
 
-// func TestReadAnnounceCache(t *testing.T) {
-// 	initSCAMPLogger()
+func TestReadAnnounceCache(t *testing.T) {
+	initSCAMPLogger()
 
-// 	file,err := os.Open("/Users/xavierlange/code/gudtech/scamp-go/fixtures/announce_cache")
-// 	if err != nil {
-// 		return
-// 	}
+	file,err := os.Open("/Users/xavierlange/code/gudtech/scamp-go/fixtures/announce_cache")
+	if err != nil {
+		return
+	}
 
-// 	s := bufio.NewScanner(file)
+	s := bufio.NewScanner(file)
 
-// 	cache := NewServiceCache()
-// 	err = cache.LoadAnnounceCache(s)
-// 	if err != nil {
-// 		t.Errorf("unexpected error parsing announce cache: `%s`", err)
-// 	}
+	cache := NewServiceCache()
+	err = cache.LoadAnnounceCache(s)
+	if err != nil {
+		t.Errorf("unexpected error parsing announce cache: `%s`", err)
+	}
 
-// 	if cache.Size() != 32 {
-// 		t.Errorf("expected cache size to be 32 but was %d", cache.Size())
-// 	}
-// }
+	if cache.Size() != 32 {
+		t.Errorf("expected cache size to be 32 but was %d", cache.Size())
+	}
+}
 
 func TestRegisterOnServiceCache(t *testing.T) {
 	cache := NewServiceCache()

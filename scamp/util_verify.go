@@ -13,7 +13,7 @@ import "crypto/sha256"
 var padding = []byte("=")
 
 func VerifySHA256(rawPayload []byte, rsaPubKey *rsa.PublicKey, encodedSignature []byte, isURLEncoded bool) (valid bool, err error) {
-	decodedSig, err := decodeUnpaddedBase64(encodedSignature, isURLEncoded)
+	expectedSig, err := decodeUnpaddedBase64(encodedSignature, isURLEncoded)
 	if err != nil {
 		valid = false
 		return
@@ -23,7 +23,7 @@ func VerifySHA256(rawPayload []byte, rsaPubKey *rsa.PublicKey, encodedSignature 
 	h.Write(rawPayload)
 	digest := h.Sum(nil)
 
-	err = rsa.VerifyPKCS1v15(rsaPubKey, crypto.SHA256, digest, decodedSig)
+	err = rsa.VerifyPKCS1v15(rsaPubKey, crypto.SHA256, digest, expectedSig)
 	if err != nil {
 		valid = false
 		return
@@ -42,7 +42,7 @@ func decodeUnpaddedBase64(incoming []byte, isURLEncoded bool) (decoded []byte, e
 		}
 		_,err = base64.URLEncoding.Decode(decoded, incoming)
 	} else {
-		_,err = base64.StdEncoding.Decode(decoded, incoming)
+		decoded,err = base64.StdEncoding.DecodeString(string(incoming))
 	}
 	if(err != nil){
 		return
