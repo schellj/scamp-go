@@ -135,7 +135,23 @@ func NewServiceProxy(classRecordsRaw []byte, certRaw []byte, sigRaw []byte) (pro
 	return
 }
 
+// 1) Verify signature of classRecords
+// 2) Make sure the fingerprint is in authorized_services
+// 3) Filter announced actions against authorized actions
 func (proxy *ServiceProxy)Validate() (err error) {
+	_, err = proxy.validateSignature()
+	if err != nil {
+		return
+	}
+
+	// See if we have this fingerprint in our authorized_services
+
+
+
+	return
+}
+
+func (proxy *ServiceProxy)validateSignature() (hexSha1 string, err error) {
 	decoded,_ := pem.Decode(proxy.rawCert)
 	if decoded == nil {
 		err = errors.New( fmt.Sprintf("could not find valid cert in `%s`", proxy.rawCert) )
@@ -145,7 +161,7 @@ func (proxy *ServiceProxy)Validate() (err error) {
 	// Put pem in form useful for fingerprinting
 	cert,err := x509.ParseCertificate(decoded.Bytes)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	pkixInterface := cert.PublicKey
@@ -160,9 +176,8 @@ func (proxy *ServiceProxy)Validate() (err error) {
 		return
 	}
 
-	_ = sha1FingerPrint(cert)
-
-	return nil
+	hexSha1 = sha1FingerPrint(cert)
+	return
 }
 
 func (proxy *ServiceProxy)GetConnection() (conn *Connection, err error) {

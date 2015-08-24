@@ -42,28 +42,6 @@ func (cache *ServiceCache) Size() int {
 	return len(cache.identIndex)
 }
 
-var startCert = []byte(`-----BEGIN CERTIFICATE-----`)
-var endCert = []byte(`-----END CERTIFICATE-----`)
-func scanCertficates(data []byte, atEOF bool) (advance int, token []byte, err error) {
-	var i int
-
-	if atEOF && len(data) == 0 {
-		return 0, nil, nil
-	}
-
-	// assert cert start line
-	if i = bytes.Index(data, startCert); i == -1{
-		return 0, nil, nil
-	}
-
-	// assert end line, consume if present
-	if i = bytes.Index(data, endCert); i >= 0 {
-		return i+len(endCert), data[0:i+len(endCert)], nil
-	} else {
-		return 0, nil ,nil
-	}
-}
-
 var sep = []byte(`%%%`)
 var newline = []byte("\n")
 
@@ -128,8 +106,37 @@ func (cache *ServiceCache) LoadAnnounceCache(s *bufio.Scanner) (err error) {
 			return err
 		}
 
+		err = serviceProxy.Validate()
+		if err != nil {
+			Error.Printf("could not validate service proxy `%s`. Skipping.", err)
+			continue
+		}
+
 		cache.Store(serviceProxy)
 	}
 
 	return
+}
+
+
+var startCert = []byte(`-----BEGIN CERTIFICATE-----`)
+var endCert = []byte(`-----END CERTIFICATE-----`)
+func scanCertficates(data []byte, atEOF bool) (advance int, token []byte, err error) {
+	var i int
+
+	if atEOF && len(data) == 0 {
+		return 0, nil, nil
+	}
+
+	// assert cert start line
+	if i = bytes.Index(data, startCert); i == -1{
+		return 0, nil, nil
+	}
+
+	// assert end line, consume if present
+	if i = bytes.Index(data, endCert); i >= 0 {
+		return i+len(endCert), data[0:i+len(endCert)], nil
+	} else {
+		return 0, nil ,nil
+	}
 }

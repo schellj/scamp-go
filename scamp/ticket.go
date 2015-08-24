@@ -21,7 +21,6 @@ type Ticket struct {
 
 var separator = []byte(",")
 var supportedVersion = []byte("1")
-var padding = []byte("=")
 
 func ReadTicket(incoming []byte, signingPubKey []byte) (ticket Ticket, err error) {
 	rsaPubKey, err := parseRsaPubKey(signingPubKey)

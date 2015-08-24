@@ -1,7 +1,7 @@
 package scamp
 
-import "errors"
-import "fmt"
+// import "errors"
+// import "fmt"
 
 import "bytes"
 import "encoding/base64"
@@ -9,6 +9,8 @@ import "encoding/base64"
 import "crypto"
 import "crypto/rsa"
 import "crypto/sha256"
+
+var padding = []byte("=")
 
 func VerifySHA256(rawPayload []byte, rsaPubKey *rsa.PublicKey, encodedSignature []byte, isURLEncoded bool) (valid bool, err error) {
 	decodedSig, err := decodeUnpaddedBase64(encodedSignature, isURLEncoded)
@@ -31,18 +33,18 @@ func VerifySHA256(rawPayload []byte, rsaPubKey *rsa.PublicKey, encodedSignature 
 }
 
 func decodeUnpaddedBase64(incoming []byte, isURLEncoded bool) (decoded []byte, err error) {
-	if m := len(incoming) % 4; m != 0 {
-		paddingBytes := bytes.Repeat(padding, 4-m)
-		incoming = append(incoming, paddingBytes[:]...)
-	}
+	decoded = make([]byte, len(incoming))
 
 	if isURLEncoded {
-		decoded,err = base64.URLEncoding.DecodeString(string(incoming))
+		if m := len(incoming) % 4; m != 0 {
+			paddingBytes := bytes.Repeat(padding, 4-m)
+			incoming = append(incoming, paddingBytes[:]...)
+		}
+		_,err = base64.URLEncoding.Decode(decoded, incoming)
 	} else {
-		decoded,err = base64.StdEncoding.DecodeString(string(incoming))
+		_,err = base64.StdEncoding.Decode(decoded, incoming)
 	}
 	if(err != nil){
-		err = errors.New( fmt.Sprintf("err: `%s` could not decode `%s`", err, incoming) )
 		return
 	}
 
