@@ -71,13 +71,12 @@ Features
  - [x] Generate reply
  - [ ] Verify TLS certificate with `/etc/authorized_services`
  - [x] Manage connection msgno
- - [ ] Parse service cache
+ - [x] Parse service cache
  - [ ] Route RPC based on service cache
  - [x] Use go logging library
  - [] AuthZ service support
    - [x] Ticket parsing
-   - [ ] Ticket verification
-   - [ ] 
+   - [x] Ticket verification
  - [ ] Chunk body to 128k
  - [ ] Reconnect logic (`scamp.Connection` connects with exponential backoff)
   - [ ] What to do if connection goes down during `Session` exchange?
