@@ -70,7 +70,7 @@ func (conn *Connection) packetRouter(ignoreUnknownSessions bool, isService bool)
 		if err != nil {
 			// TODO: what are the issues with stopping a packet router here?
 			// The socket has probably closed
-			Error.Printf("err reading packet: `%s`. (EOF is normal). Returning.", err)
+			// Error.Printf("err reading packet: `%s`. (EOF is normal). Returning.", err)
 			return
 		}
 
