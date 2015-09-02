@@ -110,6 +110,7 @@ func (serv *Service)RouteSessions() (err error){
 				newSess.Free()
 			} else {
 				Error.Printf("unknown action `%s`", request.Action)
+				// TODO: need to respond with 'unknown action'
 			}
 		}()
 	}

@@ -54,7 +54,7 @@ func connectToTestService(t *testing.T) {
 
 	var sess *Session
 
-	sess, err = conn.Send(Request{
+	sess, err = conn.Send(&Request{
 		Action:         "helloworld.hello",
 		EnvelopeFormat: ENVELOPE_JSON,
 		Version:        1,

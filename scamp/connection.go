@@ -5,8 +5,6 @@ import "crypto/tls"
 import "fmt"
 import "sync"
 
-type msgNoType int64;
-
 type Connection struct {
 	conn        *tls.Conn
 	Fingerprint string
@@ -137,7 +135,7 @@ func (conn *Connection) NewSession() (sess *Session, err error) {
 	return
 }
 
-func (conn *Connection) Send(req Request) (sess *Session, err error) {
+func (conn *Connection) Send(msg Message) (sess *Session, err error) {
 	// The lock must be held until the first packet is sent. 
 	// With the current structure it will hold the lock until all
 	// packets for req are sent
@@ -147,8 +145,12 @@ func (conn *Connection) Send(req Request) (sess *Session, err error) {
 		return
 	}
 
-	err = sess.SendRequest(req)
-	Trace.Printf("sending request (%d bytes)", len(req.Blob) )
+	err = sess.SendRequest(msg)
+	if req,ok := msg.(*Request); ok {
+		Trace.Printf("sending request (%d bytes)", len(req.Blob) )
+	} else {
+		Trace.Printf("sending unknown value on connection")
+	}
 	if err != nil {
 		return
 	}

@@ -5,7 +5,7 @@ import "scamp"
 func main() {
 	scamp.Initialize()
 
-	conn, err := scamp.Connect("127.0.0.1:30101")
+	conn, err := scamp.Connect("127.0.0.1:30100")
 	defer conn.Close()
 
 	if err != nil {

@@ -54,17 +54,21 @@ func NewAuthorizedServicesSpec(line []byte) (spec *AuthorizedServiceSpec, err er
 	}
 
 	spec = new(AuthorizedServiceSpec)
-	spec.Actions = make([]ServiceProxyClass, 100)
-
 	spec.Fingerprint = make([]byte, len(s.Bytes()))
 	copy(spec.Fingerprint, s.Bytes())
+	spec.Actions = make([]ServiceProxyClass, 100)
 
+	index := 0
 	var read bool
 	for {
 		read = s.Scan()
 		if !read {
 			break
 		}
+
+		// spec.Actions[index].className = make([]byte, len(s.Bytes()))
+		spec.Actions[index].className = string(s.Bytes())
+		index = index + 1
 	}
 
 	return

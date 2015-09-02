@@ -19,8 +19,8 @@ func newSession(newMsgNo msgNoType, conn *Connection) (sess *Session) {
 	return
 }
 
-func (sess *Session) SendRequest(req Request) (err error) {
-	pkts := req.ToPackets(sess.msgNo)
+func (sess *Session) SendRequest(req Message) (err error) {
+	pkts := req.toPackets(sess.msgNo)
 	for _, pkt := range pkts {
 		// Trace.Printf("sending msgNo %d", pkt.msgNo)
 		err = pkt.Write(sess.conn.conn)
@@ -92,6 +92,8 @@ func (sess *Session) DeliverRequest() {
 	}
 	sess.requestChan <- req
 }
+
+
 
 func (sess *Session) Free(){
 	sess.conn.Free(sess)

@@ -1,6 +1,7 @@
 package scamp
 
 import "math/rand"
+// import "fmt"
 
 // TODO: Requests should come out of a request object pool
 // which sets their message_id on retrieval
@@ -20,11 +21,10 @@ func (req *Request) GenerateMessageId() {
 	for i := range b {
 		b[i] = letters[rand.Intn(len(letters))]
 	}
-
 	req.MessageId = string(b)
 }
 
-func (req *Request) ToPackets(msgNo msgNoType) []Packet {
+func (req *Request) toPackets(msgNo msgNoType) []Packet {
 	if req.MessageId == "" {
 		req.GenerateMessageId()
 	}
@@ -47,6 +47,7 @@ func (req *Request) ToPackets(msgNo msgNoType) []Packet {
 		packetType:  EOF,
 		msgNo: msgNo,
 	}
+
 
 	if len(req.Blob) > 0 {
 		dataPacket := Packet {
