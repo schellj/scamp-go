@@ -66,6 +66,11 @@ func (rep *Reply) ToPackets(msgNo msgNoType) []Packet {
 	return []Packet{headerPacket, dataPacket, eofPacket}
 }
 
+// TODO just rename ToPackets and get rid of this definition
+func (rep Reply) toPackets(msgNo msgNoType) []Packet {
+	return (&rep).ToPackets(msgNo)
+}
+
 func (rep *Reply) Body() (body []byte) {
 	body = rep.Blob
 	return

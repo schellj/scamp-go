@@ -65,6 +65,7 @@ func (conn *Connection) packetRouter(ignoreUnknownSessions bool, isService bool)
 
 	for {
 		pkt, err = ReadPacket(conn.conn)
+		Trace.Printf("received packet: %s", pkt)
 		if err != nil {
 			// TODO: what are the issues with stopping a packet router here?
 			// The socket has probably closed
@@ -128,7 +129,7 @@ func (conn *Connection) NewSession() (sess *Session, err error) {
 	sess.msgNo = conn.msgCnt
 	conn.msgCnt = conn.msgCnt + 1
 
-	sess.replyChan = make(chan Reply, 1)
+	sess.replyChan = make(chan Message, 1)
 
 	conn.sessDemux[sess.msgNo] = sess
 

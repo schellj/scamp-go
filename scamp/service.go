@@ -37,6 +37,8 @@ func (serv *Service)listen(serviceSpec string) (err error) {
 		Certificates: []tls.Certificate{ cert },
 	}
 
+	Trace.Printf("starting service on %s", serviceSpec)
+
 	serv.listener,err = tls.Listen("tcp", serviceSpec, config)
 	if err != nil {
 		return err

@@ -1,12 +1,13 @@
 package scamp
 
 import "bytes"
+import "errors"
 
 type Session struct {
 	msgNo msgNoType
 	conn *Connection
 	packets []Packet
-	replyChan (chan Reply)
+	replyChan (chan Message)
 	requestChan (chan Request)
 }
 
@@ -14,7 +15,7 @@ func newSession(newMsgNo msgNoType, conn *Connection) (sess *Session) {
 	sess = new(Session)
 	sess.msgNo = newMsgNo
 	sess.conn = conn
-	sess.replyChan = make(chan Reply)
+	sess.replyChan = make(chan Message)
 	sess.requestChan = make(chan Request)
 	return
 }
@@ -32,8 +33,8 @@ func (sess *Session) SendRequest(req Message) (err error) {
 	return
 }
 
-func (sess *Session) SendReply(rep Reply) (err error) {
-	pkts := rep.ToPackets(sess.msgNo)
+func (sess *Session) SendReply(rep Message) (err error) {
+	pkts := rep.toPackets(sess.msgNo)
 	for _, pkt := range pkts {
 		Trace.Printf("SENDING (%d, %s)", pkt.msgNo, pkt.packetType)
 		err = pkt.Write(sess.conn.conn)
@@ -46,11 +47,16 @@ func (sess *Session) SendReply(rep Reply) (err error) {
 }
 
 func (sess *Session) RecvReply() (rep Reply, err error) {
-	rep = <-sess.replyChan
+	var ok bool
+	msg := <-sess.replyChan
+	if rep,ok = msg.(Reply); !ok {
+		err = errors.New("did not receive Reply in RecvReply")
+		return
+	}
 	return
 }
 
-func (sess *Session) RecvChan() (chan Reply) {
+func (sess *Session) RecvChan() (chan Message) {
 	return sess.replyChan
 }
 
@@ -65,8 +71,10 @@ func (sess *Session) Append(pkt Packet) {
 
 func (sess *Session) DeliverReply() {
 	dataBuf := new(bytes.Buffer)
-	for _,pkt := range sess.packets[1:] {
-		dataBuf.Write(pkt.body)
+	if len(sess.packets) > 0 {
+		for _,pkt := range sess.packets[1:] {
+			dataBuf.Write(pkt.body)
+		}
 	}
 
 	rep := Reply {
@@ -93,7 +101,9 @@ func (sess *Session) DeliverRequest() {
 	sess.requestChan <- req
 }
 
-
+func (sess *Session) CloseReply() {
+	sess.SendReply(&EOFResponse{})
+}
 
 func (sess *Session) Free(){
 	sess.conn.Free(sess)

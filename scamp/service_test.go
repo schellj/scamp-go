@@ -65,7 +65,12 @@ func connectToTestService(t *testing.T) {
 	}
 
 	select {
-		case reply := <-sess.RecvChan():
+		case msg := <-sess.RecvChan():
+			reply,ok := msg.(Reply)
+			if !ok {
+				t.Errorf("expected reply")
+			}
+			
 			if !bytes.Equal(reply.Blob, []byte("sup")) {
 				t.Errorf("did not get expected response `sup`")
 				t.FailNow()
