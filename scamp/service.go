@@ -3,23 +3,31 @@ package scamp
 import "errors"
 import "net"
 import "crypto/tls"
+import "fmt"
 
 type ServiceAction func(Request,*Session)
 
 type Service struct {
+	serviceSpec   string
+	name          string
+
 	listener      net.Listener
+
 	actions       map[string]ServiceAction
 	sessChan      (chan *Session)
 	isRunning     bool
 	openConns     []*Connection
 }
 
-func NewService(serviceSpec string) (serv *Service, err error){
+func NewService(serviceSpec string, name string) (serv *Service, err error){
 	serv = new(Service)
+	serv.name = name
+	serv.serviceSpec = serviceSpec
+
 	serv.actions = make(map[string]ServiceAction)
 	serv.sessChan = make(chan *Session, 100)
 
-	err = serv.listen(serviceSpec)
+	err = serv.listen()
 	if err != nil {
 		return
 	}
@@ -27,7 +35,15 @@ func NewService(serviceSpec string) (serv *Service, err error){
 	return
 }
 
-func (serv *Service)listen(serviceSpec string) (err error) {
+func (serv *Service)listen() (err error) {
+	crtPath := config.ServiceCertPath(serv.name)
+	keyPath := config.ServiceKeyPath(serv.name)
+
+	if crtPath == nil || keyPath == nil {
+		err = fmt.Errorf( "could not find valid crt/key pair for service %s", serv.name )
+		return
+	}
+
 	cert, err := tls.LoadX509KeyPair( "/etc/SCAMP/services/helloworld.crt","/etc/SCAMP/services/helloworld.key" )
 	if err != nil {
 		return
@@ -37,9 +53,8 @@ func (serv *Service)listen(serviceSpec string) (err error) {
 		Certificates: []tls.Certificate{ cert },
 	}
 
-	Trace.Printf("starting service on %s", serviceSpec)
-
-	serv.listener,err = tls.Listen("tcp", serviceSpec, config)
+	Trace.Printf("starting service on %s", serv.serviceSpec)
+	serv.listener,err = tls.Listen("tcp", serv.serviceSpec, config)
 	if err != nil {
 		return err
 	}

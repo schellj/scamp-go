@@ -54,4 +54,5 @@ package scamp
 // Package-level setup. Right now it just sets up logging.
 func Initialize() {
 	initSCAMPLogger()
+  initConfig()
 }
