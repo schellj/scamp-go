@@ -44,7 +44,7 @@ func (serv *Service)listen() (err error) {
 		return
 	}
 
-	cert, err := tls.LoadX509KeyPair( "/etc/SCAMP/services/helloworld.crt","/etc/SCAMP/services/helloworld.key" )
+	cert, err := tls.LoadX509KeyPair( string(crtPath), string(keyPath) )
 	if err != nil {
 		return
 	}
