@@ -136,7 +136,11 @@ func (serv *Service)RouteSessions() (err error){
 }
 
 func (serv *Service)Stop(){
-	serv.listener.Close()
+	// Sometimes we Stop() before service after service has been init but before it is started
+	// The usual case is a bad config in another plugin
+	if serv.listener != nil {
+		serv.listener.Close()
+	}
 	for _,conn := range serv.openConns {
 		conn.Close()
 	}
