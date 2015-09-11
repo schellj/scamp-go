@@ -32,6 +32,11 @@ func VerifySHA256(rawPayload []byte, rsaPubKey *rsa.PublicKey, encodedSignature 
 	return true, nil
 }
 
+func SignSHA256(rawPayload []byte, priv *rsa.PrivateKey) (signature []byte, err error) {
+	// func SignPKCS1v15(rand io.Reader, priv *PrivateKey, hash crypto.Hash, hashed []byte) (s []byte, err error)
+	return rsa.SignPKCS1v15()
+}
+
 func decodeUnpaddedBase64(incoming []byte, isURLEncoded bool) (decoded []byte, err error) {
 	decoded = make([]byte, len(incoming))
 
