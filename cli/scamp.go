@@ -11,48 +11,30 @@ import (
 	"encoding/pem"
 )
 
+var announcePath string
+var certPath string
+var keyPath string
+
 func main() {
 	scamp.Initialize()
 
-	var announceData string
-	flag.StringVar(&announceData, "announce", "", "payload to be signed")
-
-	// var certPath string
-	// flag.StringVar(&certPath, "signer", "", "path to cert used for signing")
-	var keyPath string
+	flag.StringVar(&announcePath, "announcepath", "", "payload to be signed")
+	flag.StringVar(&certPath, "certpath", "", "path to cert used for signing")
 	flag.StringVar(&keyPath, "keypath", "", "path to service private key")
-
 	flag.Parse()
 
-	// if len(certPath) == 0 || len(announceData) == 0 {
-	if len(keyPath) == 0 || len(announceData) == 0 {
-		fmt.Println("must provide keypath and announce")
+	if len(keyPath) == 0 || len(announcePath) == 0 || len(certPath) == 0 {
+		fmt.Println("must provide all 3: certpath, keypath, and announcepath")
 		return
 	}
-
-	// certData,err := ioutil.ReadFile(certPath)
-	// if err != nil {
-	// 	fmt.Println("could not read certPath")
-	// 	return
-	// }
-
-	// decodedCertData,_ := pem.Decode(certData)
-	// if decodedCertData == nil {
-	// 	fmt.Println("could not decode cert data")
-	// 	return
-	// }
-
-	// cert,err := x509.ParseCertificate(decodedCertData.Bytes)
-	// if err != nil {
-	// 	fmt.Printf("could not parse certificate: `%s`", err)
-	// 	return
-	// }
 
 	keyRawBytes,err := ioutil.ReadFile(keyPath)
 	if err != nil {
 		scamp.Error.Fatalf("could not read key at %s", keyPath)
 	}
+
 	block,_ := pem.Decode(keyRawBytes)
+
 	if block == nil {
 		scamp.Error.Fatalf("could not decode key data (%s)", block.Type)
 		return
@@ -65,7 +47,21 @@ func main() {
 		scamp.Error.Fatalf("could not parse key from %s (%s)", keyPath, block.Type)
 	}
 
+	announceData,err := ioutil.ReadFile(announcePath)
+	if err != nil {
+		scamp.Error.Fatalf("could not read announce data from %s", announcePath)
+	}
 	announceSig,err := scamp.SignSHA256( []byte(announceData), privKey)
+	if err != nil {
+		scamp.Error.Fatalf("could not sign announce data: %s", err)
+	}
+
+	certData,err := ioutil.ReadFile(certPath)
+	if err != nil {
+		scamp.Error.Fatalf("could not read cert from %s", certPath)
+	}
+
+	fmt.Printf("\n%%%%%%\n%s\n%s\n%s", announceData, certData, announceSig)
 
 	scamp.Trace.Printf("cool announceSig: %s", announceSig)
 }
