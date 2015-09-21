@@ -4,6 +4,7 @@ package main
 import "fmt"
 import "flag"
 import "io/ioutil"
+import "bytes"
 
 import (
   "github.com/gudtech/scamp-go/scamp"
@@ -14,6 +15,7 @@ import (
 var announcePath string
 var certPath string
 var keyPath string
+var fingerprintPath string
 
 func main() {
 	scamp.Initialize()
@@ -21,13 +23,24 @@ func main() {
 	flag.StringVar(&announcePath, "announcepath", "", "payload to be signed")
 	flag.StringVar(&certPath, "certpath", "", "path to cert used for signing")
 	flag.StringVar(&keyPath, "keypath", "", "path to service private key")
+	flag.StringVar(&fingerprintPath, "fingerprintpath", "", "path to cert to fingerprint")
 	flag.Parse()
 
-	if len(keyPath) == 0 || len(announcePath) == 0 || len(certPath) == 0 {
-		fmt.Println("must provide all 3: certpath, keypath, and announcepath")
+	if (len(keyPath) == 0 || len(announcePath) == 0 || len(certPath) == 0) && (len(fingerprintPath) == 0) {
+		fmt.Printf("fingerprintpath: %s", fingerprintPath)
+		fmt.Println("not enough options specified\nmust provide\n\tcertpath, keypath, and announcepath\nOR\n\tfingerprintpath")
 		return
 	}
 
+	if len(keyPath) != 0 {
+		doFakeDiscoveryCache()
+	} else {
+		doCertFingerprint()
+	}
+
+}
+
+func doFakeDiscoveryCache(){
 	keyRawBytes,err := ioutil.ReadFile(keyPath)
 	if err != nil {
 		scamp.Error.Fatalf("could not read key at %s", keyPath)
@@ -61,7 +74,30 @@ func main() {
 		scamp.Error.Fatalf("could not read cert from %s", certPath)
 	}
 
-	fmt.Printf("\n%%%%%%\n%s\n%s\n%s", announceData, certData, announceSig)
+	fmt.Printf("\n%%%%%%\n%s\n\n%s\n\n%s\n", announceData, bytes.TrimSpace(certData), announceSig)
+}
 
-	scamp.Trace.Printf("cool announceSig: %s", announceSig)
+func doCertFingerprint(){
+	certData,err := ioutil.ReadFile(fingerprintPath)
+	if err != nil {
+		scamp.Error.Fatalf("could not read cert from %s", fingerprintPath)
+	}
+
+	decoded,_ := pem.Decode(certData)
+	if decoded == nil {
+		scamp.Error.Fatalf("could not decode cert. is it PEM encoded?")
+	}
+
+	// Put pem in form useful for fingerprinting
+	cert,err := x509.ParseCertificate(decoded.Bytes)
+	if err != nil {
+		scamp.Error.Fatalf("could not parse certificate. is it valid x509?")
+	}
+
+	fingerprint := scamp.SHA1FingerPrint(cert)
+	if len(fingerprint) > 0 {
+		fmt.Printf("fingerprint: %s\n", fingerprint)
+	} else {
+		scamp.Error.Fatalf("could not fingerprint certificate")
+	}
 }
