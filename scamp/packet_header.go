@@ -17,6 +17,20 @@ const (
 	ENVELOPE_JSONSTORE
 )
 
+// Serialized to JSON and stuffed in the 'header' property
+// of each packet
+type PacketHeader struct {
+	Action   string         `json:"action"`   // request
+	Envelope envelopeFormat `json:"envelope"` // request
+	// error  string        `json:"error"`            // reply
+	// error_code []byte    `json:"error_code"`   // reply
+	MessageId msgNoType         `json:"request_id"` // both
+	// station []byte       `json:"station"`         // request
+	// ticket []byte        `json:"ticket"`           // request
+	messageType messageType `json:"type"`    // both
+	Version     int64       `json:"version"` // request
+}
+
 var envelope_json_bytes = []byte(`"json"`)
 var envelope_jsonstore_bytes = []byte(`"jsonstore"`)
 
@@ -80,20 +94,6 @@ func (msgType *messageType) UnmarshalJSON(incoming []byte) error {
 		return errors.New(fmt.Sprintf("unknown message type `%s`", incoming))
 	}
 	return nil
-}
-
-// Serialized to JSON and stuffed in the 'header' property
-// of each packet
-type PacketHeader struct {
-	Action   string         `json:"action"`   // request
-	Envelope envelopeFormat `json:"envelope"` // request
-	// error  string        `json:"error"`            // reply
-	// error_code []byte    `json:"error_code"`   // reply
-	MessageId string `json:"request_id"` // both
-	// station []byte       `json:"station"`         // request
-	// ticket []byte        `json:"ticket"`           // request
-	messageType messageType `json:"type"`    // both
-	Version     int64       `json:"version"` // request
 }
 
 func (pktHdr *PacketHeader) Write(writer io.Writer) (err error) {

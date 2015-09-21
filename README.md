@@ -53,6 +53,15 @@ Documentation
 	godoc -http=:6060
 	# open http://localhost:6060/
 
+CLI
+---
+
+Need to run two components without discovery? Generate a fake discovery cache using the cli
+
+    go run cli/scamp.go -announcepath=fixtures/sample_service_spec -keypath=fixtures/sample.key -certpath=fixtures/sample.crt
+
+and then copy this text to `/tmp/discovery.cache` in your `gt-dispatcher`.
+
 Tasking
 -------
 

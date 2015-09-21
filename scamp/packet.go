@@ -38,21 +38,31 @@ var the_rest_bytes = []byte("END\r\n")
 /*
   Will parse an io stream in to a packet struct
 */
-func ReadPacket(reader io.Reader) (Packet, error) {
+func ReadPacket(reader *bufio.Reader) (pkt Packet, err error) {
 	var pktTypeBytes []byte
 	var bodyBytesNeeded int
-
-	pkt := Packet{}
 
 	// bunchaBytes := make([]byte, 30)
 	// reader.Read(bunchaBytes)
 	// Trace.Printf("bunchaBytes: `%s`\n\t\t\t`%v`", bunchaBytes, bunchaBytes)
 	// return Packet{}, nil
 
-	_, err := fmt.Fscanf(reader, "%s %d %d\r\n", &pktTypeBytes, &(pkt.msgNo), &bodyBytesNeeded)
+	Trace.Printf("reading header")
+	hdrBytes, _, err := reader.ReadLine()
 	if err != nil {
-		return Packet{}, err
+		return
 	}
+	Trace.Printf("header bytes: `%s`", hdrBytes)
+	hdrValsRead, err := fmt.Sscanf(string(hdrBytes), "%s %d %d", &pktTypeBytes, &(pkt.msgNo), &bodyBytesNeeded)
+	if hdrValsRead != 3 || err != nil {
+		return
+	}
+
+	// _, err = fmt.Fscanf(reader, "%s %d %d\r\n", &pktTypeBytes, &(pkt.msgNo), &bodyBytesNeeded)
+	// if err != nil {
+	// 	Error.Printf("error scanning: `%s`", err)
+	// 	return Packet{}, err
+	// }
 
 	if bytes.Equal(header_bytes, pktTypeBytes) {
 		pkt.packetType = HEADER
@@ -94,7 +104,7 @@ func ReadPacket(reader io.Reader) (Packet, error) {
 	}
 
 	if pkt.packetType == HEADER {
-		err := pkt.ParseHeader()
+		err := pkt.parseHeader()
 		if err != nil {
 			return Packet{}, err
 		}
@@ -103,7 +113,8 @@ func ReadPacket(reader io.Reader) (Packet, error) {
 	return pkt, nil
 }
 
-func (pkt *Packet) ParseHeader() (err error) {
+func (pkt *Packet) parseHeader() (err error) {
+	Trace.Printf("pkt.body: `%s`", pkt.body)
 	err = json.Unmarshal(pkt.body, &pkt.packetHeader)
 	if err != nil {
 		return

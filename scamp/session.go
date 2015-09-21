@@ -5,6 +5,7 @@ import "errors"
 
 type Session struct {
 	msgNo msgNoType
+	pktNo int64
 	conn *Connection
 	packets []Packet
 	replyChan (chan Message)

@@ -1,15 +1,15 @@
 package scamp
 
 import "errors"
-import "io"
 import "fmt"
 import "bytes"
+import "bufio"
 
 type Reply struct {
 	Blob []byte
 }
 
-func (rep *Reply) Read(reader io.Reader) (err error) {
+func (rep *Reply) Read(reader *bufio.Reader) (err error) {
 	var packet Packet;
 	var packets []Packet;
 

@@ -2,11 +2,12 @@ package scamp
 
 import "testing"
 import "bytes"
+import "bufio"
 import "fmt"
 
 func TestReadPacketOK(t *testing.T) {
 	byteBuf := []byte("HEADER 1 46\r\n{\"action\":\"foo\",\"version\":1,\"envelope\":\"json\"}END\r\n")
-	byteReader := bytes.NewReader(byteBuf)
+	byteReader := bufio.NewReader(bytes.NewReader(byteBuf))
 
 	packet, err := ReadPacket(byteReader)
 	if err != nil {
@@ -44,7 +45,7 @@ func TestReadPacketOK(t *testing.T) {
 
 func TestFailGarbage(t *testing.T) {
 	byteBuf := []byte("asdfasdf")
-	byteReader := bytes.NewReader(byteBuf)
+	byteReader := bufio.NewReader(bytes.NewReader(byteBuf))
 
 	_, err := ReadPacket(byteReader)
 	if err == nil {
@@ -58,22 +59,21 @@ func TestFailGarbage(t *testing.T) {
 }
 
 func TestFailHeaderParams(t *testing.T) {
-	byteReader := bytes.NewReader([]byte("HEADER 1\r\n{\"action\":\"foo\",\"version\":1,\"envelope\":\"json\"}END\r\n"))
+	Initialize()
+	byteReader := bufio.NewReader(bytes.NewReader([]byte("HEADER 1\r\n{\"action\":\"foo\",\"version\":1,\"envelope\":\"json\"}END\r\n")))
 
 	_, err := ReadPacket(byteReader)
 	if err == nil {
-		t.Errorf("expected non-nil err", err)
-		t.FailNow()
+		t.Fatalf("expected non-nil err", err)
 	}
-	if fmt.Sprintf("%s", err) != "expected integer" {
-		t.Errorf("expected `%s`, got `%s`", "expected integer", err)
-		t.FailNow()
+	if err.Error() != "EOF" {
+		t.Fatalf("expected `%s`, got `%s`", "expected integer", err)
 	}
 }
 
 // TODO: string cmp not working well
 // func TestFailHeaderBadType(t *testing.T){
-//   byteReader := bytes.NewReader( []byte("HEADER a b\r\n{\"action\":\"foo\",\"version\":1,\"envelope\":\"json\"}END\r\n") )
+//   byteReader := bufio.NewReader(bytes.NewReader( []byte("HEADER a b\r\n{\"action\":\"foo\",\"version\":1,\"envelope\":\"json\"}END\r\n") )
 
 //   _,err := ReadPacket( byteReader )
 //   if err == nil {
@@ -87,7 +87,7 @@ func TestFailHeaderParams(t *testing.T) {
 // }
 
 func TestFailTooFewBodyBytes(t *testing.T) {
-	byteReader := bytes.NewReader([]byte("HEADER 1 46\r\n{\"\":\"foo\",\"version\":1,\"\":\"json\"}END\r\n"))
+	byteReader := bufio.NewReader(bytes.NewReader([]byte("HEADER 1 46\r\n{\"\":\"foo\",\"version\":1,\"\":\"json\"}END\r\n")))
 
 	_, err := ReadPacket(byteReader)
 	if err == nil {
@@ -101,7 +101,7 @@ func TestFailTooFewBodyBytes(t *testing.T) {
 }
 
 func TestFailTooManyBodyBytes(t *testing.T) {
-	byteReader := bytes.NewReader([]byte("HEADER 1 46\r\n{\"\":\"foo\",\"version\":1,\"\":\"jsonasdfasdfasdfasdf\"}END\r\n"))
+	byteReader := bufio.NewReader(bytes.NewReader([]byte("HEADER 1 46\r\n{\"\":\"foo\",\"version\":1,\"\":\"jsonasdfasdfasdfasdf\"}END\r\n")))
 
 	_, err := ReadPacket(byteReader)
 	if fmt.Sprintf("%s", err) != "packet was missing trailing bytes" {
@@ -117,12 +117,12 @@ func TestWriteHeaderPacket(t *testing.T) {
 		packetHeader: PacketHeader{
 			Action:    "hello.helloworld",
 			Envelope:  ENVELOPE_JSON,
-			MessageId: "0123456789012345",
+			MessageId: 1,
 			Version:   1,
 		},
 		body: []byte(""),
 	}
-	expected := []byte("HEADER 0 92\r\n{\"action\":\"hello.helloworld\",\"envelope\":\"json\",\"request_id\":\"0123456789012345\",\"version\":1}\nEND\r\n")
+	expected := []byte("HEADER 0 75\r\n{\"action\":\"hello.helloworld\",\"envelope\":\"json\",\"request_id\":1,\"version\":1}\nEND\r\n")
 
 	buf := new(bytes.Buffer)
 	err := packet.Write(buf)

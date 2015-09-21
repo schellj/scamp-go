@@ -40,7 +40,7 @@ func (serv *Service)listen() (err error) {
 	keyPath := config.ServiceKeyPath(serv.name)
 
 	if crtPath == nil || keyPath == nil {
-		err = fmt.Errorf( "could not find valid crt/key pair for service %s", serv.name )
+		err = fmt.Errorf( "could not find valid crt/key pair for service %s (`%s`,`%s`)", serv.name, crtPath, keyPath )
 		return
 	}
 

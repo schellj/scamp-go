@@ -1,6 +1,6 @@
 package scamp
 
-import "math/rand"
+// import "math/rand"
 // import "fmt"
 
 // TODO: Requests should come out of a request object pool
@@ -9,31 +9,27 @@ type Request struct {
 	Action         string
 	EnvelopeFormat envelopeFormat
 	Version        int64
-	MessageId      string
+	MessageId      msgNoType
 	Blob           []byte
 }
 
-var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+// var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
-func (req *Request) GenerateMessageId() {
-	// http://stackoverflow.com/questions/22892120/how-to-generate-a-random-string-of-a-fixed-length-in-golang
-	b := make([]rune, 18)
-	for i := range b {
-		b[i] = letters[rand.Intn(len(letters))]
-	}
-	req.MessageId = string(b)
-}
+// func (req *Request) GenerateMessageId() {
+// 	// http://stackoverflow.com/questions/22892120/how-to-generate-a-random-string-of-a-fixed-length-in-golang
+// 	b := make([]rune, 18)
+// 	for i := range b {
+// 		b[i] = letters[rand.Intn(len(letters))]
+// 	}
+// 	req.MessageId = string(b)
+// }
 
 func (req *Request) toPackets(msgNo msgNoType) []Packet {
-	if req.MessageId == "" {
-		req.GenerateMessageId()
-	}
-
 	headerHeader := PacketHeader{
 		Action:      req.Action,
 		Envelope:    req.EnvelopeFormat,
 		Version:     req.Version,
-		MessageId:   req.MessageId,
+		MessageId:   msgNo,
 		messageType: request,
 	}
 	

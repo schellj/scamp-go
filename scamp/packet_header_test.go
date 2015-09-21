@@ -27,10 +27,10 @@ func TestWritePacketHeader(t *testing.T) {
 	packetHeader := PacketHeader{
 		Action:    "hello.helloworld",
 		Envelope:  ENVELOPE_JSON,
-		MessageId: "0123456789012345",
+		MessageId: 1,
 		Version:   1,
 	}
-	expected := []byte("{\"action\":\"hello.helloworld\",\"envelope\":\"json\",\"request_id\":\"0123456789012345\",\"version\":1}\n")
+	expected := []byte("{\"action\":\"hello.helloworld\",\"envelope\":\"json\",\"request_id\":1,\"version\":1}\n")
 
 	buf := new(bytes.Buffer)
 	packetHeader.Write(buf)
@@ -54,7 +54,7 @@ func TestDecodePacketHeader(t *testing.T) {
 }
 
 func TestDecodePacketHeaderReply(t *testing.T) {
-	pkt_hdr_bytes := []byte("{\"type\":\"reply\",\"request_id\":\"XVlBzgbaiCMRAjWwhT\"}")
+	pkt_hdr_bytes := []byte("{\"type\":\"reply\",\"request_id\":1}")
 	buf := bytes.NewReader(pkt_hdr_bytes)
 	decoder := json.NewDecoder(buf)
 

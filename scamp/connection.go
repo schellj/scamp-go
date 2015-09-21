@@ -1,12 +1,13 @@
 package scamp
 
-import "errors"
 import "crypto/tls"
 import "fmt"
 import "sync"
+import "bufio"
 
 type Connection struct {
 	conn        *tls.Conn
+	reader      *bufio.Reader
 	Fingerprint string
 	msgCnt      msgNoType
 
@@ -43,6 +44,7 @@ func Connect(connspec string) (conn *Connection, err error) {
 func newConnection(tlsConn *tls.Conn, sessChan (chan *Session)) (conn *Connection, err error) {
 	conn = new(Connection)
 	conn.conn = tlsConn
+	conn.reader = bufio.NewReader(conn.conn)
 
 	conn.sessDemuxMutex = new(sync.Mutex)
 	conn.sessDemux = make(map[msgNoType](*Session))
@@ -64,13 +66,12 @@ func (conn *Connection) packetRouter(ignoreUnknownSessions bool, isService bool)
 	var sess *Session
 
 	for {
-		pkt, err = ReadPacket(conn.conn)
+		pkt, err = ReadPacket(conn.reader)
 		Trace.Printf("received packet: %s", pkt)
 		if err != nil {
 			// TODO: what are the issues with stopping a packet router here?
 			// The socket has probably closed
-			// Error.Printf("err reading packet: `%s`. (EOF is normal). Returning.", err)
-			return
+			return fmt.Errorf("err reading packet: `%s`. (EOF is normal). Returning.", err)
 		}
 
 		conn.sessDemuxMutex.Lock()
@@ -85,8 +86,7 @@ func (conn *Connection) packetRouter(ignoreUnknownSessions bool, isService bool)
 		}
 
 		if sess == nil && ignoreUnknownSessions {
-			err = errors.New(fmt.Sprintf("packet (msgNo: %d) has no corresponding session", pkt.msgNo))
-			continue
+			return fmt.Errorf("packet (msgNo: %d) has no corresponding session. killing connection.", pkt.msgNo)
 		}
 
 		if pkt.packetType == HEADER {
