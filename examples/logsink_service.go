@@ -17,7 +17,7 @@ func main() {
       scamp.Trace.Printf("Logging.info was called without data")
     }
 
-    err = sess.SendReply(scamp.EOFResponse{})
+    err = sess.SendReply(scamp.Reply{Blob: []byte("")})
     if err != nil {
       scamp.Error.Printf("error while sending reply: `%s`. continuing.", err)
       return
