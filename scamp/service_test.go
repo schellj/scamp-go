@@ -27,7 +27,7 @@ func spawnTestService(hasStopped (chan bool)) (service *Service) {
 			Trace.Printf("helloworld was called without data")
 		}
 
-		err = sess.SendReply(Reply{
+		err = sess.Send(Reply{
 			Blob: []byte("sup"),
 		})
 		if err != nil {
@@ -52,9 +52,9 @@ func connectToTestService(t *testing.T) {
 		Error.Fatalf("could not connect! `%s`\n", err)
 	}
 
-	var sess *Session
+	sess := conn.NewSession()
 
-	sess, err = conn.Send(&Request{
+	err = conn.Send(&Request{
 		Action:         "helloworld.hello",
 		EnvelopeFormat: ENVELOPE_JSON,
 		Version:        1,

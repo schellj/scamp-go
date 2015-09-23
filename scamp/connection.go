@@ -50,6 +50,8 @@ func newConnection(tlsConn *tls.Conn, sessChan (chan *Session)) (conn *Connectio
 	conn.sessDemux = make(map[msgNoType](*Session))
 	conn.newSessions = sessChan
 
+	conn.msgCnt = 0
+
 	// TODO get the end entity certificate instead
 	peerCerts := conn.conn.ConnectionState().PeerCertificates
 	if len(peerCerts) == 1 {
@@ -67,7 +69,6 @@ func (conn *Connection) packetRouter(ignoreUnknownSessions bool, isService bool)
 
 	for {
 		pkt, err = ReadPacket(conn.reader)
-		Trace.Printf("received packet: %s", pkt)
 		if err != nil {
 			// TODO: what are the issues with stopping a packet router here?
 			// The socket has probably closed
@@ -90,19 +91,14 @@ func (conn *Connection) packetRouter(ignoreUnknownSessions bool, isService bool)
 		}
 
 		if pkt.packetType == HEADER {
-			Trace.Printf("(incoming SESS %d) HEADER packet\n", pkt.msgNo)
 			sess.Append(pkt)
 		} else if pkt.packetType == DATA {
-			Trace.Printf("(incoming SESS %d) DATA packet (%d bytes)\n", pkt.msgNo, len(pkt.body))
 			sess.Append(pkt)
 		} else if pkt.packetType == EOF {
-			Trace.Printf("(incoming SESS %d) EOF packet\n", pkt.msgNo)
 			// TODO: need polymorphism on Req/Reply so they can be delivered
 			if isService {
-				Trace.Printf("session delivering request")
 				sess.DeliverRequest()
 			} else {
-				Trace.Printf("session delivering reply")
 				go sess.DeliverReply()
 			}
 		} else if pkt.packetType == TXERR {
@@ -113,48 +109,39 @@ func (conn *Connection) packetRouter(ignoreUnknownSessions bool, isService bool)
 			} else {
 				go sess.DeliverReply()
 			}
+		} else if (pkt.packetType == ACK) {
+			// TODO we should use this to cancel a timer on the Message
 		} else {
-			Trace.Printf("(incoming SESS %d) unknown packet type %d\n", pkt.packetType)
+			Error.Printf("(incoming SESS %d) unknown packet type %d\n", pkt.packetType)
 		}
 	}
 
 	return
 }
 
-func (conn *Connection) NewSession() (sess *Session, err error) {
-	sess = new(Session)
-
-	sess.conn = conn
-
-	sess.msgNo = conn.msgCnt
-	conn.msgCnt = conn.msgCnt + 1
-
-	sess.replyChan = make(chan Message, 1)
-
-	conn.sessDemux[sess.msgNo] = sess
+func (conn *Connection) NewSession() (sess *Session) {
+	conn.sessDemuxMutex.Lock()
+	sess = newSession(conn.msgCnt, conn)
+	conn.sessDemux[conn.msgCnt] = sess
+	conn.sessDemuxMutex.Unlock()
 
 	return
 }
 
-func (conn *Connection) Send(msg Message) (sess *Session, err error) {
+func (conn *Connection) Send(msg Message) (err error) {
 	// The lock must be held until the first packet is sent. 
 	// With the current structure it will hold the lock until all
 	// packets for req are sent
 	conn.sessDemuxMutex.Lock()
-	sess,err = conn.NewSession()
-	if err != nil {
-		return
-	}
+	for _,pkt := range msg.toPackets() {
+		pkt.msgNo = conn.msgCnt
 
-	err = sess.SendRequest(msg)
-	if req,ok := msg.(*Request); ok {
-		Trace.Printf("sending request (%d bytes)", len(req.Blob) )
-	} else {
-		Trace.Printf("sending unknown value on connection")
+		err = pkt.Write(conn.conn)
+		if err != nil {
+			return
+		}
 	}
-	if err != nil {
-		return
-	}
+	conn.msgCnt = conn.msgCnt + 1
 	conn.sessDemuxMutex.Unlock()
 
 	return

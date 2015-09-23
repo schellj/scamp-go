@@ -10,6 +10,8 @@ import "bytes"
   ENVELOPE FORMAT
 ******/
 
+type reqIdType int
+
 type envelopeFormat int
 
 const (
@@ -24,10 +26,10 @@ type PacketHeader struct {
 	Envelope envelopeFormat `json:"envelope"` // request
 	// error  string        `json:"error"`            // reply
 	// error_code []byte    `json:"error_code"`   // reply
-	MessageId msgNoType         `json:"request_id"` // both
+	RequestId reqIdType     `json:"request_id"` // both
 	// station []byte       `json:"station"`         // request
 	// ticket []byte        `json:"ticket"`           // request
-	messageType messageType `json:"type"`    // both
+	MessageType messageType `json:"type"`    // both
 	Version     int64       `json:"version"` // request
 }
 

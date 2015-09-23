@@ -89,6 +89,7 @@ Features
  - [ ] Chunk body to 128k
  - [ ] Reconnect logic (`scamp.Connection` connects with exponential backoff)
   - [ ] What to do if connection goes down during `Session` exchange?
+  - [ ] Time out connections
 
 Important Restructuring
 

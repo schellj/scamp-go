@@ -113,7 +113,7 @@ func NewServiceProxy(classRecordsRaw []byte, certRaw []byte, sigRaw []byte) (pro
 			var actionsRawMessages []json.RawMessage
 			err = json.Unmarshal(rawActionSpec, &actionsRawMessages)
 			if err != nil {
-				Trace.Printf("could not parse: %s", rawActionSpec)
+				Error.Printf("could not parse: %s", rawActionSpec)
 				return nil, err
 			} else if len(actionsRawMessages) != 2 && len(actionsRawMessages) != 3 {
 				err = errors.New( fmt.Sprintf("expected action spec to have 2 or 3 entries. got `%s` (%d)", actionsRawMessages, len(actionsRawMessages) ) )

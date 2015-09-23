@@ -1,60 +1,47 @@
 package scamp
 
 import "bytes"
-import "errors"
 
 type Session struct {
-	msgNo msgNoType
-	pktNo int64
 	conn *Connection
+	msgNo msgNoType
+	requestId reqIdType
 	packets []Packet
 	replyChan (chan Message)
 	requestChan (chan Request)
 }
 
-func newSession(newMsgNo msgNoType, conn *Connection) (sess *Session) {
+func newSession(msgNo msgNoType, conn *Connection) (sess *Session) {
 	sess = new(Session)
-	sess.msgNo = newMsgNo
 	sess.conn = conn
 	sess.replyChan = make(chan Message)
 	sess.requestChan = make(chan Request)
+	sess.msgNo = msgNo
 	return
 }
 
-func (sess *Session) SendRequest(req Message) (err error) {
-	pkts := req.toPackets(sess.msgNo)
-	for _, pkt := range pkts {
-		// Trace.Printf("sending msgNo %d", pkt.msgNo)
-		err = pkt.Write(sess.conn.conn)
-		if err != nil {
-			return
-		}
+func (sess *Session) Send(msg Message) (err error) {
+	switch t := (msg).(type) {
+	case Reply:
+		t.setRequestId(sess.requestId)
+		err = sess.conn.Send(&t)
+	default:
+		panic("should only be sending Replies...")
 	}
 
-	return
-}
-
-func (sess *Session) SendReply(rep Message) (err error) {
-	pkts := rep.toPackets(sess.msgNo)
-	for _, pkt := range pkts {
-		Trace.Printf("SENDING (%d, %s)", pkt.msgNo, pkt.packetType)
-		err = pkt.Write(sess.conn.conn)
-		if err != nil {
-			return
-		}
-	}
 
 	return
 }
 
 func (sess *Session) RecvReply() (rep Reply, err error) {
-	var ok bool
 	msg := <-sess.replyChan
-	if rep,ok = msg.(Reply); !ok {
-		err = errors.New("did not receive Reply in RecvReply")
+
+	switch t := (msg).(type) {
+	case Reply:
+		return t, nil
+	default:
 		return
 	}
-	return
 }
 
 func (sess *Session) RecvChan() (chan Message) {
@@ -98,12 +85,13 @@ func (sess *Session) DeliverRequest() {
 	req := Request {
 		Action: hdrPkt.Action,
 		Blob: bodyBlob,
+		RequestId: hdrPkt.RequestId,
 	}
 	sess.requestChan <- req
 }
 
 func (sess *Session) CloseReply() {
-	sess.SendReply(&EOFResponse{})
+	sess.Send(&EOFResponse{})
 }
 
 func (sess *Session) Free(){

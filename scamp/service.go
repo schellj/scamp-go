@@ -53,7 +53,7 @@ func (serv *Service)listen() (err error) {
 		Certificates: []tls.Certificate{ cert },
 	}
 
-	Trace.Printf("starting service on %s", serv.serviceSpec)
+	Info.Printf("starting service on %s", serv.serviceSpec)
 	serv.listener,err = tls.Listen("tcp", serv.serviceSpec, config)
 	if err != nil {
 		return err
@@ -114,12 +114,10 @@ func (serv *Service)RouteSessions() (err error){
 		go func(){
 			var action ServiceAction
 
-			Trace.Printf("waiting for request to be received")
 			request,err := newSess.RecvRequest()
 			if err != nil {
 				return
 			}
-			Trace.Printf("request came in for action `%s`", request.Action)
 
 			action = serv.actions[request.Action]
 			if action != nil {

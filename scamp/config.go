@@ -35,7 +35,6 @@ func NewConfig() (conf *Config) {
 }
 
 func (conf *Config) Load() (err error) {
-	Trace.Printf("reading config")
 	file,err := os.Open(defaultConfigPath)
 	if err != nil {
 		err = fmt.Errorf("no such file %s", defaultConfigPath)

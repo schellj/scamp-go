@@ -53,13 +53,11 @@ func (cache *ServiceCache) LoadAnnounceCache(s *bufio.Scanner) (err error) {
 		var didScan bool
 		for {
 			didScan = s.Scan()
-			// Trace.Printf("slop: %s", s.Bytes())
 			if bytes.Equal(s.Bytes(), sep) || !didScan {
 				break
 			}
 		}
 		if !didScan {
-			// Trace.Printf("break out")
 			break;
 		}
 		s.Scan() // consume the separator
@@ -70,7 +68,6 @@ func (cache *ServiceCache) LoadAnnounceCache(s *bufio.Scanner) (err error) {
 		}
 		classRecordsRaw = make([]byte, len(s.Bytes()))
 		copy(classRecordsRaw, s.Bytes())
-		// Trace.Printf("classRecordsRaw: %s", s.Bytes())
 		s.Scan() // consume the classRecords
 
 		if len(s.Bytes()) != 0 {
@@ -80,7 +77,6 @@ func (cache *ServiceCache) LoadAnnounceCache(s *bufio.Scanner) (err error) {
 
 		var certBuffer bytes.Buffer
 		for s.Scan() {
-			// Trace.Printf("certBuf: %s", s.Bytes())
 			if len(s.Bytes()) == 0 {
 				break
 			}
@@ -91,7 +87,6 @@ func (cache *ServiceCache) LoadAnnounceCache(s *bufio.Scanner) (err error) {
 
 		var sigBuffer bytes.Buffer
 		for s.Scan() {
-			// Trace.Printf("sigBuf: %s", s.Bytes())
 			if len(s.Bytes()) == 0 {
 				break
 			}

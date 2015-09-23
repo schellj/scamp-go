@@ -6,6 +6,7 @@ import "bytes"
 import "bufio"
 
 type Reply struct {
+	requestId reqIdType
 	Blob []byte
 }
 
@@ -29,46 +30,40 @@ func (rep *Reply) Read(reader *bufio.Reader) (err error) {
 
 	var mergeBuffer bytes.Buffer
 
-	Info.Printf("Neat. Read %d packets. Merging.\n", len(packets))
-	for i, pkt := range packets {
-		Info.Printf( "Packet[%d] (%d bytes): `%s`\n", i, pkt.body, len(pkt.body) )
+	for _, pkt := range packets {
 		mergeBuffer.Write(pkt.body)
 	}
 
 	rep.Blob = mergeBuffer.Bytes()
-	Info.Printf( "Final buffer size: %d\n", len(rep.Blob))
-
 
 	return
 }
 
-func (rep *Reply) ToPackets(msgNo msgNoType) []Packet {
+func (rep *Reply) setRequestId(reqId reqIdType) {
+	rep.requestId = reqId
+}
+
+func (rep Reply) toPackets() []Packet {
 	headerHeader := PacketHeader{
-		messageType: reply,
+		MessageType: reply,
+		RequestId: rep.requestId,
 	}
+
 	headerPacket := Packet{
 		packetHeader: headerHeader,
 		packetType:   HEADER,
-		msgNo:  msgNo,
 	}
 
 	dataPacket := Packet{
 		packetType: DATA,
-		msgNo:  msgNo,
 		body: rep.Blob,
 	}
 
 	eofPacket := Packet{
 		packetType:  EOF,
-		msgNo: msgNo,
 	}
 
 	return []Packet{headerPacket, dataPacket, eofPacket}
-}
-
-// TODO just rename ToPackets and get rid of this definition
-func (rep Reply) toPackets(msgNo msgNoType) []Packet {
-	return (&rep).ToPackets(msgNo)
 }
 
 func (rep *Reply) Body() (body []byte) {
