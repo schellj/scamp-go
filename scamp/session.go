@@ -1,6 +1,7 @@
 package scamp
 
 import "bytes"
+import "fmt"
 
 type Session struct {
 	conn *Connection
@@ -74,6 +75,10 @@ func (sess *Session) DeliverReply() {
 
 func (sess *Session) DeliverRequest() {
 	var bodyBlob []byte
+
+	if len(sess.packets) == 0 {
+		panic( fmt.Sprintf( "trying to deliver without packets. sess: %s", sess) )
+	}
 
 	hdrPkt := sess.packets[0].packetHeader
 
