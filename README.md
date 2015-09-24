@@ -93,6 +93,7 @@ Features
  - [x] ACK packets
    - [ ] Modify when sent based on message token
  - [ ] Nuke `session` code and move to `message` with bidirectional packet streams
+ - [ ] Audit how connections are freed from demux lookup structure
 
 Important Restructuring
 

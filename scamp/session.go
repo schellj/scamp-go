@@ -100,7 +100,3 @@ func (sess *Session) DeliverRequest() {
 func (sess *Session) CloseReply() {
 	sess.Send(&EOFResponse{})
 }
-
-func (sess *Session) Free(){
-	sess.conn.Free(sess)
-}

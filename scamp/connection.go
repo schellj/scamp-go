@@ -104,11 +104,11 @@ func (conn *Connection) packetRouter(ignoreUnknownSessions bool, isService bool)
 				} else {
 					Error.Printf("sess msgno: %d had no packets on EOF. Freeing and moving on.", pkt.msgNo)
 				}
-				conn.Free(sess)
+				conn.Free(pkt.msgNo)
 			} else {
 				go func(){
 					sess.DeliverReply()
-					conn.Free(sess)
+					conn.Free(pkt.msgNo)
 				}()
 			}
 		} else if pkt.packetType == TXERR {
@@ -116,11 +116,11 @@ func (conn *Connection) packetRouter(ignoreUnknownSessions bool, isService bool)
 			// TODO: need polymorphism on Req/Reply so they can be delivered
 			if isService {
 				sess.DeliverRequest()
-				conn.Free(sess)
+				conn.Free(pkt.msgNo)
 			} else {
 				go func(){
 					sess.DeliverReply()
-					conn.Free(sess)
+					conn.Free(pkt.msgNo)
 				}()
 			}
 		} else if (pkt.packetType == ACK) {
@@ -173,9 +173,8 @@ func (conn *Connection) Recv() (sess *Session) {
 	return
 }
 
-func (conn *Connection) Free(sess *Session) {
+func (conn *Connection) Free(msgNo msgNoType) {
 	conn.sessDemuxMutex.Lock()
-	msgNo := sess.packets[0].msgNo
 	delete(conn.sessDemux, msgNo)
 	conn.sessDemuxMutex.Unlock()
 }

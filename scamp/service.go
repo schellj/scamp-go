@@ -122,7 +122,6 @@ func (serv *Service)RouteSessions() (err error){
 			action = serv.actions[request.Action]
 			if action != nil {
 				action(request, newSess)
-				newSess.Free()
 			} else {
 				Error.Printf("unknown action `%s`", request.Action)
 				// TODO: need to respond with 'unknown action'
