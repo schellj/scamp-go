@@ -16,6 +16,7 @@ func newSession(msgNo msgNoType, conn *Connection) (sess *Session) {
 	sess.conn = conn
 	sess.replyChan = make(chan Message)
 	sess.requestChan = make(chan Request)
+	sess.requestId = 1
 	sess.msgNo = msgNo
 	return
 }
@@ -24,6 +25,7 @@ func (sess *Session) Send(msg Message) (err error) {
 	switch t := (msg).(type) {
 	case Reply:
 		t.setRequestId(sess.requestId)
+		sess.requestId = sess.requestId + 1
 		err = sess.conn.Send(&t)
 	default:
 		panic("should only be sending Replies...")
