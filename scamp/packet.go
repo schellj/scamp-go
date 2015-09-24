@@ -87,10 +87,6 @@ func ReadPacket(reader *bufio.Reader) (pkt Packet, err error) {
 		}
 	}
 
-	if pkt.packetType == ACK {
-		Trace.Printf("received ack. msgNo: `%s`, body: `%s`", pkt.msgNo, pkt.body)
-	}
-
 	return pkt, nil
 }
 

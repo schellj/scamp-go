@@ -94,6 +94,7 @@ Features
    - [ ] Modify when sent based on message token
  - [ ] Nuke `session` code and move to `message` with bidirectional packet streams
  - [ ] Audit how connections are freed from demux lookup structure
+ - [ ] RequestId should be generated on Message allocation, not Message send
 
 Important Restructuring
 

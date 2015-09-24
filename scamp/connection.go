@@ -141,10 +141,11 @@ func (conn *Connection) Send(msg Message) (err error) {
 	for _,pkt := range msg.toPackets() {
 		pkt.msgNo = conn.msgCnt
 
+		// TODO: RequestId should be allocated on Reply allocation, not Reply send
 		if pkt.packetType == HEADER {
-			Trace.Printf("HEADER %d, reqId: %d", pkt.msgNo, pkt.packetHeader.RequestId)
+			// Trace.Printf("HEADER %d, reqId: %d", pkt.msgNo, pkt.packetHeader.RequestId)
 		} else if pkt.packetType == DATA {
-			Trace.Printf("DATA: %d", pkt.msgNo)
+			// Trace.Printf("DATA: %d", pkt.msgNo)
 		} else if pkt.packetType == EOF {
 			conn.msgCnt = conn.msgCnt + 1
 		}
