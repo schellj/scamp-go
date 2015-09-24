@@ -24,7 +24,7 @@ func newSession(msgNo msgNoType, conn *Connection) (sess *Session) {
 func (sess *Session) Send(msg Message) (err error) {
 	switch t := (msg).(type) {
 	case Reply:
-		t.setRequestId(sess.requestId)
+		(&t).setRequestId(sess.requestId)
 		sess.requestId = sess.requestId + 1
 		err = sess.conn.Send(&t)
 	default:
