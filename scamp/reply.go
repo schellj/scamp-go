@@ -1,42 +1,8 @@
 package scamp
 
-import "errors"
-import "fmt"
-import "bytes"
-import "bufio"
-
 type Reply struct {
 	requestId reqIdType
 	Blob []byte
-}
-
-func (rep *Reply) Read(reader *bufio.Reader) (err error) {
-	var packet Packet;
-	var packets []Packet;
-
-	for {
-		packet, err = ReadPacket(reader)
-		if err != nil {
-			err = errors.New(fmt.Sprintf("err reading packet: `%s`", err))
-			return
-		}
-		if packet.packetType == EOF || packet.packetType == TXERR {
-			break
-		} else if packet.packetType != DATA {
-			continue
-		}
-		packets = append(packets, packet)
-	}
-
-	var mergeBuffer bytes.Buffer
-
-	for _, pkt := range packets {
-		mergeBuffer.Write(pkt.body)
-	}
-
-	rep.Blob = mergeBuffer.Bytes()
-
-	return
 }
 
 func (rep *Reply) setRequestId(reqId reqIdType) {

@@ -78,9 +78,11 @@ func (conn *Connection) packetRouter(ignoreUnknownSessions bool, isService bool)
 		conn.sessDemuxMutex.Lock()
 		sess = conn.sessDemux[pkt.msgNo]
 		if sess == nil && !ignoreUnknownSessions {
-			sess = newSession(pkt.msgNo, conn)
+			// TODO only have useful packetHeader on HEADER packets... should check that huh?
+			sess = newSession(pkt.packetHeader.RequestId, conn)
 			conn.sessDemux[pkt.msgNo] = sess
 			conn.sessDemuxMutex.Unlock()
+
 			conn.newSessions <- sess // Could block and holding the DemuxMutex would block other tasks (namely: sending requests)
 		} else {
 			conn.sessDemuxMutex.Unlock()
@@ -119,15 +121,6 @@ func (conn *Connection) packetRouter(ignoreUnknownSessions bool, isService bool)
 	return
 }
 
-func (conn *Connection) NewSession() (sess *Session) {
-	conn.sessDemuxMutex.Lock()
-	sess = newSession(conn.msgCnt, conn)
-	conn.sessDemux[conn.msgCnt] = sess
-	conn.sessDemuxMutex.Unlock()
-
-	return
-}
-
 func (conn *Connection) Send(msg Message) (err error) {
 	// The lock must be held until the first packet is sent. 
 	// With the current structure it will hold the lock until all
@@ -136,12 +129,19 @@ func (conn *Connection) Send(msg Message) (err error) {
 	for _,pkt := range msg.toPackets() {
 		pkt.msgNo = conn.msgCnt
 
+		if pkt.packetType == HEADER {
+			Trace.Printf("HEADER %d, reqId: %d", pkt.msgNo, pkt.packetHeader.RequestId)
+		} else if pkt.packetType == DATA {
+			Trace.Printf("DATA: %d", pkt.msgNo)
+		} else if pkt.packetType == EOF {
+			conn.msgCnt = conn.msgCnt + 1
+		}
+
 		err = pkt.Write(conn.conn)
 		if err != nil {
 			return
 		}
 	}
-	conn.msgCnt = conn.msgCnt + 1
 	conn.sessDemuxMutex.Unlock()
 
 	return

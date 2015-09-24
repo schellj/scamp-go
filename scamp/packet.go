@@ -16,6 +16,7 @@ type Packet struct {
 	msgNo  msgNoType
 	packetHeader PacketHeader
 	body         []byte
+	ackRequestId reqIdType
 }
 
 type PacketType int
@@ -66,29 +67,17 @@ func ReadPacket(reader *bufio.Reader) (pkt Packet, err error) {
 		return Packet{}, errors.New(fmt.Sprintf("unknown packet type `%s`", pktTypeBytes))
 	}
 
-	bufRdr := bufio.NewReader(reader)
-
 	// Use the msg len to consume the rest of the connection
-	bodyBuf := make([]byte, bodyBytesNeeded)
-	bytesRead := 0
-	for {
-		bytesReadNow, err := bufRdr.Read(bodyBuf[bytesRead:bodyBytesNeeded])
-
-		if err != nil {
-			return Packet{}, err
-		}
-		bytesRead = bytesRead + bytesReadNow
-
-		if bodyBytesNeeded-bytesRead == 0 {
-			break
-		}
+	pkt.body = make([]byte, bodyBytesNeeded)
+	bytesRead, err := io.ReadFull(reader, pkt.body)
+	if err != nil {
+		return Packet{}, fmt.Errorf("failed to read body")
 	}
-	pkt.body = bodyBuf
 
 	theRest := make([]byte, the_rest_size)
-	bytesRead, err = bufRdr.Read(theRest)
+	bytesRead, err = io.ReadFull(reader,theRest)
 	if bytesRead != the_rest_size || !bytes.Equal(theRest, []byte("END\r\n")) {
-		return Packet{}, errors.New("packet was missing trailing bytes")
+		return Packet{}, fmt.Errorf("packet was missing trailing bytes (read: %d/`%s`)", bytesRead, theRest)
 	}
 
 	if pkt.packetType == HEADER {
@@ -96,6 +85,10 @@ func ReadPacket(reader *bufio.Reader) (pkt Packet, err error) {
 		if err != nil {
 			return Packet{}, err
 		}
+	}
+
+	if pkt.packetType == ACK {
+		Trace.Printf("received ack. msgNo: `%s`, body: `%s`", pkt.msgNo, pkt.body)
 	}
 
 	return pkt, nil
@@ -133,6 +126,11 @@ func (pkt *Packet) Write(writer io.Writer) (err error) {
 	// carry nil values...
 	if pkt.packetType == HEADER {
 		err = pkt.packetHeader.Write(bodyBuf)
+		if err != nil {
+			return
+		}
+	} else if pkt.packetType == ACK {
+		_, err = fmt.Fprintf(bodyBuf, "%d", pkt.ackRequestId)
 		if err != nil {
 			return
 		}

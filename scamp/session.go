@@ -4,20 +4,18 @@ import "bytes"
 
 type Session struct {
 	conn *Connection
-	msgNo msgNoType
 	requestId reqIdType
 	packets []Packet
 	replyChan (chan Message)
 	requestChan (chan Request)
 }
 
-func newSession(msgNo msgNoType, conn *Connection) (sess *Session) {
+func newSession(requestId reqIdType, conn *Connection) (sess *Session) {
 	sess = new(Session)
 	sess.conn = conn
 	sess.replyChan = make(chan Message)
 	sess.requestChan = make(chan Request)
-	sess.requestId = 1
-	sess.msgNo = msgNo
+	sess.requestId = requestId
 	return
 }
 
@@ -90,6 +88,8 @@ func (sess *Session) DeliverRequest() {
 		RequestId: hdrPkt.RequestId,
 	}
 	sess.requestChan <- req
+
+	sess.conn.Send(ACKResponse{ requestId: hdrPkt.RequestId, })
 }
 
 func (sess *Session) CloseReply() {

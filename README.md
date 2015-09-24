@@ -90,7 +90,9 @@ Features
  - [ ] Reconnect logic (`scamp.Connection` connects with exponential backoff)
  - [ ] What to do if connection goes down during `Session` exchange?
  - [ ] Time out connections
- - [ ] ACK packets
+ - [x] ACK packets
+   - [ ] Modify when sent based on message token
+ - [ ] Nuke `session` code and move to `message` with bidirectional packet streams
 
 Important Restructuring
 

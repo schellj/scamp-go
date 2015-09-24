@@ -22,7 +22,6 @@ func main() {
       scamp.Error.Printf("error while sending reply: `%s`. continuing.", err)
       return
     }
-    scamp.Trace.Printf("successfully responded to Logging.info")
   })
 
   service.Run()
