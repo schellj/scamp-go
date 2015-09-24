@@ -99,17 +99,29 @@ func (conn *Connection) packetRouter(ignoreUnknownSessions bool, isService bool)
 		} else if pkt.packetType == EOF {
 			// TODO: need polymorphism on Req/Reply so they can be delivered
 			if isService {
-				sess.DeliverRequest()
+				if len(sess.packets) > 0 {
+					sess.DeliverRequest()
+				} else {
+					Error.Printf("sess msgno: %d had no packets on EOF. Freeing and moving on.", pkt.msgNo)
+				}
+				conn.Free(sess)
 			} else {
-				go sess.DeliverReply()
+				go func(){
+					sess.DeliverReply()
+					conn.Free(sess)
+				}()
 			}
 		} else if pkt.packetType == TXERR {
 			Trace.Printf("(incoming SESS %d) TXERR\n`%s`", pkt.msgNo, pkt.body)
 			// TODO: need polymorphism on Req/Reply so they can be delivered
 			if isService {
 				sess.DeliverRequest()
+				conn.Free(sess)
 			} else {
-				go sess.DeliverReply()
+				go func(){
+					sess.DeliverReply()
+					conn.Free(sess)
+				}()
 			}
 		} else if (pkt.packetType == ACK) {
 			// TODO we should use this to cancel a timer on the Message
