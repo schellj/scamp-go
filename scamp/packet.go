@@ -68,10 +68,14 @@ func ReadPacket(reader *bufio.Reader) (pkt Packet, err error) {
 	}
 
 	// Use the msg len to consume the rest of the connection
-	pkt.body = make([]byte, bodyBytesNeeded)
-	bytesRead, err := io.ReadFull(reader, pkt.body)
+	bodyBuf := make([]byte, bodyBytesNeeded)
+	bytesRead, err := io.ReadFull(reader, bodyBuf)
 	if err != nil {
 		return Packet{}, fmt.Errorf("failed to read body")
+	}
+
+	if pkt.packetType == DATA {
+		pkt.body = bodyBuf
 	}
 
 	theRest := make([]byte, the_rest_size)
