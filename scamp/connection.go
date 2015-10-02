@@ -138,7 +138,12 @@ func (conn *Connection) Send(msg Message) (err error) {
 	// With the current structure it will hold the lock until all
 	// packets for req are sent
 	conn.sessDemuxMutex.Lock()
-	for _,pkt := range msg.toPackets() {
+
+	packets := msg.toPackets()
+	// sess = newSession(packets[0].packetHeader.RequestId, conn)
+	// conn.sessDemux[conn.msgCnt] = sess
+
+	for _,pkt := range packets {
 		pkt.msgNo = conn.msgCnt
 
 		// TODO: RequestId should be allocated on Reply allocation, not Reply send
@@ -155,6 +160,7 @@ func (conn *Connection) Send(msg Message) (err error) {
 			return
 		}
 	}
+
 	conn.sessDemuxMutex.Unlock()
 
 	return

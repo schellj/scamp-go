@@ -77,7 +77,7 @@ func ReadPacket(reader *bufio.Reader) (pkt Packet, err error) {
 	theRest := make([]byte, the_rest_size)
 	bytesRead, err = io.ReadFull(reader,theRest)
 	if bytesRead != the_rest_size || !bytes.Equal(theRest, []byte("END\r\n")) {
-		return Packet{}, fmt.Errorf("packet was missing trailing bytes (read: %d/`%s`)", bytesRead, theRest)
+		return Packet{}, fmt.Errorf("packet was missing trailing bytes")
 	}
 
 	if pkt.packetType == HEADER {

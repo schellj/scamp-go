@@ -5,7 +5,7 @@ import "bytes"
 import "bufio"
 import "fmt"
 
-func TestReadPacketOK(t *testing.T) {
+func TestReadHeaderPacketOK(t *testing.T) {
 	byteBuf := []byte("HEADER 1 46\r\n{\"action\":\"foo\",\"version\":1,\"envelope\":\"json\"}END\r\n")
 	byteReader := bufio.NewReader(bytes.NewReader(byteBuf))
 
@@ -18,8 +18,8 @@ func TestReadPacketOK(t *testing.T) {
 		t.Errorf("packetType was not parsed correctly. packet.packetType: `%d`", packet.packetType)
 		t.FailNow()
 	}
-	if !bytes.Equal(packet.body, []byte(`{"action":"foo","version":1,"envelope":"json"}`)) {
-		t.Errorf("body was not parsed correctly. packet.body: `%s`", packet.body)
+	if len(packet.body) != 0 {
+		t.Errorf("header packet should not provide body. packet.body: `%s`", packet.body)
 		t.FailNow()
 	}
 
@@ -39,6 +39,32 @@ func TestReadPacketOK(t *testing.T) {
 	}
 	if header.Envelope != ENVELOPE_JSON {
 		t.Errorf("expected header.envelope to be ENVELOPE_JSON (%d) but got %d", ENVELOPE_JSON, header.Envelope)
+		t.FailNow()
+	}
+}
+
+func TestReadDataPacketOK(t *testing.T) {
+	byteBuf := []byte("DATA 1 46\r\n{\"action\":\"foo\",\"version\":1,\"envelope\":\"json\"}END\r\n")
+	byteReader := bufio.NewReader(bytes.NewReader(byteBuf))
+
+	packet, err := ReadPacket(byteReader)
+	if err != nil {
+		t.Errorf("got err `%s`", err)
+		t.FailNow()
+	}
+	if packet.packetType != DATA {
+		t.Errorf("packetType was not parsed correctly. packet.packetType: `%d`", packet.packetType)
+		t.FailNow()
+	}
+	expectedBody := []byte(`{"action":"foo","version":1,"envelope":"json"}`)
+	if !bytes.Equal(packet.body, expectedBody) {
+		t.Errorf("bad packet body parse. expected `%s`, got: `%s`", expectedBody, packet.body)
+		t.FailNow()
+	}
+
+	emptyHeader := PacketHeader{}
+	if packet.packetHeader != emptyHeader {
+		t.Errorf("packet header should not be set")
 		t.FailNow()
 	}
 }
@@ -94,8 +120,9 @@ func TestFailTooFewBodyBytes(t *testing.T) {
 		t.Errorf("expected non-nil err", err)
 		t.FailNow()
 	}
-	if fmt.Sprintf("%s", err) != "EOF" {
-		t.Errorf("expected `%s`, got `%s`", "EOF", err)
+	expected := "failed to read body"
+	if fmt.Sprintf("%s", err) != expected {
+		t.Errorf("expected `%s`, got `%s`", expected, err)
 		t.FailNow()
 	}
 }
@@ -104,8 +131,9 @@ func TestFailTooManyBodyBytes(t *testing.T) {
 	byteReader := bufio.NewReader(bytes.NewReader([]byte("HEADER 1 46\r\n{\"\":\"foo\",\"version\":1,\"\":\"jsonasdfasdfasdfasdf\"}END\r\n")))
 
 	_, err := ReadPacket(byteReader)
-	if fmt.Sprintf("%s", err) != "packet was missing trailing bytes" {
-		t.Errorf("expected `%s`, got `%s`", "packet was missing trailing bytes", err)
+	expected := "packet was missing trailing bytes"
+	if fmt.Sprintf("%s", err) != expected {
+		t.Errorf("expected `%s`, got `%s`", "packet was missing trailing bytes", expected, err)
 		t.FailNow()
 	}
 }
