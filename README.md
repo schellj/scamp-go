@@ -81,15 +81,22 @@ Features
  - [ ] Verify TLS certificate with `/etc/authorized_services`
  - [x] Manage connection msgno
  - [x] Parse service cache
+ - [ ] Choose service listen port randomly from within configured range
+ - [ ] Announce service
+   - [ ] Copy Service details to ServiceProxy (which can serialize)
+   - [ ] Write ServiceProxy to UDP multicast
+   - [ ] Investigate merging Service/ServiceProxy
  - [ ] Route RPC based on service cache
  - [x] Use go logging library
- - [] AuthZ service support
+ - [ ] AuthZ service support
    - [x] Ticket parsing
    - [x] Ticket verification
+   - [ ] Put it to use?
  - [ ] Chunk body to 128k
  - [ ] Reconnect logic (`scamp.Connection` connects with exponential backoff)
  - [ ] What to do if connection goes down during `Session` exchange?
  - [ ] Time out connections
+   - [ ] Investigate using http://devdocs.io/go/crypto/tls/index#ClientSessionCache
  - [x] ACK packets
    - [ ] Modify when sent based on message token
  - [ ] Nuke `session` code and move to `message` with bidirectional packet streams
