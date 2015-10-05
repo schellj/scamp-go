@@ -80,7 +80,7 @@ func TestServiceProxySerialize(t *testing.T) {
 		ident: "bgapi/proc01-HP4m32uuoVLTNXcLrKc3vd75",
 		sector: "main",
 		weight: 1,
-		announceInterval: 5000,
+		announceInterval: announceInterval,
 		connspec: "beepish+tls://10.8.1.158:30359",
 		protocols: []string{"json"},
     timestamp: 1440001142628,
