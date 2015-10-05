@@ -3,6 +3,8 @@ package scamp
 import "testing"
 import "time"
 import "bytes"
+import "encoding/json"
+import "net"
 
 // TODO: fix Session API (aka, simplify design by dropping it)
 // func TestServiceHandlesRequest(t *testing.T) {
@@ -80,4 +82,29 @@ func connectToTestService(t *testing.T) {
 	}
 
 	return
+}
+
+func TestServiceToProxyMarshal(t *testing.T) {
+	s := Service {
+		serviceSpec: "123",
+		humanName: "a-cool-name",
+		name: "a-cool-name-1234",
+		listenerIP: net.ParseIP("174.10.10.10"),
+		listenerPort: 30100,
+		actions: make(map[string]*ServiceAction),
+	}
+	s.Register("Logging.info", func(_ Request, _ *Session) {
+	})
+
+	serviceProxy := ServiceAsServiceProxy(&s)
+	serviceProxy.timestamp = 10
+	b,err := json.Marshal(&serviceProxy)
+	if err != nil {
+		t.Fatalf("could not serialize service proxy")
+	}
+	expected := []byte(`[1,"a-cool-name-1234","sector",1,5000,"beepish+tls://174.10.10.10:30100",["json"],[["Logging",["info","",1]]],10]`)
+	if !bytes.Equal(b, expected) {
+		t.Fatalf("expected: `%s`, got: `%s`", expected, b)
+	}
+
 }
