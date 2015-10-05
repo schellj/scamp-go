@@ -5,6 +5,8 @@ import "time"
 import "bytes"
 import "encoding/json"
 import "net"
+import "crypto/tls"
+import "io/ioutil"
 
 // TODO: fix Session API (aka, simplify design by dropping it)
 // func TestServiceHandlesRequest(t *testing.T) {
@@ -84,6 +86,9 @@ func connectToTestService(t *testing.T) {
 	return
 }
 
+// TODO: I'm cutting some corners in this test, it tests two complicated things at once:
+// 1. Copying `Service` properties to new `ServiceProxy`
+// 2. Marshaling `ServiceProxy` to announce format
 func TestServiceToProxyMarshal(t *testing.T) {
 	s := Service {
 		serviceSpec: "123",
@@ -106,5 +111,42 @@ func TestServiceToProxyMarshal(t *testing.T) {
 	if !bytes.Equal(b, expected) {
 		t.Fatalf("expected: `%s`, got: `%s`", expected, b)
 	}
+
+}
+
+func TestFullServiceMarshal(t *testing.T) {
+	// TODO big assumption that you environment is set up like mine:
+	//   root repo `scamp-go` has a sibling folder called `scamp-go-workspace` where `scamp-go`
+	//   is symlinked in as such: ../scamp-go-workspace/src/github.com/gudtech/scamp-go
+	// it's crazy, I know. thanks GOPATH.
+	cert, err := tls.LoadX509KeyPair( "./../../scamp-go/fixtures/sample.crt", "./../../scamp-go/fixtures/sample.key" )
+	if err != nil {
+		t.Fatalf("could not load fixture keypair: `%s`", err)
+	}
+
+	encodedCert,err := ioutil.ReadFile("/Users/xavierlange/code/gudtech/scamp-go/fixtures/sample.crt")
+	if err != nil {
+		t.Fatalf("could not load fixture certificate")
+	}
+	encodedCert = bytes.TrimSpace(encodedCert)
+
+	s := Service {
+		serviceSpec: "123",
+		humanName: "a-cool-name",
+		name: "a-cool-name-1234",
+		listenerIP: net.ParseIP("174.10.10.10"),
+		listenerPort: 30100,
+		actions: make(map[string]*ServiceAction),
+		pemCert: encodedCert,
+		cert: cert,
+	}
+	s.Register("Logging.info", func(_ Request, _ *Session) {
+	})
+
+	b,err := s.MarshalText()
+	if err != nil {
+		t.Fatalf("unexpected error serializing service: `%s`", err)
+	}
+	t.Fatalf("b: `%s`", b)
 
 }

@@ -4,9 +4,12 @@ import "errors"
 import "net"
 import "crypto/tls"
 import "crypto/rand"
+import "crypto/rsa"
 import "encoding/base64"
+import "encoding/json"
 import "fmt"
 import "bytes"
+import "io/ioutil"
 
 type ServiceActionFunc func(Request,*Session)
 type ServiceAction struct {
@@ -30,6 +33,7 @@ type Service struct {
 	openConns     []*Connection
 
 	cert          tls.Certificate
+	pemCert       []byte // just a copy of what was read off disk at tls cert load time
 }
 
 func NewService(serviceSpec string, humanName string) (serv *Service, err error){
@@ -54,11 +58,20 @@ func NewService(serviceSpec string, humanName string) (serv *Service, err error)
 		return
 	}
 
+	// Load keypair for tls socket library to use
 	serv.cert, err = tls.LoadX509KeyPair( string(crtPath), string(keyPath) )
 	if err != nil {
 		return
 	}
 
+	// Load cert in to memory for announce packet writing
+	serv.pemCert, err = ioutil.ReadFile(string(crtPath))
+	if err != nil {
+		return
+	}
+	serv.pemCert = bytes.TrimSpace(serv.pemCert)
+
+	// Finally, get ready for incoming requests
 	err = serv.listen()
 	if err != nil {
 		return
@@ -182,4 +195,28 @@ func (serv *Service)Stop(){
 	for _,conn := range serv.openConns {
 		conn.Close()
 	}
+}
+
+func (serv *Service)MarshalText() (b []byte, err error){
+	var buf bytes.Buffer
+
+	serviceProxy := ServiceAsServiceProxy(serv)
+	classRecord,err := json.Marshal(&serviceProxy)
+	if err != nil {
+		return
+	}
+
+	sig, err := SignSHA256(classRecord, serv.cert.PrivateKey.(*rsa.PrivateKey))
+	if err != nil {
+		return
+	}
+
+	buf.Write(classRecord)
+	buf.WriteString("\n\n")
+	buf.Write(serv.pemCert)
+	buf.WriteString("\n\n")
+	buf.WriteString(sig)
+
+	b = buf.Bytes()
+	return
 }
