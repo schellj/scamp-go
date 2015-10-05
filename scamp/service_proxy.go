@@ -7,6 +7,7 @@ import "crypto/rsa"
 
 import "fmt"
 import "errors"
+import "strings"
 
 type ServiceProxy struct {
 	version int
@@ -36,6 +37,62 @@ type actionDescription struct {
 	actionName string
 	crudTags string
 	version int
+}
+
+// type Service struct {
+// 	serviceSpec   string
+// 	name          string
+
+// 	listener      net.Listener
+
+// 	actions       map[string]ServiceAction
+// 	sessChan      (chan *Session)
+// 	isRunning     bool
+// 	openConns     []*Connection
+
+// 	cert          tls.Certificate
+// }
+func ServiceAsServiceProxy(serv *Service) (proxy *ServiceProxy) {
+	proxy = new(ServiceProxy)
+	proxy.version = 1
+	proxy.ident = serv.name
+	proxy.sector = "sector"
+	proxy.weight = 1
+	proxy.announceInterval = announceInterval
+	proxy.connspec = fmt.Sprintf("beepish+tls://%s:%d", serv.listenerIP.String(), serv.listenerPort)
+	proxy.protocols = make([]string, 1, 1)
+	proxy.protocols[0] = "json"
+	proxy.actions = make([]ServiceProxyClass, 0)
+	proxy.rawClassRecords = []byte("rawClassRecords")
+	proxy.rawCert = []byte("rawCert")
+	proxy.rawSig = []byte("rawSig")
+
+	// { "Logger.info": [{ "name": "blah", "callback": foo() }] }
+	for classAndActionName, serviceAction := range serv.actions {
+		actionDotIndex := strings.LastIndex(classAndActionName, ".")
+		// TODO: this is the only spot that could fail? shouldn't happen in any usage...
+		if actionDotIndex == -1 {
+			panic("bad action name")
+		}
+		className := classAndActionName[0:actionDotIndex]
+		actionName := classAndActionName[actionDotIndex+1:len(classAndActionName)]
+
+		newServiceProxyClass := ServiceProxyClass {
+			className: className,
+			actions: make([]actionDescription, 0),
+		}
+		newServiceProxyClass.actions = append(newServiceProxyClass.actions, actionDescription {
+			actionName: actionName,
+			crudTags: serviceAction.crudTags,
+			version: serviceAction.version,
+		})
+
+		proxy.actions = append(proxy.actions, newServiceProxyClass)
+	}
+
+	proxy.timestamp = 1234
+
+	return
 }
 
 func NewServiceProxy(classRecordsRaw []byte, certRaw []byte, sigRaw []byte) (proxy *ServiceProxy, err error) {
@@ -147,7 +204,7 @@ func (proxy *ServiceProxy)Validate() (err error) {
 	}
 
 	// See if we have this fingerprint in our authorized_services
-
+	// TODO
 
 
 	return
@@ -211,6 +268,9 @@ func (proxy *ServiceProxy)MarshalJSON() (b []byte, err error) {
   arr[5] = &proxy.connspec
   arr[6] = &proxy.protocols
 
+  // TODO: move this to two MarshalJSON interfaces for `ServiceProxyClass` and `actionDescription`
+  // doing so should remove manual copies and separate concerns
+  //
   // Serialize actions in this format:
   // 	["bgdispatcher",["poll","",1],["reboot","",1],["report","",1]]
   classSpecs := make([][]interface{}, len(proxy.actions), len(proxy.actions))

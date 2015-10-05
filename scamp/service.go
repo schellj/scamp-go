@@ -3,29 +3,61 @@ package scamp
 import "errors"
 import "net"
 import "crypto/tls"
+import "crypto/rand"
+import "encoding/base64"
 import "fmt"
+import "bytes"
 
-type ServiceAction func(Request,*Session)
+type ServiceActionFunc func(Request,*Session)
+type ServiceAction struct {
+	callback ServiceActionFunc
+	crudTags string
+	version  int
+}
 
 type Service struct {
 	serviceSpec   string
 	name          string
+	humanName     string
 
 	listener      net.Listener
+	listenerIP    net.IP
+	listenerPort  int
 
-	actions       map[string]ServiceAction
+	actions       map[string]*ServiceAction
 	sessChan      (chan *Session)
 	isRunning     bool
 	openConns     []*Connection
+
+	cert          tls.Certificate
 }
 
-func NewService(serviceSpec string, name string) (serv *Service, err error){
-	serv = new(Service)
-	serv.name = name
-	serv.serviceSpec = serviceSpec
+func NewService(serviceSpec string, humanName string) (serv *Service, err error){
+	if len(humanName) > 18 {
+		err = fmt.Errorf("name `%s` is too long, must be less than 18 bytes", humanName)
+		return
+	}
 
-	serv.actions = make(map[string]ServiceAction)
+	serv = new(Service)
+	serv.serviceSpec = serviceSpec
+	serv.humanName = humanName
+	serv.generateRandomName()
+
+	serv.actions = make(map[string]*ServiceAction)
 	serv.sessChan = make(chan *Session, 100)
+
+	crtPath := config.ServiceCertPath(serv.humanName)
+	keyPath := config.ServiceKeyPath(serv.humanName)
+
+	if crtPath == nil || keyPath == nil {
+		err = fmt.Errorf( "could not find valid crt/key pair for service %s (`%s`,`%s`)", serv.name, crtPath, keyPath )
+		return
+	}
+
+	serv.cert, err = tls.LoadX509KeyPair( string(crtPath), string(keyPath) )
+	if err != nil {
+		return
+	}
 
 	err = serv.listen()
 	if err != nil {
@@ -35,26 +67,32 @@ func NewService(serviceSpec string, name string) (serv *Service, err error){
 	return
 }
 
-func (serv *Service)listen() (err error) {
-	crtPath := config.ServiceCertPath(serv.name)
-	keyPath := config.ServiceKeyPath(serv.name)
-
-	if crtPath == nil || keyPath == nil {
-		err = fmt.Errorf( "could not find valid crt/key pair for service %s (`%s`,`%s`)", serv.name, crtPath, keyPath )
-		return
-	}
-
-	cert, err := tls.LoadX509KeyPair( string(crtPath), string(keyPath) )
+func (serv *Service)generateRandomName() {
+	randBytes := make([]byte, 18, 18)
+	read,err := rand.Read(randBytes)
 	if err != nil {
+		err = fmt.Errorf("could not generate all rand bytes needed. only read %d of 18", read)
 		return
 	}
+	base64RandBytes := base64.StdEncoding.EncodeToString(randBytes)
 
+	var buffer bytes.Buffer
+	buffer.WriteString(serv.humanName)
+	buffer.WriteString("-")
+	buffer.WriteString(base64RandBytes[0:])
+	serv.name = string(buffer.Bytes())
+}
+
+// TODO: port discovery and interface/IP discovery should happen here
+// important to set values so announce packets are correct
+func (serv *Service)listen() (err error) {
 	config := &tls.Config{
-		Certificates: []tls.Certificate{ cert },
+		Certificates: []tls.Certificate{ serv.cert },
 	}
 
 	Info.Printf("starting service on %s", serv.serviceSpec)
 	serv.listener,err = tls.Listen("tcp", serv.serviceSpec, config)
+	serv.listenerPort = serv.listener.Addr().(*net.TCPAddr).Port
 	if err != nil {
 		return err
 	}
@@ -62,12 +100,15 @@ func (serv *Service)listen() (err error) {
 	return
 }
 
-func (serv *Service)Register(name string, action ServiceAction) (err error) {
+func (serv *Service)Register(name string, callback ServiceActionFunc) (err error) {
 	if serv.isRunning {
 		return errors.New("cannot register handlers while server is running")
 	}
 
-	serv.actions[name] = action
+	serv.actions[name] = &ServiceAction {
+		callback: callback,
+		version: 1,
+	}
 
 	return
 }
@@ -112,7 +153,7 @@ func (serv *Service)RouteSessions() (err error){
 		// }
 
 		go func(){
-			var action ServiceAction
+			var action *ServiceAction
 
 			request,err := newSess.RecvRequest()
 			if err != nil {
@@ -121,7 +162,7 @@ func (serv *Service)RouteSessions() (err error){
 
 			action = serv.actions[request.Action]
 			if action != nil {
-				action(request, newSess)
+				action.callback(request, newSess)
 			} else {
 				Error.Printf("unknown action `%s`", request.Action)
 				// TODO: need to respond with 'unknown action'
