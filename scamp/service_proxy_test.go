@@ -1,10 +1,20 @@
 package scamp
 
 import "testing"
+import "encoding/json"
+import "bytes"
 
-func TestNewServiceProxy(t *testing.T) {
-	classRecordsRaw := []byte(`[3,"bgapi/proc01-HP4m32uuoVLTNXcLrKc3vd75","main",1,5000,"beepish+tls://10.8.1.158:30359",["json"],[["bgdispatcher",["poll","",1],["reboot","",1],["report","",1]]],1440001142628]`)
-	certRaw := []byte(`-----BEGIN CERTIFICATE-----
+var serviceProxyClassRecordsRaw = []byte(`[3,"bgapi/proc01-HP4m32uuoVLTNXcLrKc3vd75","main",1,5000,"beepish+tls://10.8.1.158:30359",["json"],[["bgdispatcher",["poll","",1],["reboot","",1],["report","",1]]],1440001142628]`)
+var serviceProxySigRaw = []byte(`CPuxVvNppUNVIGSlaNUW6fpXp2h31/AKX/rAdzyRRsUks8qsjq5/9X5ZUsz85JlPhknxazjlX81U
+MSc1qsL1BZvPeRZ+8NXaT58j7UR75mDbOlfv5KbqtdjBA08TmjXOfFy2JG7+iQG3zG12HNXU/Yc+
+5yhE5i6eA2/Lfxz8aG9221y/qeDJ49DPXjAJa1PFdVIO2aZno1r3bcBKvu6O30lGakgZYTSfFVJC
+DcdsuueiBOTXjbjcxAhyZvEa48LgCxc4X35ywGaM7h0MVPgPHvpWzFB6DvRKbhEXWcja5p6a8Phm
+ovxIjhbweSlgq9Duu5hhshiL3RufVqJqJmxxuiEIo3Fa/GBPKPWlOn/W6P3ko0XrkEokYdkoENFO
+0z7Uha9RQDlIz2+OtJY7V00QsoKGg96lLjSuJDZkaQ6Oay0+VfljLipELUBB4HSlqmuuph+qHH8E
+yYh7fUmYphSz/RtkPc0MBkq5O3HSvdchUkiJ6z+F7cXosQBTb7PpS0Gvc7MnISuw5sLTFCtr0q05
+a032GvvcMl27Rdn226paf3WoZzEO9K+zfGtWhircQA8sWkwuSyGfeUvzpo7ZWLMTq5OYGbGBXJlE
+ewPJz5OgXQL2RV9xFahxbSxl+3g0OE/u36FyUJDhvPssH/BzA13SpI0rOnsRpqs7pTua8oEppck=`)
+var serviceProxyCertRaw = []byte(`-----BEGIN CERTIFICATE-----
 MIIFrTCCA5WgAwIBAgIJAPp15voDqw1iMA0GCSqGSIb3DQEBBQUAMG0xKDAmBgNV
 BAMMH2tzYXdoMS5kZXYuZ3VkdGVjaC5jb20gYmd3b3JrZXIxCzAJBgNVBAoMAkdU
 MQswCQYDVQQGEwJVUzETMBEGA1UECAwKQ2FsaWZvcm5pYTESMBAGA1UEBwwJU2Fu
@@ -37,26 +47,73 @@ cnwE7U+GQeVLssOmT3xNIbuRcVlLea9uhtg0ojzlUyrdjjhNJXoChxeOVyta6Gtq
 bVclWY0DoBeS1lchtLrDURwVSO947nQMKzsi8Rxm4EDQzA0Z70T6vJFsd0n937iV
 zJjLAmIyriV6BEUJvfwKmfA=
 -----END CERTIFICATE-----`)
-	sigRaw := []byte(`CPuxVvNppUNVIGSlaNUW6fpXp2h31/AKX/rAdzyRRsUks8qsjq5/9X5ZUsz85JlPhknxazjlX81U
-MSc1qsL1BZvPeRZ+8NXaT58j7UR75mDbOlfv5KbqtdjBA08TmjXOfFy2JG7+iQG3zG12HNXU/Yc+
-5yhE5i6eA2/Lfxz8aG9221y/qeDJ49DPXjAJa1PFdVIO2aZno1r3bcBKvu6O30lGakgZYTSfFVJC
-DcdsuueiBOTXjbjcxAhyZvEa48LgCxc4X35ywGaM7h0MVPgPHvpWzFB6DvRKbhEXWcja5p6a8Phm
-ovxIjhbweSlgq9Duu5hhshiL3RufVqJqJmxxuiEIo3Fa/GBPKPWlOn/W6P3ko0XrkEokYdkoENFO
-0z7Uha9RQDlIz2+OtJY7V00QsoKGg96lLjSuJDZkaQ6Oay0+VfljLipELUBB4HSlqmuuph+qHH8E
-yYh7fUmYphSz/RtkPc0MBkq5O3HSvdchUkiJ6z+F7cXosQBTb7PpS0Gvc7MnISuw5sLTFCtr0q05
-a032GvvcMl27Rdn226paf3WoZzEO9K+zfGtWhircQA8sWkwuSyGfeUvzpo7ZWLMTq5OYGbGBXJlE
-ewPJz5OgXQL2RV9xFahxbSxl+3g0OE/u36FyUJDhvPssH/BzA13SpI0rOnsRpqs7pTua8oEppck=`)
-	proxy,err := NewServiceProxy(classRecordsRaw, certRaw, sigRaw)
+
+func TestNewServiceProxy(t *testing.T) {
+	proxy,err := NewServiceProxy(serviceProxyClassRecordsRaw, serviceProxyCertRaw, serviceProxySigRaw)
 	if err != nil {
 		t.Errorf("failed to instantiate new proxy: %s/%s", proxy, err)
 	}
 
-	if len(classRecordsRaw) != len(proxy.rawClassRecords) {
-		t.Errorf("something mucked with the classRecordsRaw")
+	if len(serviceProxyClassRecordsRaw) != len(proxy.rawClassRecords) {
+		t.Errorf("something mucked with the serviceProxyClassRecordsRaw")
 	}
 
 	err = proxy.Validate()
 	if err != nil {
 		t.Errorf("failed to validate: `%s`", err)
 	}
+}
+
+func TestServiceProxySerialize(t *testing.T) {
+  // [3,
+  //  "bgapi/proc01-HP4m32uuoVLTNXcLrKc3vd75",
+  // "main",
+  // 1,
+  // 5000,
+  // "beepish+tls://10.8.1.158:30359",
+  // ["json"],
+  // [["bgdispatcher",["poll","",1],["reboot","",1],["report","",1]]]
+  // ,1440001142628
+  // ]
+	serviceProxy := ServiceProxy {
+		version: 3,
+		ident: "bgapi/proc01-HP4m32uuoVLTNXcLrKc3vd75",
+		sector: "main",
+		weight: 1,
+		announceInterval: 5000,
+		connspec: "beepish+tls://10.8.1.158:30359",
+		protocols: []string{"json"},
+    timestamp: 1440001142628,
+    // ["reboot","",1],["report","",1]
+		actions: []ServiceProxyClass{
+			ServiceProxyClass {
+				className: "bgdispatcher",
+				actions: []actionDescription {
+					actionDescription{
+						actionName: "poll",
+						crudTags: "",
+						version: 1,
+					},
+          actionDescription{
+            actionName: "reboot",
+            crudTags: "",
+            version: 1,
+          },
+          actionDescription{
+            actionName: "report",
+            crudTags: "",
+            version: 1,
+          },
+				},
+			},
+		},
+	}
+
+	b,err := json.Marshal(&serviceProxy)
+  if err != nil {
+    t.Fatalf("unexpected error `%s` while serializing service record", err)
+  }
+  if !bytes.Equal(serviceProxyClassRecordsRaw,b) {
+    t.Fatalf("serialized service record did not match expected.\nexpected: `%s`\ngot:      `%s`\n", serviceProxyClassRecordsRaw, b)
+  }
 }

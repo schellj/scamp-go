@@ -22,6 +22,8 @@ type ServiceProxy struct {
 	rawCert []byte
 	rawSig []byte
 
+	timestamp int
+
 	conn *Connection
 }
 
@@ -33,7 +35,7 @@ type ServiceProxyClass struct {
 type actionDescription struct {
 	actionName string
 	crudTags string
-	version string
+	version int
 }
 
 func NewServiceProxy(classRecordsRaw []byte, certRaw []byte, sigRaw []byte) (proxy *ServiceProxy, err error) {
@@ -192,4 +194,45 @@ func (proxy *ServiceProxy)GetConnection() (conn *Connection, err error) {
 	}
 
 	return
+}
+
+func (proxy *ServiceProxy)MarshalJSON() (b []byte, err error) {
+	// var arr []json.RawMessage
+	// arr = make([]json.RawMessage, 1, 1)
+
+	// b,err = json.Marshal(arr)
+	// err = json.Marshal(arr[0], &proxy.version)
+	arr := make([]interface{},9)
+	arr[0] = &proxy.version
+  arr[1] = &proxy.ident
+  arr[2] = &proxy.sector
+  arr[3] = &proxy.weight
+  arr[4] = &proxy.announceInterval
+  arr[5] = &proxy.connspec
+  arr[6] = &proxy.protocols
+
+  // Serialize actions in this format:
+  // 	["bgdispatcher",["poll","",1],["reboot","",1],["report","",1]]
+  classSpecs := make([][]interface{}, len(proxy.actions), len(proxy.actions))
+  for i,class := range proxy.actions {
+  	entry := make([]interface{}, 1+len(class.actions), 1+len(class.actions))
+  	entry[0] = &class.className
+  	for j,action := range class.actions {
+  		actions := make([]interface{},3,3)
+
+  		actionNameCopy := make([]byte, len(action.actionName))
+  		copy(actionNameCopy, action.actionName)
+  		actions[0] = string(actionNameCopy)
+  		actions[1] = &action.crudTags
+  		actions[2] = &action.version
+  		entry[j+1] = &actions
+  	}
+
+  	classSpecs[i] = entry
+  }
+  arr[7] = &classSpecs
+
+  arr[8] = &proxy.timestamp
+
+	return json.Marshal(arr)
 }
