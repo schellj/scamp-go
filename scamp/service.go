@@ -50,8 +50,8 @@ func NewService(serviceSpec string, humanName string) (serv *Service, err error)
 	serv.actions = make(map[string]*ServiceAction)
 	serv.sessChan = make(chan *Session, 100)
 
-	crtPath := config.ServiceCertPath(serv.humanName)
-	keyPath := config.ServiceKeyPath(serv.humanName)
+	crtPath := defaultConfig.ServiceCertPath(serv.humanName)
+	keyPath := defaultConfig.ServiceKeyPath(serv.humanName)
 
 	if crtPath == nil || keyPath == nil {
 		err = fmt.Errorf( "could not find valid crt/key pair for service %s (`%s`,`%s`)", serv.name, crtPath, keyPath )
