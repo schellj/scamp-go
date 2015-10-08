@@ -10,6 +10,7 @@ func main() {
     scamp.Error.Fatalf("error creating new service: `%s`", err)
   }
 
+  // rename Register -> RegisterAction
   service.Register("Logger.info", func(req scamp.Request, sess *scamp.Session){
     if len(req.Blob) > 0 {
       scamp.Info.Printf("Logging.info had data: %s", req.Blob)

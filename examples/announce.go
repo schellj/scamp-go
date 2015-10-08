@@ -4,26 +4,25 @@ import "scamp"
 import "net"
 import "time"
 
+var scampGroupName = "239.63.248.106"
+var scampAnnounceDest = &net.UDPAddr{IP: net.IPv4(239,63,248,106), Port: 5555}
+
 func main() {
   scamp.Initialize()
+  var err error
 
-  config := scamp.DefaultConfig()
-  multicastSpec,err := config.BusSpec()
-
-  udpAddr, err := net.ResolveUDPAddr("udp", multicastSpec)
+  multicastPacketConn,err := scamp.LocalMulticastPacketConn()
   if err != nil {
-    scamp.Trace.Printf("error resolving UDP address: `%s`", udpAddr)
+    scamp.Error.Printf("could not create local multicast packet connection")
+    return
   }
-
-  multicastConn, err := net.DialUDP("udp", nil, udpAddr)
-  if err != nil {
-    scamp.Trace.Printf("could not dial multicast address: `%s`", err)
-  }
-
-  scamp.Trace.Printf("starting announce loop...")
 
   for {
-    multicastConn.Write([]byte("hello, world\n"))
-    time.Sleep(1 * time.Second)
+    if _, err := multicastPacketConn.WriteTo([]byte("hello, world\n"), nil, scampAnnounceDest); err != nil {
+      scamp.Trace.Printf("failed to write to multicast group: `%s`", err)
+      break
+    }
+    scamp.Trace.Printf("wrote hello world to group `%s`", scampAnnounceDest)
+    time.Sleep(5 * time.Second)
   }
 }

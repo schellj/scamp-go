@@ -4,6 +4,8 @@ import "os"
 import "bufio"
 import "regexp"
 import "fmt"
+import "strconv"
+import "net"
 
 type Config struct {
 	// string key for easy equals, byte return for easy nil
@@ -13,10 +15,13 @@ type Config struct {
 // TODO: Will I regret using such a common name as a global variable?
 var defaultConfig *Config
 
+var defaultAnnounceInterval = 5
 var defaultConfigPath = "/etc/SCAMP/soa.conf"
 var configLine = regexp.MustCompile(`^\s*([\S^=]+)\s*=\s*([\S]+)`)
 var globalConfig *Config
-var defaultMulticastPort = 9999
+
+var defaultGroupIP = net.IPv4(239, 63, 248, 106)
+var defaultGroupPort = 5555
 
 func initConfig() (err error) {
 	defaultConfig = NewConfig()
@@ -76,36 +81,30 @@ func (conf *Config) ServiceCertPath(serviceName string) (certPath []byte) {
 	return conf.values[serviceName+".soa_cert"]
 }
 
-func (conf *Config) BusPort() (port int) {
-	return defaultMulticastPort
+func (conf *Config) DiscoveryMulticastIP() (ip net.IP) {
+	rawAddr := conf.values["discovery.multicast_address"]
+	if rawAddr != nil {
+		return net.IP(rawAddr)
+	}
+
+	return defaultGroupIP
 }
 
-// Actively probes environment so if no default provided it could error
-// TODO: hard-coded to 
-func (conf *Config) BusAddress() (address string, err error) {
-	defaultBusAddress := conf.values["bus_address"]
-	if defaultBusAddress != nil {
-		address = string(defaultBusAddress)
+func (conf *Config) DiscoveryMulticastPort() (port int) {
+	port_bytes := conf.values["discovery.port"]
+	if port_bytes != nil {
+		port64, err := strconv.ParseInt(string(port_bytes), 10, 0)
+		if err != nil {
+			Error.Printf("could not parse discovery.port `%s`. falling back to default", err)
+			port = int(defaultGroupPort)
+		} else {
+			port = int(port64)
+		}
+
 		return
 	}
 
-  bestAddr,err := MulticastAddrForInterface("lo0")
-  if err != nil {
-    Error.Printf("could not find best addr: `%s`", err)
-    return
-  }
-
-  address = bestAddr.String()
-	return 
-}
-
-func (conf *Config) BusSpec() (spec string, err error) {
-	address,err := conf.BusAddress()
-	if err != nil {
-		return
-	}
-
-	spec = fmt.Sprintf("%s:%d", address, conf.BusPort())
-
+	port = defaultGroupPort
 	return
+
 }

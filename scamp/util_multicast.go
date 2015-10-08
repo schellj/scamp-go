@@ -3,8 +3,7 @@ package scamp
 import "fmt"
 import "net"
 
-
-// var localInterface = []byte("lo0")
+import "golang.org/x/net/ipv4"
 
 func MulticastAddrForInterface(desiredInterfaceName string) (bestAddr net.Addr, err error) {
   interfaces,err := net.Interfaces()
@@ -44,77 +43,56 @@ func MulticastAddrForInterface(desiredInterfaceName string) (bestAddr net.Addr, 
   return
 }
 
-// // We only want to broadcast on internal addresses so this
-// // filters down all available interfaces
-// func LocalMulticastAddrs() (interfaceName string, addrs []net.Addr, err error) {
-//   interfaces,err := net.Interfaces()
-//   if err != nil {
-//     return
-//   }
+func LoopbackInterface() (lo *net.Interface, err error) {
+  lo,err = net.InterfaceByName("lo0")
+  if err != nil {
+    lo,err = net.InterfaceByName("lo")
+    if err != nil {
+      Error.Printf("could not find `lo0` or `lo`: `%s`", err)
+      return
+    }
+  }
 
-//   // _,net192,err := net.ParseCIDR("192.168.0.0/16")
-//   // if err != nil {
-//   //   return
-//   // }
-//   // _,net10,err := net.ParseCIDR("10.0.0.0/8")
-//   // if err != nil {
-//   //   return
-//   // }
-//   // _,net172,err := net.ParseCIDR("172.16.0.0/12")
-//   // if err != nil {
-//   //   return
-//   // }
+  return
+}
 
-//   addrs = make([]net.Addr,0)
+func LocalMulticastPacketConn() (conn *ipv4.PacketConn, err error) {
+  lo,err := LoopbackInterface()
+  if err != nil {
+    return
+  }
 
-//   for _,inf := range interfaces {
-//     Trace.Printf("inf: %s", inf.Name)
-//     mulAddrs,_ := inf.MulticastAddrs()
-//     for _,maddr := range mulAddrs {
-//       Trace.Printf("maddr: %s", maddr)
-//       ip,_,err := net.ParseCIDR(maddr.String())
-//       if err != nil {
-//         // Trace.Printf("could not parse %s", err)
-//         continue
-//       }
+  maddrs, err := lo.MulticastAddrs()
+  if err != nil {
+    return
+  }
 
-//       Trace.Printf("maddr IsInterfaceLocalMulticast: %s", ip.IsInterfaceLocalMulticast())
+  var bestAddr net.Addr
+  for _,maddr := range maddrs {
+    Trace.Printf("looking at: `%s`", maddr.String())
+    parsedIP := net.ParseIP(maddr.String())
+    if parsedIP == nil {
+      Error.Printf("could not parsed IP: `%s`", maddr.String())
+      continue
+    } else if parsedIP.To4() == nil {
+      continue
+    }
+    bestAddr = maddr
+    break
+  }
+  if bestAddr == nil {
+    err = fmt.Errorf("could not find a good address to bind to")
+    return
+  }
 
-//     }
+  localMulticastSpec := fmt.Sprintf("%s:%d", bestAddr, 5555)
+  Trace.Printf("announce binding to port: `%s`", localMulticastSpec)
+  udpConn, err := net.ListenPacket("udp", localMulticastSpec)
+  if err != nil {
+    Error.Printf("could not listen to `%s`", localMulticastSpec)
+    return
+  }
 
-//     // infAddrs,err := inf.Addrs()
-//     // if err != nil {
-//     //   return nil, err
-//     // }
-
-//     // for _,addr := range infAddrs {
-//     //   // TODO: OSX provide all infAddrs as CIDR? Is that normal?
-//     //   ip,_,err := net.ParseCIDR(addr.String())
-//     //   if err != nil {
-//     //     Trace.Printf("could not parse %s", err)
-//     //     continue
-//     //   }
-
-//     //   Trace.Printf("addr IsInterfaceLocalMulticast: %s", ip.IsInterfaceLocalMulticast())
-
-//     //   if !(net192.Contains(ip) || net10.Contains(ip) || net172.Contains(ip)) {
-//     //     continue
-//     //   }
-
-//     //   addrs = append(addrs, addr)
-//     // }
-
-//   }
-
-//   return []net.Addr{}, nil
-// }
-
-// func BestLocalMulticastAddr() (addr net.Addr, err error) {
-//   addrs,err := LocalMulticastAddrs()
-//   if err != nil {
-//     return
-//   }
-
-//   addr = addrs[0]
-//   return
-// }
+  conn = ipv4.NewPacketConn(udpConn)
+  return
+}

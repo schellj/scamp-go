@@ -58,7 +58,7 @@ func ServiceAsServiceProxy(serv *Service) (proxy *ServiceProxy) {
 	proxy.ident = serv.name
 	proxy.sector = "sector"
 	proxy.weight = 1
-	proxy.announceInterval = announceInterval
+	proxy.announceInterval = defaultAnnounceInterval
 	proxy.connspec = fmt.Sprintf("beepish+tls://%s:%d", serv.listenerIP.String(), serv.listenerPort)
 	proxy.protocols = make([]string, 1, 1)
 	proxy.protocols[0] = "json"
