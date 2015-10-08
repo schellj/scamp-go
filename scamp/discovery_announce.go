@@ -5,8 +5,6 @@ import "net"
 
 import "golang.org/x/net/ipv4"
 
-var announceInterval = time.Duration(2) // seconds
-
 type DiscoveryAnnouncer struct {
   services []*Service
   multicastConn *ipv4.PacketConn
@@ -49,7 +47,7 @@ func (announcer *DiscoveryAnnouncer)AnnounceLoop() {
       announcer.doAnnounce()
     }
 
-    time.Sleep(announceInterval * time.Second)
+    time.Sleep(time.Duration(defaultAnnounceInterval) * time.Second)
   }
 }
 

@@ -23,7 +23,7 @@ type ServiceProxy struct {
 	rawCert []byte
 	rawSig []byte
 
-	timestamp int
+	timestamp HighResTimestamp
 
 	conn *Connection
 }
@@ -54,12 +54,12 @@ type actionDescription struct {
 // }
 func ServiceAsServiceProxy(serv *Service) (proxy *ServiceProxy) {
 	proxy = new(ServiceProxy)
-	proxy.version = 1
+	proxy.version = 3
 	proxy.ident = serv.name
 	proxy.sector = "sector"
 	proxy.weight = 1
-	proxy.announceInterval = defaultAnnounceInterval
-	proxy.connspec = fmt.Sprintf("beepish+tls://%s:%d", serv.listenerIP.String(), serv.listenerPort)
+	proxy.announceInterval = defaultAnnounceInterval * 500
+	proxy.connspec = fmt.Sprintf("beepish+tls://%s:%d", serv.listenerIP.To4().String(), serv.listenerPort)
 	proxy.protocols = make([]string, 1, 1)
 	proxy.protocols[0] = "json"
 	proxy.actions = make([]ServiceProxyClass, 0)
@@ -90,7 +90,12 @@ func ServiceAsServiceProxy(serv *Service) (proxy *ServiceProxy) {
 		proxy.actions = append(proxy.actions, newServiceProxyClass)
 	}
 
-	proxy.timestamp = 1234
+	timestamp,err := Gettimeofday()
+	if err != nil {
+		Error.Printf("error with high-res timestamp: `%s`", err)
+		return nil
+	}
+	proxy.timestamp = timestamp
 
 	return
 }

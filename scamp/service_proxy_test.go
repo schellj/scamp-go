@@ -4,7 +4,7 @@ import "testing"
 import "encoding/json"
 import "bytes"
 
-var serviceProxyClassRecordsRaw = []byte(`[3,"bgapi/proc01-HP4m32uuoVLTNXcLrKc3vd75","main",1,5000,"beepish+tls://10.8.1.158:30359",["json"],[["bgdispatcher",["poll","",1],["reboot","",1],["report","",1]]],1440001142628]`)
+var serviceProxyClassRecordsRaw = []byte(`[3,"bgapi/proc01-HP4m32uuoVLTNXcLrKc3vd75","main",1,5,"beepish+tls://10.8.1.158:30359",["json"],[["bgdispatcher",["poll","",1],["reboot","",1],["report","",1]]],1440001142628.000000]`)
 var serviceProxySigRaw = []byte(`CPuxVvNppUNVIGSlaNUW6fpXp2h31/AKX/rAdzyRRsUks8qsjq5/9X5ZUsz85JlPhknxazjlX81U
 MSc1qsL1BZvPeRZ+8NXaT58j7UR75mDbOlfv5KbqtdjBA08TmjXOfFy2JG7+iQG3zG12HNXU/Yc+
 5yhE5i6eA2/Lfxz8aG9221y/qeDJ49DPXjAJa1PFdVIO2aZno1r3bcBKvu6O30lGakgZYTSfFVJC
@@ -60,6 +60,7 @@ func TestNewServiceProxy(t *testing.T) {
 
 	err = proxy.Validate()
 	if err != nil {
+    // TODO need to manually resign our announce packet. Sigh.
 		t.Errorf("failed to validate: `%s`", err)
 	}
 }
@@ -80,7 +81,7 @@ func TestServiceProxySerialize(t *testing.T) {
 		ident: "bgapi/proc01-HP4m32uuoVLTNXcLrKc3vd75",
 		sector: "main",
 		weight: 1,
-		announceInterval: announceInterval,
+		announceInterval: defaultAnnounceInterval,
 		connspec: "beepish+tls://10.8.1.158:30359",
 		protocols: []string{"json"},
     timestamp: 1440001142628,

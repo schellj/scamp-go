@@ -1,6 +1,5 @@
 package scamp
 
-import "fmt"
 import "net"
 
 import "golang.org/x/net/ipv4"
@@ -19,6 +18,7 @@ func LoopbackInterface() (lo *net.Interface, err error) {
 }
 
 func LocalMulticastPacketConn() (conn *ipv4.PacketConn, err error) {
+  /*
   lo,err := LoopbackInterface()
   if err != nil {
     return
@@ -48,13 +48,19 @@ func LocalMulticastPacketConn() (conn *ipv4.PacketConn, err error) {
   }
 
   localMulticastSpec := fmt.Sprintf("%s:%d", bestAddr, 5555)
+  */
+
+  // TODO fundamentally change how multicast is sent. I can't get the API to work
+  // without creating a listener socket first but I shouldn't need it.
+  localMulticastSpec := "127.0.0.1:5556"
   Trace.Printf("announce binding to port: `%s`", localMulticastSpec)
   udpConn, err := net.ListenPacket("udp", localMulticastSpec)
   if err != nil {
     Error.Printf("could not listen to `%s`", localMulticastSpec)
     return
   }
-
+  Trace.Printf("udpConn.LocalAddr(): %s", udpConn.LocalAddr())
+  
   conn = ipv4.NewPacketConn(udpConn)
   return
 }
