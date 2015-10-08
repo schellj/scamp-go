@@ -53,16 +53,21 @@ func (announcer *DiscoveryAnnouncer)AnnounceLoop() {
   }
 }
 
-func (announcer *DiscoveryAnnouncer)doAnnounce(){
-  var conn *ipv4.PacketConn
-  conn = announcer.multicastConn
+func (announcer *DiscoveryAnnouncer)doAnnounce() (err error){
   for _,serv := range announcer.services {
     serviceDesc,err := serv.MarshalText()
     if err != nil {
       Error.Printf("failed to marshal service as text: `%s`. skipping.", err)
+    } else {
+      Trace.Printf("announcing: `%s`", serviceDesc)
     }
-    conn.Write(serviceDesc)
+    _,err = announcer.multicastConn.WriteTo(serviceDesc, nil, announcer.multicastDest)
+    if err != nil {
+      return err
+    }
   }
+
+  return
 }
 
 

@@ -7,7 +7,7 @@ var famous_words = []byte("SCAMP SAYS HELLO WORLD")
 func main() {
 	scamp.Initialize()
 
-	service,err := scamp.NewService(":30100")
+	service,err := scamp.NewService(":30100", "helloworld")
 	if err != nil {
 		scamp.Error.Fatalf("error creating new service: `%s`", err)
 	}
@@ -18,7 +18,7 @@ func main() {
 			scamp.Trace.Printf("helloworld was called without data")
 		}
 
-		err = sess.SendReply(scamp.Reply{
+		err = sess.Send(scamp.Reply{
 			Blob: famous_words,
 		})
 		if err != nil {
@@ -27,6 +27,15 @@ func main() {
 		}
 		scamp.Trace.Printf("successfully responded to hello world")
 	})
+
+	announcer,err := scamp.NewDiscoveryAnnouncer()
+	if err != nil {
+		scamp.Error.Printf("failed to create announcer: `%s`", err)
+		return
+	}
+	announcer.Track(service)
+
+	go announcer.AnnounceLoop()
 
 	service.Run()
 }
