@@ -5,44 +5,6 @@ import "net"
 
 import "golang.org/x/net/ipv4"
 
-func MulticastAddrForInterface(desiredInterfaceName string) (bestAddr net.Addr, err error) {
-  interfaces,err := net.Interfaces()
-  if err != nil {
-    return
-  }
-
-  for _,inf := range interfaces {
-    if inf.Name != desiredInterfaceName {
-      continue
-    }
-
-
-    Trace.Printf("inf: %s", inf.Name)
-    mulAddrs,_ := inf.MulticastAddrs()
-    if len(mulAddrs) < 1 {
-      err = fmt.Errorf("interface `%s` did not have a multicast interface", desiredInterfaceName)
-      return
-    }
-
-    // find first IPv4 multicast address
-    for _,mulAddr := range mulAddrs {
-      Trace.Printf("looking at: `%s`", mulAddr.String())
-      parsedIP := net.ParseIP(mulAddr.String())
-      if parsedIP == nil {
-        return nil, fmt.Errorf("could not parse IP: `%s`", mulAddr.String())
-      }
-      if parsedIP.To4() == nil {
-        continue
-      }
-      bestAddr = mulAddr
-      return bestAddr, nil
-    }
-  }
-
-  err = fmt.Errorf("could no such interface `%s`", desiredInterfaceName)
-  return
-}
-
 func LoopbackInterface() (lo *net.Interface, err error) {
   lo,err = net.InterfaceByName("lo0")
   if err != nil {
