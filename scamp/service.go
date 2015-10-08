@@ -105,15 +105,14 @@ func (serv *Service)listen() (err error) {
 
 	Info.Printf("starting service on %s", serv.serviceSpec)
 	serv.listener,err = tls.Listen("tcp", serv.serviceSpec, config)
-
+	if err != nil {
+		return err
+	}
+	
   // TODO: get listenerIP to return 127.0.0.1 or something other than '::'/nil
   // serv.listenerIP = serv.listener.Addr().(*net.TCPAddr).IP
   serv.listenerIP = net.ParseIP("127.0.0.1")
 	serv.listenerPort = serv.listener.Addr().(*net.TCPAddr).Port
-	
-	if err != nil {
-		return err
-	}
 
 	return
 }
