@@ -5,7 +5,7 @@ import "net"
 
 import "golang.org/x/net/ipv4"
 
-var announceInterval = time.Duration(5) // seconds
+var announceInterval = time.Duration(2) // seconds
 
 type DiscoveryAnnouncer struct {
   services []*Service
@@ -58,9 +58,8 @@ func (announcer *DiscoveryAnnouncer)doAnnounce() (err error){
     serviceDesc,err := serv.MarshalText()
     if err != nil {
       Error.Printf("failed to marshal service as text: `%s`. skipping.", err)
-    } else {
-      Trace.Printf("announcing: `%s`", serviceDesc)
     }
+
     _,err = announcer.multicastConn.WriteTo(serviceDesc, nil, announcer.multicastDest)
     if err != nil {
       return err
