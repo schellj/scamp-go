@@ -1,5 +1,6 @@
 package scamp
 
+import "fmt"
 import "net"
 
 import "golang.org/x/net/ipv4"
@@ -60,7 +61,49 @@ func LocalMulticastPacketConn() (conn *ipv4.PacketConn, err error) {
     return
   }
   Trace.Printf("udpConn.LocalAddr(): %s", udpConn.LocalAddr())
-  
+
   conn = ipv4.NewPacketConn(udpConn)
+  return
+}
+
+func IPForAnnouncePacket() (ip net.IP, err error) {
+  infs,err := net.Interfaces()
+  if err != nil {
+    Error.Printf("err: `%s`", err)
+    return
+  }
+
+  for _,inf := range infs {
+    if ( inf.Flags & net.FlagLoopback != 0 ){
+      continue
+    }
+
+    addrs,err := inf.Addrs()
+    if err != nil {
+      return nil, err
+    }
+
+    for _,addr := range addrs {
+      ip,_,err = net.ParseCIDR(addr.String())
+      if err != nil {
+        Error.Printf("ParseCIDR err: `%s`\n", err)
+        continue
+      } else if ip.To4() == nil {
+        Trace.Printf("IP is not IPv4: `%s`\n", ip)
+        continue
+      }
+      break
+    }
+
+    if ip != nil {
+      break
+    }
+  }
+
+  if ip == nil {
+    err = fmt.Errorf("no suitables IPs found")
+    return
+  }
+
   return
 }
