@@ -107,7 +107,7 @@ func TestServiceToProxyMarshal(t *testing.T) {
 	if err != nil {
 		t.Fatalf("could not serialize service proxy")
 	}
-	expected := []byte(`[3,"a-cool-name-1234","sector",1,2500,"beepish+tls://174.10.10.10:30100",["json"],[["Logging",["info","",1]]],10.000000]`)
+	expected := []byte(`[3,"a-cool-name-1234","main",1,2500,"beepish+tls://174.10.10.10:30100",["json"],[["Logging",["info","",1]]],10.000000]`)
 	if !bytes.Equal(b, expected) {
 		t.Fatalf("expected: `%s`,\n             got:      `%s`", expected, b)
 	}
