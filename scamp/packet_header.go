@@ -67,8 +67,9 @@ func (envFormat *envelopeFormat) UnmarshalJSON(incoming []byte) error {
 type messageType int
 
 const (
-	request messageType = iota
-	reply
+	_ = iota
+	MESSAGE_TYPE_REQUEST 
+	MESSAGE_TYPE_REPLY
 )
 
 var request_bytes = []byte(`"request"`)
@@ -76,26 +77,29 @@ var reply_bytes = []byte(`"reply"`)
 
 func (messageType messageType) MarshalJSON() (retval []byte, err error) {
 	switch messageType {
-	case request:
+	case MESSAGE_TYPE_REQUEST:
 		retval = request_bytes
-	case reply:
+	case MESSAGE_TYPE_REPLY:
 		retval = reply_bytes
 	default:
+		Error.Printf(fmt.Sprintf("unknown message type `%s`", messageType))
 		err = errors.New(fmt.Sprintf("unknown message type `%d`", messageType))
 	}
 
 	return
 }
 
-func (msgType *messageType) UnmarshalJSON(incoming []byte) error {
+func (msgType *messageType) UnmarshalJSON(incoming []byte) (err error) {
 	if bytes.Equal(request_bytes, incoming) {
-		*msgType = request
+		*msgType = MESSAGE_TYPE_REQUEST
 	} else if bytes.Equal(reply_bytes, incoming) {
-		*msgType = reply
+		*msgType = MESSAGE_TYPE_REPLY
 	} else {
-		return errors.New(fmt.Sprintf("unknown message type `%s`", incoming))
+		Error.Printf(fmt.Sprintf("unknown message type `%s`", incoming))
+		err = errors.New(fmt.Sprintf("unknown message type `%s`", incoming))
 	}
-	return nil
+	
+	return
 }
 
 func (pktHdr *PacketHeader) Write(writer io.Writer) (err error) {

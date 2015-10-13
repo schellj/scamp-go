@@ -27,6 +27,7 @@ func TestWritePacketHeader(t *testing.T) {
 	packetHeader := PacketHeader{
 		Action:    "hello.helloworld",
 		Envelope:  ENVELOPE_JSON,
+		MessageType: MESSAGE_TYPE_REQUEST,
 		RequestId: 1,
 		Version:   1,
 	}
@@ -34,10 +35,13 @@ func TestWritePacketHeader(t *testing.T) {
 `)
 
 	buf := new(bytes.Buffer)
-	packetHeader.Write(buf)
+	err := packetHeader.Write(buf)
+	if err != nil {
+		t.Fatalf("unexpected error when serializing packet header: `%s`", err)
+	}
 
 	if !bytes.Equal(expected, buf.Bytes()) {
-		t.Errorf("expected\n`%s`\n`%v`\ngot\n`%s`\n`%v`\n", expected, expected, buf.Bytes(), buf.Bytes())
+		t.Fatalf("expected\n`%s`\n`%v`\ngot\n`%s`\n`%v`\n", expected, expected, buf.Bytes(), buf.Bytes())
 	}
 }
 

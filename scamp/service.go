@@ -10,8 +10,12 @@ import "encoding/json"
 import "fmt"
 import "bytes"
 import "io/ioutil"
+import "time"
 
-type ServiceActionFunc func(Request,*Session)
+// Two minute timeout on clients
+var msgTimeout = time.Second * 120
+
+type ServiceActionFunc func(*Message, *Client)
 type ServiceAction struct {
 	callback ServiceActionFunc
 	crudTags string
@@ -28,9 +32,10 @@ type Service struct {
 	listenerPort  int
 
 	actions       map[string]*ServiceAction
-	sessChan      (chan *Session)
 	isRunning     bool
-	openConns     []*Connection
+	clients       []*Client
+
+	// requests      ClientChan
 
 	cert          tls.Certificate
 	pemCert       []byte // just a copy of what was read off disk at tls cert load time
@@ -48,7 +53,6 @@ func NewService(serviceSpec string, humanName string) (serv *Service, err error)
 	serv.generateRandomName()
 
 	serv.actions = make(map[string]*ServiceAction)
-	serv.sessChan = make(chan *Session, 100)
 
 	crtPath := defaultConfig.ServiceCertPath(serv.humanName)
 	keyPath := defaultConfig.ServiceKeyPath(serv.humanName)
@@ -76,6 +80,8 @@ func NewService(serviceSpec string, humanName string) (serv *Service, err error)
 	if err != nil {
 		return
 	}
+
+	Trace.Printf("done initializing service")
 
 	return
 }
@@ -136,10 +142,10 @@ func (serv *Service)Register(name string, callback ServiceActionFunc) (err error
 }
 
 func (serv *Service)Run() {
-	go serv.RouteSessions()
 
 	for {
 		netConn,err := serv.listener.Accept()
+		Trace.Printf("accepted new connection...")
 		if err != nil {
 			Info.Printf("exiting service service Run(): `%s`", err)
 			break
@@ -151,48 +157,58 @@ func (serv *Service)Run() {
 			break
 		}
 
-		conn,err := newConnection(tlsConn, serv.sessChan)
-		if err != nil {
-			Error.Fatalf("error with new connection: `%s`", err)
-			break
-		}
-		serv.openConns = append(serv.openConns, conn)
+		conn := NewConnection(tlsConn)
+		client := NewClient(conn)
 
-		go conn.packetRouter(false, true)
+		serv.clients = append(serv.clients, client)
+		go serv.Handle(client)
 	}
-
-	close(serv.sessChan)
 }
 
-// Spawn a router for each new session received over sessChan
-func (serv *Service)RouteSessions() (err error){
+func (serv *Service)Handle(client *Client) {
+	var action *ServiceAction
 
-	for newSess := range serv.sessChan {
-		
-		// if !stillOpen {
-		// 	Trace.Printf("sessChan was closed. server is probably shutting down.")
-		// 	break
-		// }
+	HandlerLoop:
+	for {
+		select {
+		case msg := <-client.Incoming():
+			Trace.Printf("msg!!!! `%s`", msg)
+			Trace.Printf("action: `%s`", msg.Action)
+			action = serv.actions[msg.Action]
 
-		go func(){
-			var action *ServiceAction
-
-			request,err := newSess.RecvRequest()
-			if err != nil {
-				return
-			}
-
-			action = serv.actions[request.Action]
-			if action != nil {
-				action.callback(request, newSess)
+			if action != nil{
+				// yay
+				action.callback(msg, client)
 			} else {
-				Error.Printf("unknown action `%s`", request.Action)
-				// TODO: need to respond with 'unknown action'
+				// gotta tell them I don't know how to do that
 			}
-		}()
+		case <- time.After(msgTimeout):
+			Trace.Printf("timeout... dying!")
+			client.Close()
+			serv.RemoveClient(client)
+			break HandlerLoop
+		}
 	}
 
-	return
+	Trace.Printf("done handling client")
+}
+
+func (serv *Service)RemoveClient(client *Client) (err error){
+	index := -1
+	for i,entry := range serv.clients {
+		if client == entry {
+			index = i
+			break
+		}
+	}
+
+	if index == -1 {
+		Error.Printf("tried removing client that wasn't being tracked")
+		return fmt.Errorf("unknown client `%s`", client)
+	}
+
+	serv.clients = append(serv.clients[:index], serv.clients[index+1:]...)
+	return nil
 }
 
 func (serv *Service)Stop(){
@@ -201,7 +217,7 @@ func (serv *Service)Stop(){
 	if serv.listener != nil {
 		serv.listener.Close()
 	}
-	for _,conn := range serv.openConns {
+	for _,conn := range serv.clients {
 		conn.Close()
 	}
 }
