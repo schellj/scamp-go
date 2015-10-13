@@ -5,27 +5,17 @@ import "scamp"
 func main() {
 	scamp.Initialize()
 
-	conn, err := scamp.Connect("127.0.0.1:30100")
-	defer conn.Close()
+	client, err := scamp.Dial("127.0.0.1:30100")
+	defer client.Close()
 
+	message := scamp.NewMessage()
+	message.SetAction("helloworld.hello")
+  message.SetEnvelope(scamp.ENVELOPE_JSON)
+  message.SetVersion
+  message.SetMessageType
+
+	err = client.Send(message)
 	if err != nil {
-		scamp.Error.Fatalf("could not connect! `%s`\n", err)
+		scamp.Error.Printf("error sending msg: `%s`", err)
 	}
-
-	var sess *scamp.Session
-
-	sess, err = conn.Send(scamp.Request{
-		Action:         "sup.dude",
-		EnvelopeFormat: scamp.ENVELOPE_JSON,
-		Version:        1,
-	})
-	if err != nil {
-		scamp.Error.Fatalf("error initiating session: `%s`", err)
-	}
-
-	reply, err := sess.RecvReply()
-	if err != nil {
-		scamp.Error.Fatalf("error receiving: `%s`", err)
-	}
-	scamp.Info.Printf("Got reply! `%s`", reply.Blob)
 }

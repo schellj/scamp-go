@@ -1,30 +1,70 @@
 package scamp
 
-type msgNoType int64
+type MessageChan chan *Message
 
-type Message interface {
-	toPackets() []Packet
+type Message struct {
+  Action  string
+  Envelope envelopeFormat
+  // RequestId reqIdType // TODO: how do RequestId's fit in again?
+  Version int64
+  MessageType messageType
+  packets []*Packet
 }
 
-type EOFResponse struct {}
 
-func (msg EOFResponse) toPackets() []Packet {
-	eofPacket := Packet{
-		packetType:  EOF,
-	}
-
-	return []Packet{ eofPacket }
+func NewMessage() (msg *Message) {
+  msg = new(Message)
+  return
 }
 
-type ACKResponse struct {
-  requestId reqIdType
+func (msg *Message)SetAction(action string) {
+  msg.Action = action
 }
 
-func (msg ACKResponse) toPackets() []Packet {
-  ackPacket := Packet {
-    packetType: ACK,
-    ackRequestId: msg.requestId,
+func (msg *Message)SetEnvelope(env envelopeFormat) {
+  msg.Envelope = env
+}
+
+func (msg *Message)SetVersion(version int64) {
+  msg.Version = version
+}
+
+func (msg *Message)SetMessageType(mtype messageType) {
+  msg.MessageType = mtype
+}
+
+func (msg *Message)Write(blob []Byte) (n int, err error){
+  
+  msg.packets = append(msg.packets, pkt)
+}
+
+func (msg *Message)toPackets() ([]*Packet) {
+  headerHeader := PacketHeader{
+    Action:      msg.Action,
+    Envelope:    msg.Envelope,
+    Version:     msg.Version,
+    RequestId:   1, // TODO: nope, can't do this
+    MessageType: msg.MessageType,
+  }
+  
+  headerPacket := Packet {
+    packetHeader: headerHeader,
+    packetType:   HEADER,
   }
 
-  return []Packet{ ackPacket }
+  eofPacket := Packet {
+    packetType:  EOF,
+  }
+
+
+  if len(msg.packets) > 0 {
+    dataPacket := Packet {
+      packetType: DATA,
+      body: req.Blob,
+    }
+
+    return []Packet{headerPacket, dataPacket, eofPacket}
+  } else {
+    return []Packet{headerPacket, eofPacket}
+  }
 }

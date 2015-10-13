@@ -11,7 +11,7 @@ import "fmt"
 import "bytes"
 import "io/ioutil"
 
-type ServiceActionFunc func(Request,*Session)
+type ServiceActionFunc func(*Message)
 type ServiceAction struct {
 	callback ServiceActionFunc
 	crudTags string
@@ -28,9 +28,10 @@ type Service struct {
 	listenerPort  int
 
 	actions       map[string]*ServiceAction
-	sessChan      (chan *Session)
 	isRunning     bool
 	openConns     []*Connection
+
+	requests      MessageChan
 
 	cert          tls.Certificate
 	pemCert       []byte // just a copy of what was read off disk at tls cert load time
@@ -48,7 +49,6 @@ func NewService(serviceSpec string, humanName string) (serv *Service, err error)
 	serv.generateRandomName()
 
 	serv.actions = make(map[string]*ServiceAction)
-	serv.sessChan = make(chan *Session, 100)
 
 	crtPath := defaultConfig.ServiceCertPath(serv.humanName)
 	keyPath := defaultConfig.ServiceKeyPath(serv.humanName)
@@ -70,6 +70,9 @@ func NewService(serviceSpec string, humanName string) (serv *Service, err error)
 		return
 	}
 	serv.pemCert = bytes.TrimSpace(serv.pemCert)
+
+	// TODO: I think this is an unbuffered channel
+	serv.requests = make(MessageChan)
 
 	// Finally, get ready for incoming requests
 	err = serv.listen()
@@ -135,6 +138,7 @@ func (serv *Service)Register(name string, callback ServiceActionFunc) (err error
 }
 
 func (serv *Service)Run() {
+
 	go serv.RouteSessions()
 
 	for {
@@ -150,42 +154,25 @@ func (serv *Service)Run() {
 			break
 		}
 
-		conn,err := newConnection(tlsConn, serv.sessChan)
-		if err != nil {
-			Error.Fatalf("error with new connection: `%s`", err)
-			break
-		}
+		conn := wrapTLS(tlsConn, serv.requests)
 		serv.openConns = append(serv.openConns, conn)
 
-		go conn.packetRouter(false, true)
+		go conn.packetRouter()
 	}
-
-	close(serv.sessChan)
 }
 
 // Spawn a router for each new session received over sessChan
 func (serv *Service)RouteSessions() (err error){
 
-	for newSess := range serv.sessChan {
-		
-		// if !stillOpen {
-		// 	Trace.Printf("sessChan was closed. server is probably shutting down.")
-		// 	break
-		// }
-
+	for message := range serv.requests {
 		go func(){
 			var action *ServiceAction
 
-			request,err := newSess.RecvRequest()
-			if err != nil {
-				return
-			}
-
-			action = serv.actions[request.Action]
+			action = serv.actions[message.Action]
 			if action != nil {
-				action.callback(request, newSess)
+				action.callback(message)
 			} else {
-				Error.Printf("unknown action `%s`", request.Action)
+				Error.Printf("unknown action `%s`", message.Action)
 				// TODO: need to respond with 'unknown action'
 			}
 		}()
