@@ -110,7 +110,7 @@ func (conn *Connection) packetRouter() (err error) {
 					return err
 				}
 
-				msg.Append(pkt)
+				msg.Write(pkt.body)
 			case pkt.packetType == EOF:
 				// Deliver message
 				msg = conn.pktToMsg[pkt.msgNo]

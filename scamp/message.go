@@ -33,9 +33,8 @@ func (msg *Message)SetMessageType(mtype messageType) {
   msg.MessageType = mtype
 }
 
-func (msg *Message)Write(blob []Byte) (n int, err error){
-  
-  msg.packets = append(msg.packets, pkt)
+func (msg *Message)Write(blob []byte) (n int, err error){
+  msg.packets = append(msg.packets, )
 }
 
 func (msg *Message)toPackets() ([]*Packet) {

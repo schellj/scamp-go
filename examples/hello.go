@@ -11,8 +11,8 @@ func main() {
 	message := scamp.NewMessage()
 	message.SetAction("helloworld.hello")
   message.SetEnvelope(scamp.ENVELOPE_JSON)
-  message.SetVersion
-  message.SetMessageType
+  message.SetVersion(1)
+  message.SetMessageType()
 
 	err = client.Send(message)
 	if err != nil {
