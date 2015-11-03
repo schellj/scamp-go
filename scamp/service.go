@@ -110,8 +110,9 @@ func (serv *Service)listen() (err error) {
 	}
 
   // TODO: get listenerIP to return 127.0.0.1 or something other than '::'/nil
-  // serv.listenerIP = serv.listener.Addr().(*net.TCPAddr).IP
-  serv.listenerIP, err = IPForAnnouncePacket()
+  serv.listenerIP = serv.listener.Addr().(*net.TCPAddr).IP
+  Trace.Printf("serv.listenerIP: `%s`", serv.listenerIP)
+  // serv.listenerIP, err = IPForAnnouncePacket()
   if err != nil {
   	return
   }
@@ -140,7 +141,7 @@ func (serv *Service)Run() {
 	for {
 		netConn,err := serv.listener.Accept()
 		if err != nil {
-			Info.Printf("accept returned error. exiting service Run()")
+			Info.Printf("exiting service service Run(): `%s`", err)
 			break
 		}
 
