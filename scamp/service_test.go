@@ -25,21 +25,22 @@ func spawnTestService(hasStopped (chan bool)) (service *Service) {
 	if err != nil {
 		Error.Fatalf("error creating new service: `%s`", err)
 	}
-	service.Register("helloworld.hello", func(req Request, sess *Session){
-		if len(req.Blob) > 0 {
-			Info.Printf("helloworld had data: %s", req.Blob)
-		} else {
-			Trace.Printf("helloworld was called without data")
-		}
+	service.Register("helloworld.hello", func(msg Message, client *Client){
+		panic("what")
+		// if len(req.Blob) > 0 {
+		// 	Info.Printf("helloworld had data: %s", req.Blob)
+		// } else {
+		// 	Trace.Printf("helloworld was called without data")
+		// }
 
-		err = sess.Send(Reply{
-			Blob: []byte("sup"),
-		})
-		if err != nil {
-			Error.Printf("error while sending reply: `%s`. continuing.", err)
-			return
-		}
-		Trace.Printf("successfully responded to hello world")
+		// err = sess.Send(Reply{
+		// 	Blob: []byte("sup"),
+		// })
+		// if err != nil {
+		// 	Error.Printf("error while sending reply: `%s`. continuing.", err)
+		// 	return
+		// }
+		// Trace.Printf("successfully responded to hello world")
 	})
 
 	go func(){

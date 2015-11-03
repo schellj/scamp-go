@@ -11,7 +11,7 @@ import "fmt"
 import "bytes"
 import "io/ioutil"
 
-type ServiceActionFunc func(*Message)
+type ServiceActionFunc func(*Message, *Client)
 type ServiceAction struct {
 	callback ServiceActionFunc
 	crudTags string

@@ -34,7 +34,8 @@ func (msg *Message)SetMessageType(mtype messageType) {
 }
 
 func (msg *Message)Write(blob []byte) (n int, err error){
-  msg.packets = append(msg.packets, )
+  msg.packets = append(msg.packets, &Packet{body: blob})
+  return len(blob), nil
 }
 
 func (msg *Message)toPackets() ([]*Packet) {
@@ -55,15 +56,14 @@ func (msg *Message)toPackets() ([]*Packet) {
     packetType:  EOF,
   }
 
+  packets := make([]*Packet, 2)
+  packets = append(packets, &headerPacket)
+  packets = append(packets, &eofPacket)
 
-  if len(msg.packets) > 0 {
-    dataPacket := Packet {
-      packetType: DATA,
-      body: req.Blob,
-    }
 
-    return []Packet{headerPacket, dataPacket, eofPacket}
-  } else {
-    return []Packet{headerPacket, eofPacket}
+  for _,dataPacket := range msg.packets {
+    packets = append(packets, dataPacket)
   }
+
+  return packets
 }
