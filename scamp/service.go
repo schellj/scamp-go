@@ -11,7 +11,7 @@ import "fmt"
 import "bytes"
 import "io/ioutil"
 
-type ServiceActionFunc func(*Message, *Client)
+type ServiceActionFunc func(*Client)
 type ServiceAction struct {
 	callback ServiceActionFunc
 	crudTags string
@@ -31,7 +31,7 @@ type Service struct {
 	isRunning     bool
 	openConns     []*Connection
 
-	requests      MessageChan
+	requests      ClientChan
 
 	cert          tls.Certificate
 	pemCert       []byte // just a copy of what was read off disk at tls cert load time
@@ -72,7 +72,7 @@ func NewService(serviceSpec string, humanName string) (serv *Service, err error)
 	serv.pemCert = bytes.TrimSpace(serv.pemCert)
 
 	// TODO: I think this is an unbuffered channel
-	serv.requests = make(MessageChan)
+	serv.requests = make(ClientChan)
 
 	// Finally, get ready for incoming requests
 	err = serv.listen()
@@ -154,7 +154,7 @@ func (serv *Service)Run() {
 			break
 		}
 
-		conn := wrapTLS(tlsConn, serv.requests)
+		conn := NewConnection(tlsConn)
 		serv.openConns = append(serv.openConns, conn)
 
 		go conn.packetRouter()
@@ -164,13 +164,16 @@ func (serv *Service)Run() {
 // Spawn a router for each new session received over sessChan
 func (serv *Service)RouteSessions() (err error){
 
-	for message := range serv.requests {
+	for client := range serv.requests {
 		go func(){
 			var action *ServiceAction
 
+			// Read the first message from the client
+			message := <- client.incoming
+
 			action = serv.actions[message.Action]
 			if action != nil {
-				action.callback(message)
+				action.callback(client)
 			} else {
 				Error.Printf("unknown action `%s`", message.Action)
 				// TODO: need to respond with 'unknown action'

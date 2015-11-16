@@ -147,6 +147,7 @@ func TestWriteHeaderPacket(t *testing.T) {
 			Envelope:  ENVELOPE_JSON,
 			RequestId: 1,
 			Version:   1,
+			MessageType: MESSAGE_TYPE_REQUEST,
 		},
 		body: []byte(""),
 	}

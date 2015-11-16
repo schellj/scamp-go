@@ -1,20 +1,30 @@
 package scamp
 
+type ClientChan chan *Client
+
 type Client struct {
   conn *Connection
-  msgs MessageChan
+  incoming chan *Message
 }
 
 func Dial(connspec string) (client *Client, err error){
   client = new(Client)
-  client.msgs = make(MessageChan)
 
-  conn,err := DialConnection(connspec, client.msgs)
+  conn,err := DialConnection(connspec)
   if err != nil {
     return
   }
   client.conn = conn
 
+  return
+}
+
+func NewClient(conn *Connection) (client *Client){
+  client = new(Client)
+
+  client.conn = conn
+  client.incoming = make(chan *Message)
+  
   return
 }
 

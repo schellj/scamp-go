@@ -1,5 +1,7 @@
 package scamp
 
+import "bytes"
+
 type MessageChan chan *Message
 
 type Message struct {
@@ -66,4 +68,13 @@ func (msg *Message)toPackets() ([]*Packet) {
   }
 
   return packets
+}
+
+func (msg *Message)toBytes() ([]byte) {
+  buf := new(bytes.Buffer)
+  for _,pkt := range msg.packets {
+    buf.Write(pkt.body)
+  }
+
+  return buf.Bytes()
 }

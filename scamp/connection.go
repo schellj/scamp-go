@@ -20,7 +20,7 @@ type Connection struct {
 // Used by Client to establish a secure connection to the remote service.
 // TODO: You must use the *connection.Fingerprint to verify the
 // remote host
-func DialConnection(connspec string, completeMsgs MessageChan) (conn *Connection, err error) {
+func DialConnection(connspec string) (conn *Connection, err error) {
 	config := &tls.Config{
 		InsecureSkipVerify: true,
 	}
@@ -31,14 +31,14 @@ func DialConnection(connspec string, completeMsgs MessageChan) (conn *Connection
 		return
 	}
 
-	conn = wrapTLS(tlsConn, completeMsgs)
+	conn = NewConnection(tlsConn)
 	go conn.packetRouter()
 	
 	return
 }
 
-// Used by Client and Service
-func wrapTLS(tlsConn *tls.Conn, completeMsgs MessageChan) (conn *Connection) {
+// Used by Service
+func NewConnection(tlsConn *tls.Conn) (conn *Connection) {
 	conn = new(Connection)
 	conn.conn = tlsConn
 
@@ -55,7 +55,7 @@ func wrapTLS(tlsConn *tls.Conn, completeMsgs MessageChan) (conn *Connection) {
 	conn.outgoingmsgno = 0
 
 	conn.pktToMsg      = make(map[int](*Message))
-	conn.completeMsgs  = completeMsgs
+	conn.completeMsgs  = make(MessageChan)
 
 	return
 }
