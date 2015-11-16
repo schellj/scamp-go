@@ -12,10 +12,14 @@ func main() {
 	message.SetAction("helloworld.hello")
   message.SetEnvelope(scamp.ENVELOPE_JSON)
   message.SetVersion(1)
-  message.SetMessageType()
+  message.SetMessageType(scamp.MESSAGE_TYPE_REQUEST)
+  message.Write([]byte("sup"))
 
 	err = client.Send(message)
 	if err != nil {
 		scamp.Error.Printf("error sending msg: `%s`", err)
 	}
+
+  response := <- client.Incoming()
+  scamp.Info.Printf("response: %s", response)
 }

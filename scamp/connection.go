@@ -21,6 +21,7 @@ type Connection struct {
 // TODO: You must use the *connection.Fingerprint to verify the
 // remote host
 func DialConnection(connspec string) (conn *Connection, err error) {
+	Trace.Printf("dialing connection to `%s`", connspec)
 	config := &tls.Config{
 		InsecureSkipVerify: true,
 	}
@@ -32,7 +33,6 @@ func DialConnection(connspec string) (conn *Connection, err error) {
 	}
 
 	conn = NewConnection(tlsConn)
-	go conn.packetRouter()
 	
 	return
 }
@@ -57,15 +57,19 @@ func NewConnection(tlsConn *tls.Conn) (conn *Connection) {
 	conn.pktToMsg      = make(map[int](*Message))
 	conn.completeMsgs  = make(MessageChan)
 
+	go conn.packetRouter()
+
 	return
 }
 
 func (conn *Connection) packetRouter() (err error) {
+	Trace.Printf("starting packetrouter")
 	var pkt *Packet
 	var msg *Message
 
 	for {
 		pkt,err = ReadPacket(conn.reader)
+		Trace.Printf("read packet: %s", pkt)
 		if err != nil {
 			return fmt.Errorf("err reading packet: `%s`. (EOF is normal). Returning.", err)
 		}
@@ -135,12 +139,16 @@ func (conn *Connection) packetRouter() (err error) {
 
 func (conn *Connection)Send(msg *Message) (err error) {
 	Trace.Printf("sending msg")
-	for _,pkt := range msg.toPackets() {
+	for i,pkt := range msg.toPackets() {
+		Trace.Printf("sending pkt %d (%s)", i, pkt)
 		err = pkt.Write(conn.writer)
 		if err != nil {
+			Error.Printf("error writing packet: `%s`", err)
 			return
 		}
 	}
+	conn.writer.Flush()
+	Trace.Printf("done sending msg")
 
 	return
 }

@@ -80,6 +80,8 @@ func NewService(serviceSpec string, humanName string) (serv *Service, err error)
 		return
 	}
 
+	Trace.Printf("done initializing service")
+
 	return
 }
 
@@ -143,6 +145,7 @@ func (serv *Service)Run() {
 
 	for {
 		netConn,err := serv.listener.Accept()
+		Trace.Printf("accepted new connection...")
 		if err != nil {
 			Info.Printf("accept returned error. exiting service Run()")
 			break
@@ -156,8 +159,6 @@ func (serv *Service)Run() {
 
 		conn := NewConnection(tlsConn)
 		serv.openConns = append(serv.openConns, conn)
-
-		go conn.packetRouter()
 	}
 }
 

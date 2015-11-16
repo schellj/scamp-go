@@ -11,16 +11,19 @@ func main() {
 	if err != nil {
 		scamp.Error.Fatalf("error creating new service: `%s`", err)
 	}
-	service.Register("helloworld.hello", func(req scamp.Request, sess *scamp.Session){
-		if len(req.Blob) > 0 {
-			scamp.Info.Printf("helloworld had data: %s", req.Blob)
+	service.Register("helloworld.hello", func(client *scamp.Client){
+		scamp.Info.Printf("sup")
+		req := <- client.Incoming()
+		blob := req.Bytes()
+		if len(blob) > 0 {
+			scamp.Info.Printf("helloworld had data: %s", blob)
 		} else {
 			scamp.Trace.Printf("helloworld was called without data")
 		}
 
-		err = sess.Send(scamp.Reply{
-			Blob: famous_words,
-		})
+		reply := &scamp.Message{}
+		reply.Write(famous_words)
+		err = client.Send(reply)
 		if err != nil {
 			scamp.Error.Printf("error while sending reply: `%s`. continuing.", err)
 			return

@@ -48,7 +48,7 @@ func ReadPacket(reader *bufio.Reader) (pkt *Packet, err error) {
 	if err != nil {
 		return
 	}
-	
+
 	hdrValsRead, err := fmt.Sscanf(string(hdrBytes), "%s %d %d", &pktTypeBytes, &(pkt.msgNo), &bodyBytesNeeded)
 	if hdrValsRead != 3 || err != nil {
 		return
@@ -102,6 +102,7 @@ func (pkt *Packet) parseHeader() (err error) {
 }
 
 func (pkt *Packet) Write(writer io.Writer) (err error) {
+	Trace.Printf("writing packet...")
 	var packet_type_bytes []byte
 	switch pkt.packetType {
 	case HEADER:
@@ -137,6 +138,8 @@ func (pkt *Packet) Write(writer io.Writer) (err error) {
 	}
 
 	bodyBytes := bodyBuf.Bytes()
+	Trace.Printf("pkt: (%d, `%s`)", pkt.msgNo, packet_type_bytes)
+	Trace.Printf("packet_body: `%s`", bodyBytes)
 
 	_, err = fmt.Fprintf(writer, "%s %d %d\r\n", packet_type_bytes, pkt.msgNo, len(bodyBytes))
 	if err != nil {

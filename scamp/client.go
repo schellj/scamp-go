@@ -4,13 +4,14 @@ type ClientChan chan *Client
 
 type Client struct {
   conn *Connection
-  incoming chan *Message
+  incoming MessageChan
 }
 
 func Dial(connspec string) (client *Client, err error){
-  client = new(Client)
+  Trace.Printf("connecting to `%s`", connspec)
 
   conn,err := DialConnection(connspec)
+  client = NewClient(conn)
   if err != nil {
     return
   }
@@ -20,6 +21,7 @@ func Dial(connspec string) (client *Client, err error){
 }
 
 func NewClient(conn *Connection) (client *Client){
+  Trace.Printf("client allocated")
   client = new(Client)
 
   client.conn = conn
@@ -29,10 +31,15 @@ func NewClient(conn *Connection) (client *Client){
 }
 
 func (client *Client)Send(msg *Message) (err error){ 
+  Trace.Printf("sending message `%s`", msg)
   client.conn.Send(msg)
   return
 }
 
 func (client *Client)Close() {
   client.conn.Close()
+}
+
+func (client *Client)Incoming() (MessageChan) {
+  return client.incoming
 }
