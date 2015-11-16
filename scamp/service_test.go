@@ -9,19 +9,20 @@ import "crypto/tls"
 import "io/ioutil"
 
 // TODO: fix Session API (aka, simplify design by dropping it)
-// func TestServiceHandlesRequest(t *testing.T) {
-// 	Initialize()
+func TestServiceHandlesRequest(t *testing.T) {
+	Initialize()
 
-// 	hasStopped := make(chan bool, 1)
-// 	service := spawnTestService(hasStopped)
-// 	connectToTestService(t)
-// 	service.Stop()
-// 	<-hasStopped
+	hasStopped := make(chan bool)
+	service := spawnTestService(hasStopped)
+	// connectToTestService(t)
+	time.Sleep(1000 * time.Millisecond)
+	service.Stop()
+	<-hasStopped
 
-// }
+}
 
 func spawnTestService(hasStopped (chan bool)) (service *Service) {
-	service,err := NewService(":30100", "helloworld")
+	service,err := NewService("127.0.0.1:40400", "helloworld")
 	if err != nil {
 		Error.Fatalf("error creating new service: `%s`", err)
 	}
