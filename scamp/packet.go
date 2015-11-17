@@ -11,6 +11,8 @@ const (
 	the_rest_size = 5
 )
 
+var packetSeenSinceBoot = 0
+
 type Packet struct {
 	packetType   PacketType
 	msgNo        int
@@ -53,6 +55,8 @@ func ReadPacket(reader *bufio.Reader) (pkt *Packet, err error) {
 	if hdrValsRead != 3 || err != nil {
 		return
 	}
+	Trace.Printf("(%d) reading header line for msg %d (%s)", packetSeenSinceBoot, pkt.msgNo, hdrBytes)
+
 
 	if bytes.Equal(header_bytes, pktTypeBytes) {
 		pkt.packetType = HEADER
@@ -69,6 +73,7 @@ func ReadPacket(reader *bufio.Reader) (pkt *Packet, err error) {
 	}
 
 	// Use the msg len to consume the rest of the connection
+	Trace.Printf("(%d) reading rest of packet body (%d bytes)", packetSeenSinceBoot, bodyBytesNeeded)
 	pkt.body = make([]byte, bodyBytesNeeded)
 	bytesRead, err := io.ReadFull(reader, pkt.body)
 	if err != nil {
@@ -89,6 +94,8 @@ func ReadPacket(reader *bufio.Reader) (pkt *Packet, err error) {
 		pkt.body = nil
 	}
 
+	Trace.Printf("(%d) done reading packet", packetSeenSinceBoot)
+	packetSeenSinceBoot = packetSeenSinceBoot + 1
 	return pkt, nil
 }
 

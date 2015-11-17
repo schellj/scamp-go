@@ -40,7 +40,7 @@ func (msg *Message)Write(blob []byte) (n int, err error){
   return len(blob), nil
 }
 
-func (msg *Message)toPackets() ([]*Packet) {
+func (msg *Message)toPackets(msgNo int) ([]*Packet) {
   headerHeader := PacketHeader{
     Action:      msg.Action,
     Envelope:    msg.Envelope,
@@ -52,19 +52,23 @@ func (msg *Message)toPackets() ([]*Packet) {
   headerPacket := Packet {
     packetHeader: headerHeader,
     packetType:   HEADER,
+    msgNo:        msgNo,
   }
 
   eofPacket := Packet {
     packetType:  EOF,
+    msgNo:       msgNo,
   }
 
-  packets := make([]*Packet, 2)
+  packets := make([]*Packet, 1)
   packets[0] = &headerPacket
-  packets[1] = &eofPacket
 
   for _,dataPacket := range msg.packets {
+    dataPacket.msgNo = msgNo
     packets = append(packets, dataPacket)
   }
+
+  packets = append(packets, &eofPacket)
 
   return packets
 }

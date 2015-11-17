@@ -11,8 +11,8 @@ func main() {
 	if err != nil {
 		scamp.Error.Fatalf("error creating new service: `%s`", err)
 	}
-	service.Register("helloworld.hello", func(client *scamp.Client){
-		scamp.Info.Printf("sup")
+	service.Register("helloworld.hello", func(message *scamp.Message, client *scamp.Client){
+		scamp.Info.Printf("go message: `%s`", message.Bytes())
 		req := <- client.Incoming()
 		blob := req.Bytes()
 		if len(blob) > 0 {

@@ -4,7 +4,6 @@ type ClientChan chan *Client
 
 type Client struct {
   conn *Connection
-  incoming MessageChan
 }
 
 func Dial(connspec string) (client *Client, err error){
@@ -25,7 +24,6 @@ func NewClient(conn *Connection) (client *Client){
   client = new(Client)
 
   client.conn = conn
-  client.incoming = make(chan *Message)
   
   return
 }
@@ -41,5 +39,5 @@ func (client *Client)Close() {
 }
 
 func (client *Client)Incoming() (MessageChan) {
-  return client.incoming
+  return client.conn.msgs
 }

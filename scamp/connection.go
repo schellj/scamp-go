@@ -14,7 +14,7 @@ type Connection struct {
 	outgoingmsgno  int
 
 	pktToMsg       map[int](*Message)
-	completeMsgs   MessageChan
+	msgs           MessageChan
 }
 
 // Used by Client to establish a secure connection to the remote service.
@@ -55,7 +55,7 @@ func NewConnection(tlsConn *tls.Conn) (conn *Connection) {
 	conn.outgoingmsgno = 0
 
 	conn.pktToMsg      = make(map[int](*Message))
-	conn.completeMsgs  = make(MessageChan)
+	conn.msgs          = make(MessageChan)
 
 	go conn.packetRouter()
 
@@ -68,14 +68,18 @@ func (conn *Connection) packetRouter() (err error) {
 	var msg *Message
 
 	for {
+		Trace.Printf("reading packet...")
 		pkt,err = ReadPacket(conn.reader)
 		Trace.Printf("read packet: %s", pkt)
 		if err != nil {
+			Error.Printf("err: %s", err)
 			return fmt.Errorf("err reading packet: `%s`. (EOF is normal). Returning.", err)
 		}
 
+		Trace.Printf("switching...")
 		switch {
 			case pkt.packetType == HEADER:
+				Trace.Printf("HEADER")
 				// Allocate new msg
 				// First verify it's the expected incoming msgno
 				if pkt.msgNo != conn.incomingmsgno {
@@ -86,7 +90,7 @@ func (conn *Connection) packetRouter() (err error) {
 
 				msg = conn.pktToMsg[pkt.msgNo]
 				if msg != nil {
-					err = fmt.Errorf("unexpected error: already tracking msgno %d")
+					err = fmt.Errorf("Bad HEADER; already tracking msgno %d")
 					Error.Printf("%s", err)
 					return err
 				}
@@ -105,32 +109,38 @@ func (conn *Connection) packetRouter() (err error) {
 
 				conn.incomingmsgno = conn.incomingmsgno + 1
 			case pkt.packetType == 	DATA:
+				Trace.Printf("DATA")
 				// Append data
 				// Verify we are tracking that message
 				msg = conn.pktToMsg[pkt.msgNo]
 				if msg == nil {
-					err = fmt.Errorf("not tracking msgno %d", pkt.msgNo)
+					err = fmt.Errorf("not tracking msgno %d (%s)", pkt.msgNo, pkt)
 					Error.Printf("unexpected error: `%s`", err)
 					return err
 				}
 
 				msg.Write(pkt.body)
 			case pkt.packetType == EOF:
+				Trace.Printf("EOF")
 				// Deliver message
 				msg = conn.pktToMsg[pkt.msgNo]
 				if msg == nil {
 					err = fmt.Errorf("cannot process EOF for unknown msgno %d", pkt.msgNo)
+					Error.Printf("err: `%s`", err)
 					return
 				}
 
-				delete(conn.pktToMsg, pkt.msgNo)				
-				conn.completeMsgs <- msg
+				delete(conn.pktToMsg, pkt.msgNo)
+				Trace.Printf("delivering msg up the stack")
+				conn.msgs <- msg
 			case pkt.packetType == 	TXERR:
+				Trace.Printf("TXERR")
 				delete(conn.pktToMsg, pkt.msgNo)				
-				conn.completeMsgs <- msg
+				conn.msgs <- msg
 				// TODO: add 'error' path on connection
 				// Kill connection
 			case pkt.packetType == 	ACK:
+				Trace.Printf("ACK")
 				panic("Xavier needs to support this")
 				// Add bytes to message stream tally
 		}
@@ -138,8 +148,12 @@ func (conn *Connection) packetRouter() (err error) {
 }
 
 func (conn *Connection)Send(msg *Message) (err error) {
-	Trace.Printf("sending msg")
-	for i,pkt := range msg.toPackets() {
+	outgoingmsgno := conn.outgoingmsgno
+	conn.outgoingmsgno = conn.outgoingmsgno + 1
+
+	Trace.Printf("sending msgno %d", outgoingmsgno)
+
+	for i,pkt := range msg.toPackets(outgoingmsgno) {
 		Trace.Printf("sending pkt %d (%s)", i, pkt)
 		err = pkt.Write(conn.writer)
 		if err != nil {
