@@ -82,9 +82,9 @@ Features
  - [x] Manage connection msgno
  - [x] Parse service cache
  - [ ] Choose service listen port randomly from within configured range
- - [ ] Announce service
-   - [ ] Copy Service details to ServiceProxy (which can serialize)
-   - [ ] Write ServiceProxy to UDP multicast
+ - [x] Announce service
+   - [x] Copy Service details to ServiceProxy (which can serialize)
+   - [x] Write ServiceProxy to UDP multicast
    - [ ] Investigate merging Service/ServiceProxy
  - [ ] Route RPC based on service cache
  - [x] Use go logging library
@@ -99,7 +99,7 @@ Features
    - [ ] Investigate using http://devdocs.io/go/crypto/tls/index#ClientSessionCache
  - [x] ACK packets
    - [ ] Modify when sent based on message token
- - [ ] Nuke `session` code and move to `message` with bidirectional packet streams
+ - [x] Nuke `session` code and move to `client` with bidirectional packet streams
  - [ ] Audit how connections are freed from demux lookup structure
  - [ ] RequestId should be generated on Message allocation, not Message send
 

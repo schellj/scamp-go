@@ -11,9 +11,11 @@ const (
 	the_rest_size = 5
 )
 
+var packetSeenSinceBoot = 0
+
 type Packet struct {
 	packetType   PacketType
-	msgNo  msgNoType
+	msgNo        int
 	packetHeader PacketHeader
 	body         []byte
 	ackRequestId reqIdType
@@ -39,19 +41,23 @@ var the_rest_bytes = []byte("END\r\n")
 /*
   Will parse an io stream in to a packet struct
 */
-func ReadPacket(reader *bufio.Reader) (pkt Packet, err error) {
+func ReadPacket(reader *bufio.Reader) (pkt *Packet, err error) {
+	pkt = new(Packet)
 	var pktTypeBytes []byte
 	var bodyBytesNeeded int
 
 	hdrBytes, _, err := reader.ReadLine()
+	
 	if err != nil {
 		return
 	}
-	
+
 	hdrValsRead, err := fmt.Sscanf(string(hdrBytes), "%s %d %d", &pktTypeBytes, &(pkt.msgNo), &bodyBytesNeeded)
 	if hdrValsRead != 3 || err != nil {
 		return
 	}
+
+	Trace.Printf("reading pkt: (%d, `%s`)", pkt.msgNo, pktTypeBytes)
 
 	if bytes.Equal(header_bytes, pktTypeBytes) {
 		pkt.packetType = HEADER
@@ -64,34 +70,38 @@ func ReadPacket(reader *bufio.Reader) (pkt Packet, err error) {
 	} else if bytes.Equal(ack_bytes, pktTypeBytes) {
 		pkt.packetType = ACK
 	} else {
-		return Packet{}, errors.New(fmt.Sprintf("unknown packet type `%s`", pktTypeBytes))
+		return nil, errors.New(fmt.Sprintf("unknown packet type `%s`", pktTypeBytes))
 	}
 
 	// Use the msg len to consume the rest of the connection
+	Trace.Printf("(%d) reading rest of packet body (%d bytes)", packetSeenSinceBoot, bodyBytesNeeded)
 	pkt.body = make([]byte, bodyBytesNeeded)
 	bytesRead, err := io.ReadFull(reader, pkt.body)
 	if err != nil {
-		return Packet{}, fmt.Errorf("failed to read body")
+		return nil, fmt.Errorf("failed to read body")
 	}
 
 	theRest := make([]byte, the_rest_size)
 	bytesRead, err = io.ReadFull(reader,theRest)
 	if bytesRead != the_rest_size || !bytes.Equal(theRest, []byte("END\r\n")) {
-		return Packet{}, fmt.Errorf("packet was missing trailing bytes")
+		return nil, fmt.Errorf("packet was missing trailing bytes")
 	}
 
 	if pkt.packetType == HEADER {
 		err := pkt.parseHeader()
 		if err != nil {
-			return Packet{}, err
+			return nil, err
 		}
 		pkt.body = nil
 	}
 
+	Trace.Printf("(%d) done reading packet", packetSeenSinceBoot)
+	packetSeenSinceBoot = packetSeenSinceBoot + 1
 	return pkt, nil
 }
 
 func (pkt *Packet) parseHeader() (err error) {
+	Trace.Printf("parsing header (%s)", pkt.body)
 	err = json.Unmarshal(pkt.body, &pkt.packetHeader)
 	if err != nil {
 		return
@@ -101,6 +111,7 @@ func (pkt *Packet) parseHeader() (err error) {
 }
 
 func (pkt *Packet) Write(writer io.Writer) (err error) {
+	Trace.Printf("writing packet...")
 	var packet_type_bytes []byte
 	switch pkt.packetType {
 	case HEADER:
@@ -115,6 +126,7 @@ func (pkt *Packet) Write(writer io.Writer) (err error) {
 		packet_type_bytes = ack_bytes
 	default:
 		err = errors.New( fmt.Sprintf("unknown packetType %s", pkt.packetType) )
+		Error.Printf("unknown packetType %s", pkt.packetType)
 		return
 	}
 
@@ -136,6 +148,8 @@ func (pkt *Packet) Write(writer io.Writer) (err error) {
 	}
 
 	bodyBytes := bodyBuf.Bytes()
+	Trace.Printf("writing pkt: (%d, `%s`)", pkt.msgNo, packet_type_bytes)
+	Trace.Printf("packet_body: `%s`", bodyBytes)
 
 	_, err = fmt.Fprintf(writer, "%s %d %d\r\n", packet_type_bytes, pkt.msgNo, len(bodyBytes))
 	if err != nil {

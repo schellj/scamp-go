@@ -26,21 +26,22 @@ func spawnTestService(hasStopped (chan bool)) (service *Service) {
 	if err != nil {
 		Error.Fatalf("error creating new service: `%s`", err)
 	}
-	service.Register("helloworld.hello", func(req Request, sess *Session){
-		if len(req.Blob) > 0 {
-			Info.Printf("helloworld had data: %s", req.Blob)
-		} else {
-			Trace.Printf("helloworld was called without data")
-		}
+	service.Register("helloworld.hello", func(message *Message, client *Client){
+		panic("what")
+		// if len(req.Blob) > 0 {
+		// 	Info.Printf("helloworld had data: %s", req.Blob)
+		// } else {
+		// 	Trace.Printf("helloworld was called without data")
+		// }
 
-		err = sess.Send(Reply{
-			Blob: []byte("sup"),
-		})
-		if err != nil {
-			Error.Printf("error while sending reply: `%s`. continuing.", err)
-			return
-		}
-		Trace.Printf("successfully responded to hello world")
+		// err = sess.Send(Reply{
+		// 	Blob: []byte("sup"),
+		// })
+		// if err != nil {
+		// 	Error.Printf("error while sending reply: `%s`. continuing.", err)
+		// 	return
+		// }
+		// Trace.Printf("successfully responded to hello world")
 	})
 
 	go func(){
@@ -51,16 +52,16 @@ func spawnTestService(hasStopped (chan bool)) (service *Service) {
 }
 
 func connectToTestService(t *testing.T) {
-	conn, err := Connect("127.0.0.1:30100")
-	defer conn.Close()
+	client, err := Dial("127.0.0.1:30100")
+	defer client.Close()
 
 	if err != nil {
 		Error.Fatalf("could not connect! `%s`\n", err)
 	}
 
-	err = conn.Send(&Request{
+	responseChan,err := client.Send(&Message{
 		Action:         "helloworld.hello",
-		EnvelopeFormat: ENVELOPE_JSON,
+		Envelope: ENVELOPE_JSON,
 		Version:        1,
 	})
 	if err != nil {
@@ -68,20 +69,13 @@ func connectToTestService(t *testing.T) {
 		t.FailNow()
 	}
 
-	sess := conn.Recv()
-
 	select {
-		case msg := <-sess.RecvChan():
-			reply,ok := msg.(Reply)
-			if !ok {
-				t.Errorf("expected reply")
-			}
-			
-			if !bytes.Equal(reply.Blob, []byte("sup")) {
-				t.Fatalf("did not get expected response `sup`")
-			}
-		case <-time.After(500 * time.Millisecond):
-			t.Fatalf("timed out waiting for response")
+	case msg := <-responseChan:
+		if !bytes.Equal(msg.Bytes(), []byte("sup")) {
+			t.Fatalf("did not get expected response `sup`")
+		}
+	case <-time.After(500 * time.Millisecond):
+		t.Fatalf("timed out waiting for response")
 	}
 
 	return
@@ -99,7 +93,7 @@ func TestServiceToProxyMarshal(t *testing.T) {
 		listenerPort: 30100,
 		actions: make(map[string]*ServiceAction),
 	}
-	s.Register("Logging.info", func(_ Request, _ *Session) {
+	s.Register("Logging.info", func(_ *Message, _ *Client) {
 	})
 
 	serviceProxy := ServiceAsServiceProxy(&s)
@@ -141,7 +135,7 @@ func TestFullServiceMarshal(t *testing.T) {
 		pemCert: encodedCert,
 		cert: cert,
 	}
-	s.Register("Logging.info", func(_ Request, _ *Session) {
+	s.Register("Logging.info", func(_ *Message, _ *Client) {
 	})
 
 	// TODO: confirm output of marshalling the payload.

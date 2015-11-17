@@ -2,7 +2,7 @@ package main
 
 import "scamp"
 
-var famous_words = []byte("SCAMP SAYS HELLO WORLD")
+var famous_words = []byte("SCAMP SHOUTS `HELLO WORLD`")
 
 func main() {
 	scamp.Initialize()
@@ -11,21 +11,23 @@ func main() {
 	if err != nil {
 		scamp.Error.Fatalf("error creating new service: `%s`", err)
 	}
-	service.Register("helloworld.hello", func(req scamp.Request, sess *scamp.Session){
-		if len(req.Blob) > 0 {
-			scamp.Info.Printf("helloworld had data: %s", req.Blob)
+	service.Register("helloworld.hello", func(message *scamp.Message, client *scamp.Client){
+		scamp.Info.Printf("go message: `%s`", message.Bytes())
+		blob := message.Bytes()
+
+		if len(blob) > 0 {
+			scamp.Info.Printf("helloworld had data: %s", blob)
 		} else {
 			scamp.Trace.Printf("helloworld was called without data")
 		}
 
-		err = sess.Send(scamp.Reply{
-			Blob: famous_words,
-		})
+		reply := &scamp.Message{MessageType: scamp.MESSAGE_TYPE_REPLY}
+		reply.Write(famous_words)
+		_, err := client.Send(reply)
 		if err != nil {
 			scamp.Error.Printf("error while sending reply: `%s`. continuing.", err)
 			return
 		}
-		scamp.Trace.Printf("successfully responded to hello world")
 	})
 
 	announcer,err := scamp.NewDiscoveryAnnouncer()

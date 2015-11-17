@@ -25,7 +25,7 @@ type ServiceProxy struct {
 
 	timestamp HighResTimestamp
 
-	conn *Connection
+	client *Client
 }
 
 type ServiceProxyClass struct {
@@ -39,19 +39,6 @@ type actionDescription struct {
 	version int
 }
 
-// type Service struct {
-// 	serviceSpec   string
-// 	name          string
-
-// 	listener      net.Listener
-
-// 	actions       map[string]ServiceAction
-// 	sessChan      (chan *Session)
-// 	isRunning     bool
-// 	openConns     []*Connection
-
-// 	cert          tls.Certificate
-// }
 func ServiceAsServiceProxy(serv *Service) (proxy *ServiceProxy) {
 	proxy = new(ServiceProxy)
 	proxy.version = 3
@@ -195,7 +182,7 @@ func NewServiceProxy(classRecordsRaw []byte, certRaw []byte, sigRaw []byte) (pro
 		}	
 	}
 
-	proxy.conn = nil // we connect on demand
+	proxy.client = nil // we connect on demand
 	return
 }
 
@@ -244,13 +231,13 @@ func (proxy *ServiceProxy)validateSignature() (hexSha1 string, err error) {
 	return
 }
 
-func (proxy *ServiceProxy)GetConnection() (conn *Connection, err error) {
-	if proxy.conn != nil {
-		conn = proxy.conn
+func (proxy *ServiceProxy)GetConnection() (client *Client, err error) {
+	if proxy.client != nil {
+		client = proxy.client
 		return
 	}
 
-	proxy.conn, err = Connect(proxy.connspec)
+	proxy.client,err = Dial(proxy.connspec)
 	if err != nil {
 		return
 	}
@@ -259,11 +246,6 @@ func (proxy *ServiceProxy)GetConnection() (conn *Connection, err error) {
 }
 
 func (proxy *ServiceProxy)MarshalJSON() (b []byte, err error) {
-	// var arr []json.RawMessage
-	// arr = make([]json.RawMessage, 1, 1)
-
-	// b,err = json.Marshal(arr)
-	// err = json.Marshal(arr[0], &proxy.version)
 	arr := make([]interface{},9)
 	arr[0] = &proxy.version
   arr[1] = &proxy.ident

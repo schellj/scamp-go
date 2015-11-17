@@ -2,24 +2,26 @@ package scamp
 
 import "crypto/tls"
 import "fmt"
-import "sync"
 import "bufio"
 
 type Connection struct {
-	conn        *tls.Conn
-	reader      *bufio.Reader
-	Fingerprint string
-	msgCnt      msgNoType
+	conn         *tls.Conn
+	Fingerprint  string
 
-	sessDemuxMutex *sync.Mutex
-	sessDemux    map[msgNoType](*Session)
-	newSessions  (chan *Session)
+	reader         *bufio.Reader
+	writer         *bufio.Writer
+	incomingmsgno  int
+	outgoingmsgno  int
+
+	pktToMsg       map[int](*Message)
+	msgs           MessageChan
 }
 
-// Establish secure connection to remote service.
-// You must use the *connection.Fingerprint to verify the
+// Used by Client to establish a secure connection to the remote service.
+// TODO: You must use the *connection.Fingerprint to verify the
 // remote host
-func Connect(connspec string) (conn *Connection, err error) {
+func DialConnection(connspec string) (conn *Connection, err error) {
+	Trace.Printf("dialing connection to `%s`", connspec)
 	config := &tls.Config{
 		InsecureSkipVerify: true,
 	}
@@ -30,27 +32,15 @@ func Connect(connspec string) (conn *Connection, err error) {
 		return
 	}
 
-	sessChan := make(chan *Session, 100)
-
-	conn,err = newConnection(tlsConn, sessChan)
-	if err != nil {
-		return
-	}
-	go conn.packetRouter(true, false)
+	conn = NewConnection(tlsConn)
 	
 	return
 }
 
-func newConnection(tlsConn *tls.Conn, sessChan (chan *Session)) (conn *Connection, err error) {
+// Used by Service
+func NewConnection(tlsConn *tls.Conn) (conn *Connection) {
 	conn = new(Connection)
 	conn.conn = tlsConn
-	conn.reader = bufio.NewReader(conn.conn)
-
-	conn.sessDemuxMutex = new(sync.Mutex)
-	conn.sessDemux = make(map[msgNoType](*Session))
-	conn.newSessions = sessChan
-
-	conn.msgCnt = 0
 
 	// TODO get the end entity certificate instead
 	peerCerts := conn.conn.ConnectionState().PeerCertificates
@@ -59,129 +49,125 @@ func newConnection(tlsConn *tls.Conn, sessChan (chan *Session)) (conn *Connectio
 		conn.Fingerprint = sha1FingerPrint(peerCert)
 	}
 
+	conn.reader        = bufio.NewReader(conn.conn)
+	conn.writer        = bufio.NewWriter(conn.conn)
+	conn.incomingmsgno = 0
+	conn.outgoingmsgno = 0
+
+	conn.pktToMsg      = make(map[int](*Message))
+	conn.msgs          = make(MessageChan)
+
+	go conn.packetRouter()
+
 	return
 }
 
-// Demultiplex packets to their proper buffers.
-func (conn *Connection) packetRouter(ignoreUnknownSessions bool, isService bool) (err error) {
-	var pkt Packet
-	var sess *Session
+func (conn *Connection) packetRouter() (err error) {
+	Trace.Printf("starting packetrouter")
+	var pkt *Packet
+	var msg *Message
 
 	for {
-		pkt, err = ReadPacket(conn.reader)
+		Trace.Printf("reading packet...")
+		pkt,err = ReadPacket(conn.reader)
+		Trace.Printf("read packet: %s", pkt)
 		if err != nil {
-			// TODO: what are the issues with stopping a packet router here?
-			// The socket has probably closed
+			Error.Printf("err: %s", err)
 			return fmt.Errorf("err reading packet: `%s`. (EOF is normal). Returning.", err)
 		}
 
-		conn.sessDemuxMutex.Lock()
-		sess = conn.sessDemux[pkt.msgNo]
-		if sess == nil && !ignoreUnknownSessions {
-			// TODO only have useful packetHeader on HEADER packets... should check that huh?
-			sess = newSession(pkt.packetHeader.RequestId, conn)
-			conn.sessDemux[pkt.msgNo] = sess
-			conn.sessDemuxMutex.Unlock()
-
-			conn.newSessions <- sess // Could block and holding the DemuxMutex would block other tasks (namely: sending requests)
-		} else {
-			conn.sessDemuxMutex.Unlock()
-		}
-
-		if sess == nil && ignoreUnknownSessions {
-			return fmt.Errorf("packet (msgNo: %d) has no corresponding session. killing connection.", pkt.msgNo)
-		}
-
-		if pkt.packetType == HEADER {
-			sess.Append(pkt)
-		} else if pkt.packetType == DATA {
-			sess.Append(pkt)
-		} else if pkt.packetType == EOF {
-			// TODO: need polymorphism on Req/Reply so they can be delivered
-			if isService {
-				if len(sess.packets) > 0 {
-					sess.DeliverRequest()
-				} else {
-					Error.Printf("sess msgno: %d had no packets on EOF. Freeing and moving on.", pkt.msgNo)
+		Trace.Printf("switching...")
+		switch {
+			case pkt.packetType == HEADER:
+				Trace.Printf("HEADER")
+				// Allocate new msg
+				// First verify it's the expected incoming msgno
+				if pkt.msgNo != conn.incomingmsgno {
+					err = fmt.Errorf("out of sequence msgno: expected %d but got %d", conn.incomingmsgno, pkt.msgNo)
+					Error.Printf("%s", err)
+					return err
 				}
-				conn.Free(pkt.msgNo)
-			} else {
-				go func(){
-					sess.DeliverReply()
-					conn.Free(pkt.msgNo)
-				}()
-			}
-		} else if pkt.packetType == TXERR {
-			Trace.Printf("(incoming SESS %d) TXERR\n`%s`", pkt.msgNo, pkt.body)
-			// TODO: need polymorphism on Req/Reply so they can be delivered
-			if isService {
-				sess.DeliverRequest()
-				conn.Free(pkt.msgNo)
-			} else {
-				go func(){
-					sess.DeliverReply()
-					conn.Free(pkt.msgNo)
-				}()
-			}
-		} else if (pkt.packetType == ACK) {
-			// TODO we should use this to cancel a timer on the Message
-		} else {
-			Error.Printf("(incoming SESS %d) unknown packet type %d\n", pkt.packetType)
+
+				msg = conn.pktToMsg[pkt.msgNo]
+				if msg != nil {
+					err = fmt.Errorf("Bad HEADER; already tracking msgno %d")
+					Error.Printf("%s", err)
+					return err
+				}
+
+				// Allocate message and copy over header values so we don't have to track them
+				// We copy out the packetHeader values and then we can discard it
+				msg = NewMessage()
+				msg.SetAction(pkt.packetHeader.Action)
+				msg.SetEnvelope(pkt.packetHeader.Envelope)
+				msg.SetVersion(pkt.packetHeader.Version)
+				msg.SetMessageType(pkt.packetHeader.MessageType)
+				// TODO: Do we need the requestId?
+
+				conn.pktToMsg[pkt.msgNo] = msg
+				// This is for sending out data
+				// conn.incomingNotifiers[pktMsgNo] = &make((chan *Message),1)
+
+				conn.incomingmsgno = conn.incomingmsgno + 1
+			case pkt.packetType == 	DATA:
+				Trace.Printf("DATA")
+				// Append data
+				// Verify we are tracking that message
+				msg = conn.pktToMsg[pkt.msgNo]
+				if msg == nil {
+					err = fmt.Errorf("not tracking msgno %d (%s)", pkt.msgNo, pkt)
+					Error.Printf("unexpected error: `%s`", err)
+					return err
+				}
+
+				msg.Write(pkt.body)
+			case pkt.packetType == EOF:
+				Trace.Printf("EOF")
+				// Deliver message
+				msg = conn.pktToMsg[pkt.msgNo]
+				if msg == nil {
+					err = fmt.Errorf("cannot process EOF for unknown msgno %d", pkt.msgNo)
+					Error.Printf("err: `%s`", err)
+					return
+				}
+
+				delete(conn.pktToMsg, pkt.msgNo)
+				Trace.Printf("delivering msgno %d up the stack", pkt.msgNo)
+				conn.msgs <- msg
+			case pkt.packetType == 	TXERR:
+				Trace.Printf("TXERR")
+				delete(conn.pktToMsg, pkt.msgNo)				
+				conn.msgs <- msg
+				// TODO: add 'error' path on connection
+				// Kill connection
+			case pkt.packetType == 	ACK:
+				Trace.Printf("ACK")
+				panic("Xavier needs to support this")
+				// Add bytes to message stream tally
 		}
 	}
-
-	return
 }
 
-func (conn *Connection) Send(msg Message) (err error) {
-	// The lock must be held until the first packet is sent. 
-	// With the current structure it will hold the lock until all
-	// packets for req are sent
-	conn.sessDemuxMutex.Lock()
+func (conn *Connection)Send(msg *Message) (err error) {
+	outgoingmsgno := conn.outgoingmsgno
+	conn.outgoingmsgno = conn.outgoingmsgno + 1
 
-	packets := msg.toPackets()
-	// sess = newSession(packets[0].packetHeader.RequestId, conn)
-	// conn.sessDemux[conn.msgCnt] = sess
+	Trace.Printf("sending msgno %d", outgoingmsgno)
 
-	for _,pkt := range packets {
-		pkt.msgNo = conn.msgCnt
-
-		// TODO: RequestId should be allocated on Reply allocation, not Reply send
-		if pkt.packetType == HEADER {
-			// Trace.Printf("HEADER %d, reqId: %d", pkt.msgNo, pkt.packetHeader.RequestId)
-		} else if pkt.packetType == DATA {
-			// Trace.Printf("DATA: %d", pkt.msgNo)
-		} else if pkt.packetType == EOF {
-			conn.msgCnt = conn.msgCnt + 1
-		}
-
-		err = pkt.Write(conn.conn)
+	for i,pkt := range msg.toPackets(outgoingmsgno) {
+		Trace.Printf("sending pkt %d (%s)", i, pkt)
+		err = pkt.Write(conn.writer)
 		if err != nil {
+			Error.Printf("error writing packet: `%s`", err)
 			return
 		}
 	}
-
-	conn.sessDemuxMutex.Unlock()
+	conn.writer.Flush()
+	Trace.Printf("done sending msg")
 
 	return
 }
 
-// Pulls full Requests out of master Request chan
-// func (conn *Connection) Recv() Session {
-// 	return <-conn.sessionChan
-// }
-
-func (conn *Connection) Close() {
+func (conn *Connection)Close() {
 	conn.conn.Close()
-}
-
-func (conn *Connection) Recv() (sess *Session) {
-	sess = <-conn.newSessions
-	return
-}
-
-func (conn *Connection) Free(msgNo msgNoType) {
-	conn.sessDemuxMutex.Lock()
-	delete(conn.sessDemux, msgNo)
-	conn.sessDemuxMutex.Unlock()
 }
