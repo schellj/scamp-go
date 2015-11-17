@@ -101,6 +101,7 @@ func (conn *Connection) packetRouter() (err error) {
 				msg.SetAction(pkt.packetHeader.Action)
 				msg.SetEnvelope(pkt.packetHeader.Envelope)
 				msg.SetVersion(pkt.packetHeader.Version)
+				msg.SetMessageType(pkt.packetHeader.MessageType)
 				// TODO: Do we need the requestId?
 
 				conn.pktToMsg[pkt.msgNo] = msg
@@ -131,7 +132,7 @@ func (conn *Connection) packetRouter() (err error) {
 				}
 
 				delete(conn.pktToMsg, pkt.msgNo)
-				Trace.Printf("delivering msg up the stack")
+				Trace.Printf("delivering msgno %d up the stack", pkt.msgNo)
 				conn.msgs <- msg
 			case pkt.packetType == 	TXERR:
 				Trace.Printf("TXERR")

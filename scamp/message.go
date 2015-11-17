@@ -7,7 +7,7 @@ type MessageChan chan *Message
 type Message struct {
   Action  string
   Envelope envelopeFormat
-  // RequestId reqIdType // TODO: how do RequestId's fit in again?
+  RequestId int // TODO: how do RequestId's fit in again?
   Version int64
   MessageType messageType
   packets []*Packet

@@ -3,11 +3,15 @@ package main
 import "scamp"
 import "fmt"
 import "bytes"
+import "time"
 
 func main() {
 	scamp.Initialize()
 
 	client, err := scamp.Dial("127.0.0.1:30100")
+  if err != nil {
+    scamp.Error.Fatalf("could not dial to host")
+  }
 	defer client.Close()
 
   for i := 1; i <= 10; i++ {
@@ -21,14 +25,16 @@ func main() {
     fmt.Fprintf(buf, "sup %d", i)
     message.Write(buf.Bytes())
 
-    err = client.Send(message)
-
+    responseChan, err := client.Send(message)
     if err != nil {
       scamp.Error.Printf("error sending msg: `%s`", err)
     }
 
+    select {
+    case msg := <- responseChan:
+      scamp.Info.Printf("response: %s", msg.Bytes())
+    case <- time.After(time.Second * 1):
+      scamp.Error.Fatalf("did not receive response in time")
+    }
   }
-
-  response := <- client.Incoming()
-  scamp.Info.Printf("response: %s", response)
 }

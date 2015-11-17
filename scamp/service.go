@@ -12,7 +12,8 @@ import "bytes"
 import "io/ioutil"
 import "time"
 
-var msgTimeout = time.Second * 10
+// Two minute timeout on clients
+var msgTimeout = time.Second * 120
 
 type ServiceActionFunc func(*Message, *Client)
 type ServiceAction struct {
@@ -166,6 +167,7 @@ func (serv *Service)Run() {
 func (serv *Service)Handle(client *Client) {
 	var action *ServiceAction
 
+	HandlerLoop:
 	for {
 		select {
 		case msg := <-client.Incoming():
@@ -183,9 +185,10 @@ func (serv *Service)Handle(client *Client) {
 			Trace.Printf("timeout... dying!")
 			client.Close()
 			serv.RemoveClient(client)
-			break
+			break HandlerLoop
 		}
 	}
+
 	Trace.Printf("done handling client")
 }
 

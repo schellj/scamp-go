@@ -25,7 +25,7 @@ func spawnTestService(hasStopped (chan bool)) (service *Service) {
 	if err != nil {
 		Error.Fatalf("error creating new service: `%s`", err)
 	}
-	service.Register("helloworld.hello", func(client *Client){
+	service.Register("helloworld.hello", func(message *Message, client *Client){
 		panic("what")
 		// if len(req.Blob) > 0 {
 		// 	Info.Printf("helloworld had data: %s", req.Blob)
@@ -58,7 +58,7 @@ func connectToTestService(t *testing.T) {
 		Error.Fatalf("could not connect! `%s`\n", err)
 	}
 
-	err = client.Send(&Message{
+	responseChan,err := client.Send(&Message{
 		Action:         "helloworld.hello",
 		Envelope: ENVELOPE_JSON,
 		Version:        1,
@@ -69,12 +69,12 @@ func connectToTestService(t *testing.T) {
 	}
 
 	select {
-		case msg := <-client.incoming:
-			if !bytes.Equal(msg.toBytes(), []byte("sup")) {
-				t.Fatalf("did not get expected response `sup`")
-			}
-		case <-time.After(500 * time.Millisecond):
-			t.Fatalf("timed out waiting for response")
+	case msg := <-responseChan:
+		if !bytes.Equal(msg.Bytes(), []byte("sup")) {
+			t.Fatalf("did not get expected response `sup`")
+		}
+	case <-time.After(500 * time.Millisecond):
+		t.Fatalf("timed out waiting for response")
 	}
 
 	return
@@ -92,7 +92,7 @@ func TestServiceToProxyMarshal(t *testing.T) {
 		listenerPort: 30100,
 		actions: make(map[string]*ServiceAction),
 	}
-	s.Register("Logging.info", func(_ *Client) {
+	s.Register("Logging.info", func(_ *Message, _ *Client) {
 	})
 
 	serviceProxy := ServiceAsServiceProxy(&s)
@@ -134,7 +134,7 @@ func TestFullServiceMarshal(t *testing.T) {
 		pemCert: encodedCert,
 		cert: cert,
 	}
-	s.Register("Logging.info", func(_ *Client) {
+	s.Register("Logging.info", func(_ *Message, _ *Client) {
 	})
 
 	// TODO: confirm output of marshalling the payload.

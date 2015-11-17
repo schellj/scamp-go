@@ -47,6 +47,7 @@ func ReadPacket(reader *bufio.Reader) (pkt *Packet, err error) {
 	var bodyBytesNeeded int
 
 	hdrBytes, _, err := reader.ReadLine()
+	
 	if err != nil {
 		return
 	}
@@ -55,8 +56,8 @@ func ReadPacket(reader *bufio.Reader) (pkt *Packet, err error) {
 	if hdrValsRead != 3 || err != nil {
 		return
 	}
-	Trace.Printf("(%d) reading header line for msg %d (%s)", packetSeenSinceBoot, pkt.msgNo, hdrBytes)
 
+	Trace.Printf("reading pkt: (%d, `%s`)", pkt.msgNo, pktTypeBytes)
 
 	if bytes.Equal(header_bytes, pktTypeBytes) {
 		pkt.packetType = HEADER
@@ -100,6 +101,7 @@ func ReadPacket(reader *bufio.Reader) (pkt *Packet, err error) {
 }
 
 func (pkt *Packet) parseHeader() (err error) {
+	Trace.Printf("parsing header (%s)", pkt.body)
 	err = json.Unmarshal(pkt.body, &pkt.packetHeader)
 	if err != nil {
 		return
@@ -124,6 +126,7 @@ func (pkt *Packet) Write(writer io.Writer) (err error) {
 		packet_type_bytes = ack_bytes
 	default:
 		err = errors.New( fmt.Sprintf("unknown packetType %s", pkt.packetType) )
+		Error.Printf("unknown packetType %s", pkt.packetType)
 		return
 	}
 
@@ -145,7 +148,7 @@ func (pkt *Packet) Write(writer io.Writer) (err error) {
 	}
 
 	bodyBytes := bodyBuf.Bytes()
-	Trace.Printf("pkt: (%d, `%s`)", pkt.msgNo, packet_type_bytes)
+	Trace.Printf("writing pkt: (%d, `%s`)", pkt.msgNo, packet_type_bytes)
 	Trace.Printf("packet_body: `%s`", bodyBytes)
 
 	_, err = fmt.Fprintf(writer, "%s %d %d\r\n", packet_type_bytes, pkt.msgNo, len(bodyBytes))
