@@ -58,7 +58,7 @@ func NewService(serviceSpec string, humanName string) (serv *Service, err error)
 	keyPath := defaultConfig.ServiceKeyPath(serv.humanName)
 
 	if crtPath == nil || keyPath == nil {
-		err = fmt.Errorf( "could not find valid crt/key pair for service %s (`%s`,`%s`)", serv.name, crtPath, keyPath )
+		err = fmt.Errorf( "could not find valid crt/key pair for service %s (`%s`,`%s`)", serv.humanName, crtPath, keyPath )
 		return
 	}
 
@@ -116,9 +116,9 @@ func (serv *Service)listen() (err error) {
 	}
 
   // TODO: get listenerIP to return 127.0.0.1 or something other than '::'/nil
-  serv.listenerIP = serv.listener.Addr().(*net.TCPAddr).IP
+  // serv.listenerIP = serv.listener.Addr().(*net.TCPAddr).IP
+  serv.listenerIP, err = IPForAnnouncePacket()
   Trace.Printf("serv.listenerIP: `%s`", serv.listenerIP)
-  // serv.listenerIP, err = IPForAnnouncePacket()
   if err != nil {
   	return
   }
