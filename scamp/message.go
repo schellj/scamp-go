@@ -35,6 +35,10 @@ func (msg *Message)SetMessageType(mtype messageType) {
   msg.MessageType = mtype
 }
 
+func (msg *Message)SetRequestId(requestId int) {
+  msg.RequestId = requestId
+}
+
 func (msg *Message)Write(blob []byte) (n int, err error){
   msg.packets = append(msg.packets, &Packet{packetType: DATA, body: blob})
   return len(blob), nil
@@ -45,7 +49,7 @@ func (msg *Message)toPackets(msgNo int) ([]*Packet) {
     Action:      msg.Action,
     Envelope:    msg.Envelope,
     Version:     msg.Version,
-    RequestId:   1, // TODO: nope, can't do this
+    RequestId:   msg.RequestId, // TODO: nope, can't do this
     MessageType: msg.MessageType,
   }
   

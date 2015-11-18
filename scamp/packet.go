@@ -18,7 +18,7 @@ type Packet struct {
 	msgNo        int
 	packetHeader PacketHeader
 	body         []byte
-	ackRequestId reqIdType
+	ackRequestId int
 }
 
 type PacketType int
