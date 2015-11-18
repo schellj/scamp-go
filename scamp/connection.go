@@ -104,6 +104,7 @@ func (conn *Connection) packetRouter() (err error) {
 				msg.SetEnvelope(pkt.packetHeader.Envelope)
 				msg.SetVersion(pkt.packetHeader.Version)
 				msg.SetMessageType(pkt.packetHeader.MessageType)
+				msg.SetRequestId(pkt.packetHeader.RequestId)
 				// TODO: Do we need the requestId?
 
 				conn.pktToMsg[pkt.msgNo] = msg
