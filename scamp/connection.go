@@ -151,6 +151,11 @@ func (conn *Connection) packetRouter() (err error) {
 }
 
 func (conn *Connection)Send(msg *Message) (err error) {
+	if msg.RequestId == 0 {
+		err = fmt.Errorf("must specify `ReqestId` on msg before sending")
+		return
+	}
+	
 	outgoingmsgno := conn.outgoingmsgno
 	conn.outgoingmsgno = conn.outgoingmsgno + 1
 
