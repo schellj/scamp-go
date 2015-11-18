@@ -36,7 +36,7 @@ var data_bytes = []byte("DATA")
 var eof_bytes = []byte("EOF")
 var txerr_bytes = []byte("TXERR")
 var ack_bytes = []byte("ACK")
-var the_rest_bytes = []byte("END\r\n")
+var theRestBytes = []byte("END\r\n")
 
 /*
   Will parse an io stream in to a packet struct
@@ -110,20 +110,22 @@ func (pkt *Packet) parseHeader() (err error) {
 	return
 }
 
-func (pkt *Packet) Write(writer io.Writer) (err error) {
+func (pkt *Packet) Write(writer io.Writer) (written int, err error) {
 	Trace.Printf("writing packet...")
-	var packet_type_bytes []byte
+	written = 0
+
+	var packetTypeBytes []byte
 	switch pkt.packetType {
 	case HEADER:
-		packet_type_bytes = header_bytes
+		packetTypeBytes = header_bytes
 	case DATA:
-		packet_type_bytes = data_bytes
+		packetTypeBytes = data_bytes
 	case EOF:
-		packet_type_bytes = eof_bytes
+		packetTypeBytes = eof_bytes
 	case TXERR:
-		packet_type_bytes = txerr_bytes
+		packetTypeBytes = txerr_bytes
 	case ACK:
-		packet_type_bytes = ack_bytes
+		packetTypeBytes = ack_bytes
 	default:
 		err = errors.New( fmt.Sprintf("unknown packetType %s", pkt.packetType) )
 		Error.Printf("unknown packetType %s", pkt.packetType)
@@ -148,19 +150,22 @@ func (pkt *Packet) Write(writer io.Writer) (err error) {
 	}
 
 	bodyBytes := bodyBuf.Bytes()
-	Trace.Printf("writing pkt: (%d, `%s`)", pkt.msgNo, packet_type_bytes)
+	Trace.Printf("writing pkt: (%d, `%s`)", pkt.msgNo, packetTypeBytes)
 	Trace.Printf("packet_body: `%s`", bodyBytes)
 
-	_, err = fmt.Fprintf(writer, "%s %d %d\r\n", packet_type_bytes, pkt.msgNo, len(bodyBytes))
+	headerBytesWritten, err := fmt.Fprintf(writer, "%s %d %d\r\n", packetTypeBytes, pkt.msgNo, len(bodyBytes))
+	written = written + headerBytesWritten
 	if err != nil {
 		return
 	}
-	_, err = writer.Write(bodyBytes)
+	bodyBytesWritten, err := writer.Write(bodyBytes)
+	written = written + bodyBytesWritten
 	if err != nil {
 		return
 	}
 
-	_, err = writer.Write(the_rest_bytes)
+	theRestBytesWritten, err := writer.Write(theRestBytes)
+	written = written + theRestBytesWritten
 
 	return
 }

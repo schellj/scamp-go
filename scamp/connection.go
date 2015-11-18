@@ -13,6 +13,8 @@ type Connection struct {
 	incomingmsgno  int
 	outgoingmsgno  int
 
+	unackedbytes   int
+
 	pktToMsg       map[int](*Message)
 	msgs           MessageChan
 }
@@ -141,8 +143,8 @@ func (conn *Connection) packetRouter() (err error) {
 				// TODO: add 'error' path on connection
 				// Kill connection
 			case pkt.packetType == 	ACK:
-				Trace.Printf("ACK")
-				panic("Xavier needs to support this")
+				Trace.Printf("ACK `%s` (unackedbytes: %d)", pkt.body, conn.unackedbytes)
+				// panic("Xavier needs to support this")
 				// Add bytes to message stream tally
 		}
 	}
@@ -156,11 +158,14 @@ func (conn *Connection)Send(msg *Message) (err error) {
 
 	for i,pkt := range msg.toPackets(outgoingmsgno) {
 		Trace.Printf("sending pkt %d (%s)", i, pkt)
-		err = pkt.Write(conn.writer)
+		bytesWritten, err := pkt.Write(conn.writer)
 		if err != nil {
 			Error.Printf("error writing packet: `%s`", err)
-			return
+			return err
 		}
+
+		conn.unackedbytes = conn.unackedbytes+bytesWritten
+
 	}
 	conn.writer.Flush()
 	Trace.Printf("done sending msg")
