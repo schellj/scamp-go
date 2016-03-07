@@ -78,8 +78,9 @@ func TestFailGarbage(t *testing.T) {
 		t.Errorf("expected non-nil err, got `%s`", err)
 		t.FailNow()
 	}
-	if fmt.Sprintf("%s", err) != "EOF" {
-		t.Errorf("expected `%s`, got `%s`", "header must have 3 parts", err)
+	expected := "EOF"
+	if err.Error() != expected {
+		t.Errorf("expected `%s`, got `%s`", expected, err)
 		t.FailNow()
 	}
 }
