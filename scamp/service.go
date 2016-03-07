@@ -172,8 +172,8 @@ func (serv *Service)Handle(client *Client) {
 	for {
 		select {
 		case msg := <-client.Incoming():
-			Trace.Printf("msg!!!! `%s`", msg)
-			Trace.Printf("action: `%s`", msg.Action)
+			// Trace.Printf("msg!!!! `%s`", msg)
+			// Trace.Printf("action: `%s`", msg.Action)
 			action = serv.actions[msg.Action]
 
 			if action != nil{
@@ -204,7 +204,7 @@ func (serv *Service)RemoveClient(client *Client) (err error){
 
 	if index == -1 {
 		Error.Printf("tried removing client that wasn't being tracked")
-		return fmt.Errorf("unknown client `%s`", client)
+		return fmt.Errorf("unknown client") // TODO can I get the client's IP?
 	}
 
 	serv.clients = append(serv.clients[:index], serv.clients[index+1:]...)

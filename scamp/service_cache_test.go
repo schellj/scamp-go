@@ -49,7 +49,7 @@ func TestRegisterOnServiceCache(t *testing.T) {
 	cache.Store(serviceInstance)
 	retrieved := cache.Retrieve("bob")
 	if retrieved == nil {
-		t.Errorf("retrieved `%s`", retrieved)
+		t.Errorf("retrieved nothing")
 	}
 }
 

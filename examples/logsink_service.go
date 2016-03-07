@@ -11,16 +11,16 @@ func main() {
   }
 
   // rename Register -> RegisterAction
-  service.Register("Logger.info", func(req scamp.Request, sess *scamp.Session){
-    if len(req.Blob) > 0 {
-      scamp.Info.Printf("Logging.info had data: %s", req.Blob)
-    } else {
-      scamp.Trace.Printf("Logging.info was called without data")
-    }
+  service.Register("Logger.info", func(req *scamp.Message, client *scamp.Client){
+    reply := scamp.NewMessage()
+    reply.SetMessageType(scamp.MESSAGE_TYPE_REPLY)
+    reply.SetEnvelope(scamp.ENVELOPE_JSON)
+    reply.SetRequestId(req.RequestId)
+    reply.Write([]byte("{}"))
 
-    err = sess.Send(scamp.Reply{Blob: []byte("{}")})
+    _,err = client.Send(reply)
     if err != nil {
-      scamp.Error.Printf("error while sending reply: `%s`. continuing.", err)
+      scamp.Error.Printf("could not reply to message: `%s`", err)
       return
     }
   })

@@ -51,7 +51,7 @@ zJjLAmIyriV6BEUJvfwKmfA=
 func TestNewServiceProxy(t *testing.T) {
 	proxy,err := NewServiceProxy(serviceProxyClassRecordsRaw, serviceProxyCertRaw, serviceProxySigRaw)
 	if err != nil {
-		t.Errorf("failed to instantiate new proxy: %s/%s", proxy, err)
+		t.Fatalf("failed to instantiate new proxy: %s", err.Error())
 	}
 
 	if len(serviceProxyClassRecordsRaw) != len(proxy.rawClassRecords) {

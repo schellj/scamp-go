@@ -75,7 +75,7 @@ func TestFailGarbage(t *testing.T) {
 
 	_, err := ReadPacket(byteReader)
 	if err == nil {
-		t.Errorf("expected non-nil err", err)
+		t.Errorf("expected non-nil err, got `%s`", err)
 		t.FailNow()
 	}
 	if fmt.Sprintf("%s", err) != "EOF" {
@@ -90,7 +90,7 @@ func TestFailHeaderParams(t *testing.T) {
 
 	_, err := ReadPacket(byteReader)
 	if err == nil {
-		t.Fatalf("expected non-nil err", err)
+		t.Fatalf("expected non-nil err `%s`", err)
 	}
 	if err.Error() != "EOF" {
 		t.Fatalf("expected `%s`, got `%s`", "expected integer", err)
@@ -117,13 +117,11 @@ func TestFailTooFewBodyBytes(t *testing.T) {
 
 	_, err := ReadPacket(byteReader)
 	if err == nil {
-		t.Errorf("expected non-nil err", err)
-		t.FailNow()
+		t.Fatalf("expected non-nil err. got `%s`", err)
 	}
 	expected := "failed to read body"
 	if fmt.Sprintf("%s", err) != expected {
-		t.Errorf("expected `%s`, got `%s`", expected, err)
-		t.FailNow()
+		t.Fatalf("expected `%s`, got `%s`", expected, err)
 	}
 }
 
@@ -133,8 +131,7 @@ func TestFailTooManyBodyBytes(t *testing.T) {
 	_, err := ReadPacket(byteReader)
 	expected := "packet was missing trailing bytes"
 	if fmt.Sprintf("%s", err) != expected {
-		t.Errorf("expected `%s`, got `%s`", "packet was missing trailing bytes", expected, err)
-		t.FailNow()
+		t.Fatalf("expected `%s`, got `%s`", expected, err)
 	}
 }
 

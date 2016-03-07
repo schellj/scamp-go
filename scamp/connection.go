@@ -65,14 +65,14 @@ func NewConnection(tlsConn *tls.Conn) (conn *Connection) {
 }
 
 func (conn *Connection) packetRouter() (err error) {
-	Trace.Printf("starting packetrouter")
+	// Trace.Printf("starting packetrouter")
 	var pkt *Packet
 	var msg *Message
 
 	for {
-		Trace.Printf("reading packet...")
+		// Trace.Printf("reading packet...")
 		pkt,err = ReadPacket(conn.reader)
-		Trace.Printf("read packet: %s", pkt)
+		// Trace.Printf("read packet: %s", pkt)
 		if err != nil {
 			Error.Printf("err: %s", err)
 			return fmt.Errorf("err reading packet: `%s`. (EOF is normal). Returning.", err)
@@ -92,7 +92,7 @@ func (conn *Connection) packetRouter() (err error) {
 
 				msg = conn.pktToMsg[pkt.msgNo]
 				if msg != nil {
-					err = fmt.Errorf("Bad HEADER; already tracking msgno %d")
+					err = fmt.Errorf("Bad HEADER; already tracking msgno %d", pkt.msgNo)
 					Error.Printf("%s", err)
 					return err
 				}
@@ -118,7 +118,7 @@ func (conn *Connection) packetRouter() (err error) {
 				// Verify we are tracking that message
 				msg = conn.pktToMsg[pkt.msgNo]
 				if msg == nil {
-					err = fmt.Errorf("not tracking msgno %d (%s)", pkt.msgNo, pkt)
+					err = fmt.Errorf("not tracking msgno %d", pkt.msgNo)
 					Error.Printf("unexpected error: `%s`", err)
 					return err
 				}
@@ -163,7 +163,7 @@ func (conn *Connection)Send(msg *Message) (err error) {
 	Trace.Printf("sending msgno %d", outgoingmsgno)
 
 	for i,pkt := range msg.toPackets(outgoingmsgno) {
-		Trace.Printf("sending pkt %d (%s)", i, pkt)
+		Trace.Printf("sending pkt %d", i)
 		bytesWritten, err := pkt.Write(conn.writer)
 		if err != nil {
 			Error.Printf("error writing packet: `%s`", err)

@@ -49,12 +49,15 @@ func ReadPacket(reader *bufio.Reader) (pkt *Packet, err error) {
 	hdrBytes, _, err := reader.ReadLine()
 	
 	if err != nil {
-		return
+		return fmt.Errorf("readline error: %s", err)
 	}
 
 	hdrValsRead, err := fmt.Sscanf(string(hdrBytes), "%s %d %d", &pktTypeBytes, &(pkt.msgNo), &bodyBytesNeeded)
-	if hdrValsRead != 3 || err != nil {
+	if hdrValsRead != 3
+		err = fmt.Errorf("did not get 3 parts header")
 		return
+	} else {
+		return nil, fmt.Errorf("sscanf error: %s",err)
 	}
 
 	Trace.Printf("reading pkt: (%d, `%s`)", pkt.msgNo, pktTypeBytes)
@@ -70,7 +73,7 @@ func ReadPacket(reader *bufio.Reader) (pkt *Packet, err error) {
 	} else if bytes.Equal(ack_bytes, pktTypeBytes) {
 		pkt.packetType = ACK
 	} else {
-		return nil, errors.New(fmt.Sprintf("unknown packet type `%s`", pktTypeBytes))
+		return nil, fmt.Errorf("unknown packet type `%s`", pktTypeBytes)
 	}
 
 	// Use the msg len to consume the rest of the connection
@@ -78,7 +81,7 @@ func ReadPacket(reader *bufio.Reader) (pkt *Packet, err error) {
 	pkt.body = make([]byte, bodyBytesNeeded)
 	bytesRead, err := io.ReadFull(reader, pkt.body)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read body")
+		return nil, fmt.Errorf("failed to read body: `%s`", err)
 	}
 
 	theRest := make([]byte, the_rest_size)
@@ -90,7 +93,7 @@ func ReadPacket(reader *bufio.Reader) (pkt *Packet, err error) {
 	if pkt.packetType == HEADER {
 		err := pkt.parseHeader()
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("parseHeader err: `%s`",err)
 		}
 		pkt.body = nil
 	}
@@ -127,8 +130,8 @@ func (pkt *Packet) Write(writer io.Writer) (written int, err error) {
 	case ACK:
 		packetTypeBytes = ack_bytes
 	default:
-		err = errors.New( fmt.Sprintf("unknown packetType %s", pkt.packetType) )
-		Error.Printf("unknown packetType %s", pkt.packetType)
+		err = errors.New( fmt.Sprintf("unknown packetType `%d`", pkt.packetType) )
+		Error.Printf("unknown packetType `%d`", pkt.packetType)
 		return
 	}
 

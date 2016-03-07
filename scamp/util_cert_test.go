@@ -42,7 +42,7 @@ vTK9LN2g3yixLZdO8GeH/AjpNn3a10lGoC67ETOJsfozHxJXE2gs/qiUeoqEgg==
 -----END CERTIFICATE-----`)
 	block, _ := pem.Decode(cert_bytes)
 	if block == nil && block.Type != "CERTIFICATE" {
-		t.Errorf("expected to block to be non-nil CERTIFICATE", block)
+		t.Errorf("expected to block to be non-nil CERTIFICATE `%s`", block)
 		t.FailNow()
 	}
 

@@ -36,7 +36,7 @@ func NewClient(conn *Connection) (client *Client){
 }
 
 func (client *Client)Send(msg *Message) (responseChan MessageChan, err error){ 
-  Trace.Printf("sending message `%s`", msg)
+  Trace.Printf("sending message `%d`", msg.RequestId)
   err = client.conn.Send(msg)
   if err != nil {
     return

@@ -80,7 +80,7 @@ func (messageType messageType) MarshalJSON() (retval []byte, err error) {
 	case MESSAGE_TYPE_REPLY:
 		retval = reply_bytes
 	default:
-		Error.Printf(fmt.Sprintf("unknown message type `%s`", messageType))
+		Error.Printf("unknown message type `%d`", messageType)
 		err = errors.New(fmt.Sprintf("unknown message type `%d`", messageType))
 	}
 
