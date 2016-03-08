@@ -184,7 +184,10 @@ func (serv *Service)Handle(client *Client) {
 	HandlerLoop:
 	for {
 		select {
-		case msg := <-client.Incoming():
+		case msg,ok := <-client.Incoming():
+			if !ok {
+				break HandlerLoop
+			}
 			// Trace.Printf("msg!!!! `%s`", msg)
 			// Trace.Printf("action: `%s`", msg.Action)
 			action = serv.actions[msg.Action]

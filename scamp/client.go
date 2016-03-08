@@ -63,6 +63,11 @@ func (client *Client)Send(msg *Message) (responseChan MessageChan, err error){
 func (client *Client)Close() {
   client.conn.Close()
 
+  close(client.requests)
+  for _,openReplyChan := range client.openReplies {
+    close(openReplyChan)
+  }
+
   // Notify wrapper service that we're dead
   if client.serv != nil {
     client.serv.RemoveClient(client)
