@@ -217,13 +217,15 @@ func (conn *Connection)ackBytes() (err error) {
 		return
 	}
 
+	theseUnackedBytes := conn.unackedbytes
+
 	outgoingmsgno := conn.outgoingmsgno
 	atomic.AddUint64(&conn.outgoingmsgno,1)
 
 	ackPacket := Packet{
 		packetType: ACK,
 		msgNo: int(outgoingmsgno),
-		body: []byte(fmt.Sprintf("%d", conn.unackedbytes)),
+		body: []byte(fmt.Sprintf("%d", theseUnackedBytes)),
 	}
 
 	_, err = ackPacket.Write(conn.writer)
@@ -231,6 +233,8 @@ func (conn *Connection)ackBytes() (err error) {
 		Error.Printf("error writing ack packet: `%s`", err)
 		return err
 	}
+
+	atomic.AddUint64(&conn.unackedbytes, -theseUnackedBytes)
 
 	return
 }
