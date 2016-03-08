@@ -196,14 +196,14 @@ func (serv *Service)Handle(client *Client) {
 				// TODO: gotta tell them I don't know how to do that
 			}
 		case <- time.After(msgTimeout):
-			Trace.Printf("timeout... dying!")
+			Info.Printf("timeout... dying!")
 			client.Close()
 			serv.RemoveClient(client)
 			break HandlerLoop
 		}
 	}
 
-	Trace.Printf("done handling client")
+	Info.Printf("done handling client")
 }
 
 func (serv *Service)RemoveClient(client *Client) (err error){

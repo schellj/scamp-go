@@ -253,6 +253,7 @@ func (conn *Connection)ackBytes() (err error) {
 }
 
 func (conn *Connection)Close() {
+	Info.Printf("connection is closing")
 	conn.ackerShutdown <- true
 
 	conn.conn.Close()
