@@ -4,6 +4,7 @@ type ClientChan chan *Client
 
 type Client struct {
   conn *Connection
+  serv *Service
 
   requests MessageChan
   openReplies map[int]MessageChan
@@ -29,10 +30,16 @@ func NewClient(conn *Connection) (client *Client){
   client.conn = conn
   client.requests = make(MessageChan)
   client.openReplies = make(map[int]MessageChan)
+
+  conn.SetClient(client)
   
   go client.SplitReqsAndReps()
 
   return
+}
+
+func (client *Client)SetService(serv *Service) {
+  client.serv = serv
 }
 
 func (client *Client)Send(msg *Message) (responseChan MessageChan, err error){ 
@@ -55,6 +62,11 @@ func (client *Client)Send(msg *Message) (responseChan MessageChan, err error){
 
 func (client *Client)Close() {
   client.conn.Close()
+
+  // Notify wrapper service that we're dead
+  if client.serv != nil {
+    client.serv.RemoveClient(client)
+  }
 }
 
 func (client *Client)SplitReqsAndReps() (err error) {

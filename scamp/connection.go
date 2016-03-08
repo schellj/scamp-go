@@ -23,6 +23,8 @@ type Connection struct {
 
 	pktToMsg       map[int](*Message)
 	msgs           MessageChan
+
+	client         *Client
 }
 
 // Used by Client to establish a secure connection to the remote service.
@@ -74,10 +76,21 @@ func NewConnection(tlsConn *tls.Conn) (conn *Connection) {
 	return
 }
 
+func (conn *Connection) SetClient(client *Client) {
+	conn.client = client
+}
+
 func (conn *Connection) packetRouter() (err error) {
 	// Trace.Printf("starting packetrouter")
 	var pkt *Packet
 	var msg *Message
+
+	defer func(){
+		if conn.client != nil {
+			// Notify wrapper client we're dead
+			conn.client.Close()
+		}
+	}()
 
 	for {
 		// Trace.Printf("reading packet...")
