@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"bufio"
 
-	// "time"
-	// "sync"
+	"time"
+	"sync/atomic"
 )
 
 type Connection struct {
@@ -15,10 +15,11 @@ type Connection struct {
 
 	reader         *bufio.Reader
 	writer         *bufio.Writer
-	incomingmsgno  int
-	outgoingmsgno  int
+	incomingmsgno  uint64
+	outgoingmsgno  uint64
 
-	unackedbytes   int
+	unackedbytes   uint64
+	ackerShutdown  chan bool
 
 	pktToMsg       map[int](*Message)
 	msgs           MessageChan
@@ -64,7 +65,11 @@ func NewConnection(tlsConn *tls.Conn) (conn *Connection) {
 	conn.pktToMsg      = make(map[int](*Message))
 	conn.msgs          = make(MessageChan)
 
+	conn.unackedbytes  = 0
+	conn.ackerShutdown = make(chan bool)
+
 	go conn.packetRouter()
+	go conn.packetAcker()
 
 	return
 }
@@ -89,7 +94,7 @@ func (conn *Connection) packetRouter() (err error) {
 				Trace.Printf("HEADER")
 				// Allocate new msg
 				// First verify it's the expected incoming msgno
-				if pkt.msgNo != conn.incomingmsgno {
+				if uint64(pkt.msgNo) != conn.incomingmsgno {
 					err = fmt.Errorf("out of sequence msgno: expected %d but got %d", conn.incomingmsgno, pkt.msgNo)
 					Error.Printf("%s", err)
 					return err
@@ -163,11 +168,11 @@ func (conn *Connection)Send(msg *Message) (err error) {
 	}
 	
 	outgoingmsgno := conn.outgoingmsgno
-	conn.outgoingmsgno = conn.outgoingmsgno + 1
+	atomic.AddUint64(&conn.outgoingmsgno,1)
 
 	Trace.Printf("sending msgno %d", outgoingmsgno)
 
-	for i,pkt := range msg.toPackets(outgoingmsgno) {
+	for i,pkt := range msg.toPackets(int(outgoingmsgno)) {
 		Trace.Printf("sending pkt %d", i)
 		bytesWritten, err := pkt.Write(conn.writer)
 		if err != nil {
@@ -175,8 +180,7 @@ func (conn *Connection)Send(msg *Message) (err error) {
 			return err
 		}
 
-		conn.unackedbytes = conn.unackedbytes+bytesWritten
-
+		atomic.AddUint64(&conn.unackedbytes, uint64(bytesWritten))
 	}
 	conn.writer.Flush()
 	Trace.Printf("done sending msg")
@@ -184,7 +188,56 @@ func (conn *Connection)Send(msg *Message) (err error) {
 	return
 }
 
+func (conn *Connection)packetAcker() {
+	timeout := time.Duration(15) * time.Second
+
+	for {
+		select {
+		case <-conn.ackerShutdown:
+			break
+		case <-time.After(timeout):
+			err := conn.ackBytes()
+			if err != nil {
+				Error.Printf("could not ack bytes: %s", err.Error())
+			}
+		}
+	}
+}
+
+
+// type Packet struct {
+// 	packetType   PacketType
+// 	msgNo        int
+// 	packetHeader PacketHeader
+// 	body         []byte
+// 	ackRequestId int
+// }
+func (conn *Connection)ackBytes() (err error) {
+	if conn.unackedbytes == 0 {
+		return
+	}
+
+	outgoingmsgno := conn.outgoingmsgno
+	atomic.AddUint64(&conn.outgoingmsgno,1)
+
+	ackPacket := Packet{
+		packetType: ACK,
+		msgNo: int(outgoingmsgno),
+		body: []byte(fmt.Sprintf("%d", conn.unackedbytes)),
+	}
+
+	_, err = ackPacket.Write(conn.writer)
+	if err != nil {
+		Error.Printf("error writing ack packet: `%s`", err)
+		return err
+	}
+
+	return
+}
+
 func (conn *Connection)Close() {
+	conn.ackerShutdown <- true
+
 	conn.conn.Close()
 	close(conn.msgs)
 }

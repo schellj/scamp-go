@@ -18,7 +18,7 @@ type Packet struct {
 	msgNo        int
 	packetHeader PacketHeader
 	body         []byte
-	ackRequestId int
+	// ackRequestId int
 }
 
 type PacketType int
@@ -142,11 +142,11 @@ func (pkt *Packet) Write(writer io.Writer) (written int, err error) {
 		if err != nil {
 			return
 		}
-	} else if pkt.packetType == ACK {
-		_, err = fmt.Fprintf(bodyBuf, "%d", pkt.ackRequestId)
-		if err != nil {
-			return
-		}
+	// } else if pkt.packetType == ACK {
+	// 	_, err = fmt.Fprintf(bodyBuf, "%d", pkt.ackRequestId)
+	// 	if err != nil {
+	// 		return
+	// 	}
 	} else {
 		bodyBuf.Write(pkt.body)
 	}
