@@ -78,7 +78,7 @@ func TestFailGarbage(t *testing.T) {
 		t.Errorf("expected non-nil err, got `%s`", err)
 		t.FailNow()
 	}
-	expected := "EOF"
+	expected := "header must have 3 parts"
 	if err.Error() != expected {
 		t.Errorf("expected `%s`, got `%s`", expected, err)
 		t.FailNow()
@@ -93,8 +93,9 @@ func TestFailHeaderParams(t *testing.T) {
 	if err == nil {
 		t.Fatalf("expected non-nil err `%s`", err)
 	}
-	if err.Error() != "EOF" {
-		t.Fatalf("expected `%s`, got `%s`", "expected integer", err)
+	expected := "header must have 3 parts"
+	if err.Error() != expected {
+		t.Fatalf("expected `%s`, got `%s`", expected, err)
 	}
 }
 
@@ -120,7 +121,7 @@ func TestFailTooFewBodyBytes(t *testing.T) {
 	if err == nil {
 		t.Fatalf("expected non-nil err. got `%s`", err)
 	}
-	expected := "failed to read body"
+	expected := "failed to read body: `unexpected EOF`"
 	if fmt.Sprintf("%s", err) != expected {
 		t.Fatalf("expected `%s`, got `%s`", expected, err)
 	}
@@ -131,7 +132,7 @@ func TestFailTooManyBodyBytes(t *testing.T) {
 
 	_, err := ReadPacket(byteReader)
 	expected := "packet was missing trailing bytes"
-	if fmt.Sprintf("%s", err) != expected {
+	if err.Error() != expected {
 		t.Fatalf("expected `%s`, got `%s`", expected, err)
 	}
 }

@@ -1,8 +1,13 @@
 package scamp
 
-import "crypto/tls"
-import "fmt"
-import "bufio"
+import (
+	"crypto/tls"
+	"fmt"
+	"bufio"
+
+	// "time"
+	// "sync"
+)
 
 type Connection struct {
 	conn         *tls.Conn
@@ -181,4 +186,5 @@ func (conn *Connection)Send(msg *Message) (err error) {
 
 func (conn *Connection)Close() {
 	conn.conn.Close()
+	close(conn.msgs)
 }

@@ -1,16 +1,20 @@
 package scamp
 
-import "errors"
-import "net"
-import "crypto/tls"
-import "crypto/rand"
-import "crypto/rsa"
-import "encoding/base64"
-import "encoding/json"
-import "fmt"
-import "bytes"
-import "io/ioutil"
-import "time"
+import (
+	"errors"
+	"net"
+	"crypto/tls"
+	"crypto/rand"
+	"crypto/rsa"
+	"encoding/base64"
+	"encoding/json"
+	"fmt"
+	"bytes"
+	"io/ioutil"
+	"time"
+
+	"sync/atomic"
+)
 
 // Two minute timeout on clients
 var msgTimeout = time.Second * 120
@@ -39,6 +43,10 @@ type Service struct {
 
 	cert          tls.Certificate
 	pemCert       []byte // just a copy of what was read off disk at tls cert load time
+
+	// stats
+	statsCloseChan chan bool
+	connectionsAccepted uint64
 }
 
 func NewService(serviceSpec string, humanName string) (serv *Service, err error){
@@ -80,6 +88,9 @@ func NewService(serviceSpec string, humanName string) (serv *Service, err error)
 	if err != nil {
 		return
 	}
+
+	serv.statsCloseChan = make(chan bool)
+	go PrintStatsLoop(serv, time.Duration(15)*time.Second, serv.statsCloseChan)
 
 	Trace.Printf("done initializing service")
 
@@ -162,6 +173,8 @@ func (serv *Service)Run() {
 
 		serv.clients = append(serv.clients, client)
 		go serv.Handle(client)
+
+		atomic.AddUint64(&serv.connectionsAccepted, 1)
 	}
 }
 
@@ -180,7 +193,7 @@ func (serv *Service)Handle(client *Client) {
 				// yay
 				action.callback(msg, client)
 			} else {
-				// gotta tell them I don't know how to do that
+				// TODO: gotta tell them I don't know how to do that
 			}
 		case <- time.After(msgTimeout):
 			Trace.Printf("timeout... dying!")
@@ -220,6 +233,8 @@ func (serv *Service)Stop(){
 	for _,conn := range serv.clients {
 		conn.Close()
 	}
+
+	serv.statsCloseChan <- true
 }
 
 func (serv *Service)MarshalText() (b []byte, err error){

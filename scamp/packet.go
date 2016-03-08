@@ -55,8 +55,8 @@ func ReadPacket(reader *bufio.Reader) (pkt *Packet, err error) {
 	hdrValsRead, err := fmt.Sscanf(string(hdrBytes), "%s %d %d", &pktTypeBytes, &(pkt.msgNo), &bodyBytesNeeded)
 	if hdrValsRead != 3 {
 		return nil, fmt.Errorf("header must have 3 parts")
-	} else {
-		return nil, fmt.Errorf("sscanf error: %s",err)
+	} else if err != nil {
+		return nil, fmt.Errorf("sscanf error: %s", err.Error)
 	}
 
 	Trace.Printf("reading pkt: (%d, `%s`)", pkt.msgNo, pktTypeBytes)
