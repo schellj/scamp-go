@@ -198,8 +198,11 @@ func (serv *Service)Handle(client *Client) {
 			} else {
 				// TODO: gotta tell them I don't know how to do that
 			}
+		case <-client.Done():
+			Info.Printf("client has closed connection")
+			break HandlerLoop
 		case <- time.After(msgTimeout):
-			Info.Printf("timeout... dying!")
+			Error.Printf("timeout... dying!")
 			client.Close()
 			serv.RemoveClient(client)
 			break HandlerLoop
