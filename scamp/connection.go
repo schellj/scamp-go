@@ -85,20 +85,20 @@ func (conn *Connection) packetRouter() (err error) {
 	var pkt *Packet
 	var msg *Message
 
-	defer func(){
-		if conn.client != nil {
-			// Notify wrapper client we're dead
-			conn.client.Close()
-		}
-	}()
+	// defer func(){
+	// 	if conn.client != nil {
+	// 		// Notify wrapper client we're dead
+	// 		conn.client.Close()
+	// 	}
+	// }()
 
 	for {
-		// Trace.Printf("reading packet...")
+		Trace.Printf("reading packet...")
 		readAttempt := make(chan *Packet)
 
 		go func(){
 			pkt,err := ReadPacket(conn.reader)
-			
+
 			// Trace.Printf("read packet: %s", pkt)
 			if err != nil {
 				if err.Error() == "readline error: EOF" {
@@ -116,7 +116,7 @@ func (conn *Connection) packetRouter() (err error) {
 		select {
 		case pkt,ok = <-readAttempt:
 			if !ok {
-				Error.Printf("select statement got a clsoed channel. exiting packetRouter.")
+				Error.Printf("select statement got a closed channel. exiting packetRouter.")
 				return
 			}
 		}
