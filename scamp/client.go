@@ -74,6 +74,8 @@ func (client *Client)Close() {
   if client.serv != nil {
     client.serv.RemoveClient(client)
   }
+
+  client.doneChan <- true
 }
 
 func (client *Client)Done() (chan bool) {
