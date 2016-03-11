@@ -94,12 +94,32 @@ func (conn *Connection) packetRouter() (err error) {
 
 	for {
 		// Trace.Printf("reading packet...")
-		pkt,err = ReadPacket(conn.reader)
-		// Trace.Printf("read packet: %s", pkt)
-		if err != nil {
-			Error.Printf("err: %s", err)
-			return fmt.Errorf("err reading packet: `%s`. (EOF is normal). Returning.", err)
+		readAttempt := make(chan *Packet)
+
+		go func(){
+			pkt,err := ReadPacket(conn.reader)
+			// Trace.Printf("read packet: %s", pkt)
+			if err != nil {
+				if err.Error() == "readline error: EOF" {
+				} else {
+					Error.Printf("err: %s", err)
+				}
+				// return fmt.Errorf("err reading packet: `%s`. (EOF is normal). Returning.", err)
+				close(readAttempt)
+			}
+
+			readAttempt <- pkt
+		}()
+
+		var ok bool
+		select {
+		case pkt,ok = <-readAttempt:
+			if !ok {
+				Error.Printf("select statement got a clsoed channel. exiting packetRouter.")
+				return
+			}
 		}
+
 
 		Trace.Printf("switching...")
 		switch {
@@ -253,7 +273,7 @@ func (conn *Connection)ackBytes() (err error) {
 }
 
 func (conn *Connection)Close() {
-	Info.Printf("connection is closing")
+	Trace.Printf("connection is closing")
 	conn.ackerShutdown <- true
 
 	conn.conn.Close()

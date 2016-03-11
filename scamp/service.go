@@ -209,7 +209,7 @@ func (serv *Service)Handle(client *Client) {
 		}
 	}
 
-	Info.Printf("done handling client")
+	Trace.Printf("done handling client")
 }
 
 func (serv *Service)RemoveClient(client *Client) (err error){

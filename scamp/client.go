@@ -108,7 +108,7 @@ func (client *Client)SplitReqsAndReps() (err error) {
 
   }
 
-  Info.Printf("done with SplitReqsAndReps")
+  Trace.Printf("done with SplitReqsAndReps")
 
   return
 }
