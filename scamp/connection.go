@@ -111,8 +111,9 @@ func (conn *Connection) packetRouter() (err error) {
 				} else {
 					Error.Printf("err: %s", err)
 				}
-				// return fmt.Errorf("err reading packet: `%s`. (EOF is normal). Returning.", err)
+				Error.Printf("err reading packet: `%s`. (EOF is normal). Returning.", err)
 				close(readAttempt)
+				return
 			}
 
 			readAttempt <- pkt
