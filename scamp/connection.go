@@ -98,6 +98,7 @@ func (conn *Connection) packetRouter() (err error) {
 
 		go func(){
 			pkt,err := ReadPacket(conn.reader)
+			
 			// Trace.Printf("read packet: %s", pkt)
 			if err != nil {
 				if err.Error() == "readline error: EOF" {
