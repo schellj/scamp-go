@@ -7,6 +7,7 @@ import (
 
 	"time"
 	"sync/atomic"
+	"sync"
 )
 
 type Connection struct {
@@ -25,6 +26,9 @@ type Connection struct {
 	msgs           MessageChan
 
 	client         *Client
+
+	isClosed       bool
+	closedMutex     sync.Mutex
 }
 
 // Used by Client to establish a secure connection to the remote service.
@@ -69,6 +73,8 @@ func NewConnection(tlsConn *tls.Conn) (conn *Connection) {
 
 	conn.unackedbytes  = 0
 	conn.ackerShutdown = make(chan bool)
+
+	conn.isClosed      = false
 
 	go conn.packetRouter()
 	go conn.packetAcker()
@@ -274,9 +280,19 @@ func (conn *Connection)ackBytes() (err error) {
 }
 
 func (conn *Connection)Close() {
+	conn.closedMutex.Lock()
+	if conn.isClosed {
+		conn.closedMutex.Unlock()
+		return
+	}
+
+
 	Trace.Printf("connection is closing")
 	conn.ackerShutdown <- true
 
 	conn.conn.Close()
 	close(conn.msgs)
+
+	conn.isClosed = true
+	conn.closedMutex.Unlock()
 }

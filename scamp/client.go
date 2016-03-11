@@ -8,7 +8,6 @@ type Client struct {
 
   requests MessageChan
   openReplies map[int]MessageChan
-  doneChan chan bool
 }
 
 func Dial(connspec string) (client *Client, err error){
@@ -31,7 +30,6 @@ func NewClient(conn *Connection) (client *Client){
   client.conn = conn
   client.requests = make(MessageChan)
   client.openReplies = make(map[int]MessageChan)
-  client.doneChan = make(chan bool)
 
   conn.SetClient(client)
   
@@ -70,16 +68,11 @@ func (client *Client)Close() {
     close(openReplyChan)
   }
 
-  // Notify wrapper service that we're dead
-  if client.serv != nil {
-    client.serv.RemoveClient(client)
-  }
+  // // Notify wrapper service that we're dead
+  // if client.serv != nil {
+  //   client.serv.RemoveClient(client)
+  // }
 
-  client.doneChan <- true
-}
-
-func (client *Client)Done() (chan bool) {
-  return client.doneChan
 }
 
 func (client *Client)SplitReqsAndReps() (err error) {
