@@ -44,7 +44,7 @@ func (msg *Message)Write(blob []byte) (n int, err error){
   return len(blob), nil
 }
 
-func (msg *Message)toPackets(msgNo int) ([]*Packet) {
+func (msg *Message)toPackets(msgNo uint64) ([]*Packet) {
   headerHeader := PacketHeader{
     Action:      msg.Action,
     Envelope:    msg.Envelope,

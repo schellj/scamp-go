@@ -69,9 +69,9 @@ func (client *Client)Close() {
   }
 
   // // Notify wrapper service that we're dead
-  // if client.serv != nil {
-  //   client.serv.RemoveClient(client)
-  // }
+  if client.serv != nil {
+    client.serv.RemoveClient(client)
+  }
 
 }
 

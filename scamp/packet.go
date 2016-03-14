@@ -15,7 +15,7 @@ var packetSeenSinceBoot = 0
 
 type Packet struct {
 	packetType   PacketType
-	msgNo        int
+	msgNo        uint64
 	packetHeader PacketHeader
 	body         []byte
 	// ackRequestId int

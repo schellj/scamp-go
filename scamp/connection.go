@@ -22,7 +22,7 @@ type Connection struct {
 	unackedbytes   uint64
 	ackerShutdown  chan bool
 
-	pktToMsg       map[int](*Message)
+	pktToMsg       map[uint64](*Message)
 	msgs           MessageChan
 
 	client         *Client
@@ -68,7 +68,7 @@ func NewConnection(tlsConn *tls.Conn) (conn *Connection) {
 	conn.incomingmsgno = 0
 	conn.outgoingmsgno = 0
 
-	conn.pktToMsg      = make(map[int](*Message))
+	conn.pktToMsg      = make(map[uint64](*Message))
 	conn.msgs          = make(MessageChan)
 
 	conn.unackedbytes  = 0
@@ -135,8 +135,9 @@ func (conn *Connection) packetRouter() (err error) {
 				Trace.Printf("HEADER")
 				// Allocate new msg
 				// First verify it's the expected incoming msgno
-				if uint64(pkt.msgNo) != conn.incomingmsgno {
-					err = fmt.Errorf("out of sequence msgno: expected %d but got %d", conn.incomingmsgno, pkt.msgNo)
+				incomingmsgno := atomic.LoadUint64(&conn.incomingmsgno)
+				if pkt.msgNo != incomingmsgno {
+					err = fmt.Errorf("out of sequence msgno: expected %d but got %d", incomingmsgno, pkt.msgNo)
 					Error.Printf("%s", err)
 					return err
 				}
@@ -162,7 +163,7 @@ func (conn *Connection) packetRouter() (err error) {
 				// This is for sending out data
 				// conn.incomingNotifiers[pktMsgNo] = &make((chan *Message),1)
 
-				conn.incomingmsgno = conn.incomingmsgno + 1
+				atomic.AddUint64(&conn.incomingmsgno, 1)
 			case pkt.packetType == 	DATA:
 				Trace.Printf("DATA")
 				// Append data
@@ -208,12 +209,12 @@ func (conn *Connection)Send(msg *Message) (err error) {
 		return
 	}
 	
-	outgoingmsgno := conn.outgoingmsgno
+	outgoingmsgno := atomic.LoadUint64(&conn.outgoingmsgno)
 	atomic.AddUint64(&conn.outgoingmsgno,1)
 
 	Trace.Printf("sending msgno %d", outgoingmsgno)
 
-	for i,pkt := range msg.toPackets(int(outgoingmsgno)) {
+	for i,pkt := range msg.toPackets(outgoingmsgno) {
 		Trace.Printf("sending pkt %d", i)
 		bytesWritten, err := pkt.Write(conn.writer)
 		if err != nil {
@@ -265,7 +266,7 @@ func (conn *Connection)ackBytes() (err error) {
 
 	ackPacket := Packet{
 		packetType: ACK,
-		msgNo: int(outgoingmsgno),
+		msgNo: outgoingmsgno,
 		body: []byte(fmt.Sprintf("%d", theseUnackedBytes)),
 	}
 
@@ -292,7 +293,7 @@ func (conn *Connection)Close() {
 	conn.ackerShutdown <- true
 
 	conn.conn.Close()
-	close(conn.msgs)
+	// close(conn.msgs) // hit a very rare bug where this was closed on insert
 
 	conn.isClosed = true
 	conn.closedMutex.Unlock()
