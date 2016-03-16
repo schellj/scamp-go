@@ -80,17 +80,12 @@ func (client *Client)Close() {
     return
   }
 
-  close(client.requests)
-  for _,openReplyChan := range client.openReplies {
-    close(openReplyChan)
-  }
+  client.closeSplitReqsAndReps <- true
 
   // // Notify wrapper service that we're dead
   if client.serv != nil {
     client.serv.RemoveClient(client)
   }
-
-  client.closeSplitReqsAndReps <- true
 
   client.isClosed = true
   client.closedMutex.Unlock()
@@ -132,6 +127,11 @@ func (client *Client)SplitReqsAndReps() (err error) {
 
   Trace.Printf("done with SplitReqsAndReps")
 
+  close(client.requests)
+  for _,openReplyChan := range client.openReplies {
+    close(openReplyChan)
+  }
+  
   return
 }
 
