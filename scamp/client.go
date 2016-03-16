@@ -1,5 +1,9 @@
 package scamp
 
+import (
+  "sync"
+)
+
 type ClientChan chan *Client
 
 type Client struct {
@@ -8,6 +12,9 @@ type Client struct {
 
   requests MessageChan
   openReplies map[int]MessageChan
+
+  isClosed bool
+  closedMutex sync.Mutex
 }
 
 func Dial(connspec string) (client *Client, err error){
@@ -62,6 +69,12 @@ func (client *Client)Send(msg *Message) (responseChan MessageChan, err error){
 
 func (client *Client)Close() {
   client.conn.Close()
+  client.closedMutex.Lock()
+  if client.isClosed {
+    Error.Printf("client already closed. skipping shutdown.")
+    client.closedMutex.Unlock()
+    return
+  }
 
   close(client.requests)
   for _,openReplyChan := range client.openReplies {
@@ -73,6 +86,8 @@ func (client *Client)Close() {
     client.serv.RemoveClient(client)
   }
 
+  client.isClosed = true
+  client.closedMutex.Unlock()
 }
 
 func (client *Client)SplitReqsAndReps() (err error) {

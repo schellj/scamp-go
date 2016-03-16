@@ -17,7 +17,7 @@ import (
 )
 
 // Two minute timeout on clients
-var msgTimeout = time.Second * 120
+var msgTimeout = time.Second * 5
 
 type ServiceActionFunc func(*Message, *Client)
 type ServiceAction struct {

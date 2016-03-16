@@ -8,6 +8,7 @@ import (
 	"time"
 	"sync/atomic"
 	"sync"
+	"strings"
 )
 
 type Connection struct {
@@ -107,11 +108,11 @@ func (conn *Connection) packetRouter() (err error) {
 
 			// Trace.Printf("read packet: %s", pkt)
 			if err != nil {
-				if err.Error() == "readline error: EOF" {
+				if strings.Contains(err.Error(), "readline error: EOF") {
+				} else if strings.Contains(err.Error(), "use of closed network connection") {
 				} else {
 					Error.Printf("err: %s", err)
 				}
-				Error.Printf("err reading packet: `%s`. (EOF is normal). Returning.", err)
 				close(readAttempt)
 				return
 			}
@@ -124,6 +125,7 @@ func (conn *Connection) packetRouter() (err error) {
 		case pkt,ok = <-readAttempt:
 			if !ok {
 				Error.Printf("select statement got a closed channel. exiting packetRouter.")
+				conn.client.Close()
 				return
 			}
 		}
@@ -255,13 +257,12 @@ func (conn *Connection)packetAcker() {
 // 	ackRequestId int
 // }
 func (conn *Connection)ackBytes() (err error) {
-	if conn.unackedbytes == 0 {
+	theseUnackedBytes := atomic.LoadUint64(&conn.unackedbytes)
+	if theseUnackedBytes == 0 {
 		return
 	}
 
-	theseUnackedBytes := conn.unackedbytes
-
-	outgoingmsgno := conn.outgoingmsgno
+	outgoingmsgno := atomic.LoadUint64(&conn.outgoingmsgno)
 	atomic.AddUint64(&conn.outgoingmsgno,1)
 
 	ackPacket := Packet{
@@ -284,6 +285,7 @@ func (conn *Connection)ackBytes() (err error) {
 func (conn *Connection)Close() {
 	conn.closedMutex.Lock()
 	if conn.isClosed {
+		Info.Printf("connection already closed. skipping shutdown.")
 		conn.closedMutex.Unlock()
 		return
 	}
