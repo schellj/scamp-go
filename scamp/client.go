@@ -13,6 +13,8 @@ type Client struct {
   requests MessageChan
   openReplies map[int]MessageChan
 
+  closeSplitReqsAndReps chan bool
+
   isClosed bool
   closedMutex sync.Mutex
 }
@@ -37,6 +39,8 @@ func NewClient(conn *Connection) (client *Client){
   client.conn = conn
   client.requests = make(MessageChan)
   client.openReplies = make(map[int]MessageChan)
+
+  client.closeSplitReqsAndReps = make(chan bool)
 
   conn.SetClient(client)
   
@@ -86,6 +90,8 @@ func (client *Client)Close() {
     client.serv.RemoveClient(client)
   }
 
+  client.closeSplitReqsAndReps <- true
+
   client.isClosed = true
   client.closedMutex.Unlock()
 }
@@ -93,27 +99,35 @@ func (client *Client)Close() {
 func (client *Client)SplitReqsAndReps() (err error) {
   var replyChan MessageChan
 
-  for message := range client.conn.msgs {
-    Trace.Printf("splitting incoming message to reqs and reps")
+  SplitReqsAndRepsForLoop:
+  for {
+    select {
+    case message := <-client.conn.msgs:
+      Trace.Printf("splitting incoming message to reqs and reps")
 
-    if message.MessageType == MESSAGE_TYPE_REQUEST {
-      client.requests <- message
-    } else if message.MessageType == MESSAGE_TYPE_REPLY {
-      replyChan = client.openReplies[message.RequestId]
+      if message.MessageType == MESSAGE_TYPE_REQUEST {
+        // interesting things happen if there are outstanding messages
+        // and the client closes
+        client.requests <- message
+      } else if message.MessageType == MESSAGE_TYPE_REPLY {
+        replyChan = client.openReplies[message.RequestId]
 
-      if replyChan == nil {
-        Error.Printf("got an unexpected reply for requestId: %d. Skipping.", message.RequestId)
+        if replyChan == nil {
+          Error.Printf("got an unexpected reply for requestId: %d. Skipping.", message.RequestId)
+          continue
+        }
+
+        delete(client.openReplies, message.RequestId)
+        replyChan <- message
+
+      } else {
+        Error.Printf("Could not handle msg, it's neither req or reply. Skipping.")
         continue
       }
-
-      delete(client.openReplies, message.RequestId)
-      replyChan <- message
-
-    } else {
-      Error.Printf("Could not handle msg, it's neither req or reply. Skipping.")
-      continue
+    case <- client.closeSplitReqsAndReps:
+      Info.Printf("closing down SplitReqsAndReps")
+      break SplitReqsAndRepsForLoop
     }
-
   }
 
   Trace.Printf("done with SplitReqsAndReps")
