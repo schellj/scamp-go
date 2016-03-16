@@ -5,6 +5,7 @@ import (
 	"time"
 )
 
+var timeout time.Duration = time.Duration(300) * time.Second
 
 func main() {
 	scamp.Initialize()
@@ -18,7 +19,7 @@ func main() {
 
   message := scamp.NewMessage()
   message.SetRequestId(1234)
-  message.SetAction("helloworld.hello")
+  message.SetAction("Logger.log")
   message.SetEnvelope(scamp.ENVELOPE_JSON)
   message.SetVersion(1)
   message.SetMessageType(scamp.MESSAGE_TYPE_REQUEST)
@@ -33,12 +34,12 @@ func main() {
   select {
   case response,ok := <-recvChan:
   	if !ok {
-  		scamp.Error.Fatalf("recvChan was closed")
+  		scamp.Error.Printf("recvChan was closed. exiting.")
   	} else {
   		scamp.Info.Printf("got reply: %s", response.Bytes())
   	}
   	return
-  case <-time.After(time.Duration(10) * time.Second):
+  case <-time.After(timeout):
   	scamp.Error.Fatalf("failed to get reply before timeout")
   	return
   }

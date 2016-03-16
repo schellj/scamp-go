@@ -17,7 +17,7 @@ import (
 )
 
 // Two minute timeout on clients
-var msgTimeout = time.Second * 5
+var msgTimeout = time.Second * 120
 
 type ServiceActionFunc func(*Message, *Client)
 type ServiceAction struct {
@@ -197,10 +197,11 @@ func (serv *Service)Handle(client *Client) {
 				action.callback(msg, client)
 			} else {
 				// TODO: gotta tell them I don't know how to do that
+				// client.Close()
+				Error.Printf("do not know how to handle action `%s`", msg.Action)
 			}
 		case <- time.After(msgTimeout):
 			Error.Printf("timeout... dying!")
-			client.Close()
 			serv.RemoveClient(client)
 			break HandlerLoop
 		}
@@ -224,6 +225,7 @@ func (serv *Service)RemoveClient(client *Client) (err error){
 		return fmt.Errorf("unknown client") // TODO can I get the client's IP?
 	}
 
+	client.Close()
 	serv.clients = append(serv.clients[:index], serv.clients[index+1:]...)
 	return nil
 }
@@ -234,8 +236,8 @@ func (serv *Service)Stop(){
 	if serv.listener != nil {
 		serv.listener.Close()
 	}
-	for _,conn := range serv.clients {
-		conn.Close()
+	for _,client := range serv.clients {
+		client.Close()
 	}
 
 	serv.statsCloseChan <- true

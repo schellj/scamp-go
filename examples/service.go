@@ -23,6 +23,7 @@ func main() {
 
 		reply := &scamp.Message{MessageType: scamp.MESSAGE_TYPE_REPLY}
 		reply.Write(famous_words)
+		reply.SetRequestId(message.RequestId)
 		_, err := client.Send(reply)
 		if err != nil {
 			scamp.Error.Printf("error while sending reply: `%s`. continuing.", err)

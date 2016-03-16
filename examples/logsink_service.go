@@ -11,7 +11,7 @@ func main() {
   }
 
   // rename Register -> RegisterAction
-  service.Register("Logger.info", func(req *scamp.Message, client *scamp.Client){
+  service.Register("Logger.log", func(req *scamp.Message, client *scamp.Client){
     reply := scamp.NewMessage()
     reply.SetMessageType(scamp.MESSAGE_TYPE_REPLY)
     reply.SetEnvelope(scamp.ENVELOPE_JSON)

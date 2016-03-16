@@ -106,7 +106,6 @@ func (conn *Connection) packetRouter() (err error) {
 		go func(){
 			pkt,err := ReadPacket(conn.reader)
 
-			// Trace.Printf("read packet: %s", pkt)
 			if err != nil {
 				if strings.Contains(err.Error(), "readline error: EOF") {
 				} else if strings.Contains(err.Error(), "use of closed network connection") {
@@ -117,6 +116,20 @@ func (conn *Connection) packetRouter() (err error) {
 				return
 			}
 
+			// if pkt.packetType == HEADER {
+			// 	Info.Printf("read header")
+			// }	else if pkt.packetType == DATA {
+			// 	Info.Printf("read data")
+			// } else if pkt.packetType == EOF {
+			// 	Info.Printf("read eof")
+			// } else if pkt.packetType == TXERR {
+			// 	Info.Printf("read txerr")
+			// } else if pkt.packetType == ACK {
+			// 	Info.Printf("read ack")
+			// } else {
+			// 	Info.Printf("read unknown packet type: %d", pkt.packetType)
+			// }
+
 			readAttempt <- pkt
 		}()
 
@@ -125,7 +138,9 @@ func (conn *Connection) packetRouter() (err error) {
 		case pkt,ok = <-readAttempt:
 			if !ok {
 				Error.Printf("select statement got a closed channel. exiting packetRouter.")
-				conn.client.Close()
+				if conn.client != nil {
+					conn.client.Close()
+				}
 				return
 			}
 		}
