@@ -53,7 +53,7 @@ func main() {
     scamp.Info.Printf("service exiting gracefully")
   }
 
-  scamp.Info.Printf("going to timeout so you can send a SIGSTOP and dump the goroutines...")
+  scamp.Info.Printf("going to timeout so you can send a SIGQUIT and dump the goroutines...")
   select {
   case <- time.After(time.Duration(1) * time.Minute):
     scamp.Info.Printf("1 minute timeout achieved")

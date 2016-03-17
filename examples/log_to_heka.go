@@ -47,9 +47,14 @@ func main() {
   	} else {
   		scamp.Info.Printf("got reply: %s", response.Bytes())
   	}
-  	return
   case <-time.After(timeout):
   	scamp.Error.Fatalf("failed to get reply before timeout")
-  	return
   }
+
+  select {
+  case <-time.After(timeout):
+    scamp.Info.Printf("done waiting")
+  }
+
+  client.Close()
 }

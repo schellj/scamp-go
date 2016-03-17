@@ -13,8 +13,6 @@ type Client struct {
   requests MessageChan
   openReplies map[int]MessageChan
 
-  closeSplitReqsAndReps chan bool
-
   isClosed bool
   closedM sync.Mutex
 
@@ -41,8 +39,6 @@ func NewClient(conn *Connection) (client *Client){
   client.conn = conn
   client.requests = make(MessageChan)
   client.openReplies = make(map[int]MessageChan)
-
-  client.closeSplitReqsAndReps = make(chan bool)
 
   conn.SetClient(client)
   
@@ -84,15 +80,17 @@ func (client *Client)Close() {
     return
   }
 
+  Trace.Printf("closing client...")
+  Trace.Printf("closing client conn...")
   client.conn.Close()
-
-  client.closeSplitReqsAndReps <- true
 
   // // Notify wrapper service that we're dead
   if client.serv != nil {
+    Trace.Printf("removing client from service...")
     client.serv.RemoveClient(client)
   }
 
+  Trace.Printf("marking client as closed...")
   client.isClosed = true
 }
 
@@ -101,11 +99,14 @@ func (client *Client)splitReqsAndReps() (err error) {
 
   forLoop:
   for {
+    Trace.Printf("forLoop splitReqsAndReps")
     select {
     case message,ok := <-client.conn.msgs:
       if !ok {
+        Trace.Printf("client.conn.msgs... CLOSED!")
         break forLoop
       }
+      Trace.Printf("client.conn.msgs")
 
       Trace.Printf("splitting incoming message to reqs and reps")
 
@@ -128,9 +129,6 @@ func (client *Client)splitReqsAndReps() (err error) {
         Error.Printf("Could not handle msg, it's neither req or reply. Skipping.")
         continue
       }
-    case <- client.closeSplitReqsAndReps:
-      // Info.Printf("closing down SplitReqsAndReps")
-      break forLoop
     }
   }
 
@@ -140,6 +138,8 @@ func (client *Client)splitReqsAndReps() (err error) {
   for _,openReplyChan := range client.openReplies {
     close(openReplyChan)
   }
+
+  client.Close()
 
   return
 }
