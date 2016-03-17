@@ -18,6 +18,7 @@ func GatherStats(service *Service) (stats ServiceStats) {
 }
 
 func PrintStatsLoop(service *Service, timeout time.Duration, closeChan chan bool) {
+  forLoop:
   for {
     select {
     case <- time.After(timeout):
@@ -29,7 +30,9 @@ func PrintStatsLoop(service *Service, timeout time.Duration, closeChan chan bool
 
       Info.Printf("periodic stats: `%s`", statsBytes)
     case <-closeChan:
-      break
+      break forLoop
     }
   }
+
+  Info.Printf("exiting PrintStatsLoop")
 }

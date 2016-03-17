@@ -139,18 +139,19 @@ func (serv *Service)Register(name string, callback ServiceActionFunc) (err error
 
 func (serv *Service)Run() {
 
+	forLoop:
 	for {
 		netConn,err := serv.listener.Accept()
 		if err != nil {
 			Info.Printf("exiting service service Run(): `%s`", err)
-			break
+			break forLoop
 		}
 		Trace.Printf("accepted new connection...")
 
 		var tlsConn (*tls.Conn) = (netConn).(*tls.Conn)
 		if tlsConn == nil {
 			Error.Fatalf("could not create tlsConn")
-			break
+			break forLoop
 		}
 
 		conn := NewConnection(tlsConn)
@@ -161,6 +162,14 @@ func (serv *Service)Run() {
 
 		atomic.AddUint64(&serv.connectionsAccepted, 1)
 	}
+
+	Info.Printf("closing all registered objects")
+
+	for _,client := range serv.clients {
+		client.Close()
+	}
+
+	serv.statsCloseChan <- true
 }
 
 func (serv *Service)Handle(client *Client) {
@@ -231,11 +240,6 @@ func (serv *Service)Stop(){
 	if serv.listener != nil {
 		serv.listener.Close()
 	}
-	for _,client := range serv.clients {
-		client.Close()
-	}
-
-	serv.statsCloseChan <- true
 }
 
 func (serv *Service)MarshalText() (b []byte, err error){

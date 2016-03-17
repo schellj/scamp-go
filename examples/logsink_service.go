@@ -1,6 +1,13 @@
 package main
 
-import "scamp"
+import (
+  "scamp"
+
+  "os"
+  "os/signal"
+  "syscall"
+  "time"
+)
 
 func main() {
   scamp.Initialize()
@@ -27,5 +34,28 @@ func main() {
     }
   })
 
-  service.Run()
+  serviceDone := make(chan bool)
+  go func(){
+    service.Run()
+    serviceDone <- true
+  }()
+
+  sigUsr1 := make(chan os.Signal)
+  signal.Notify(sigUsr1, syscall.SIGUSR1)
+  select {
+  case <-sigUsr1:
+    scamp.Info.Printf("shutdown requested")
+    service.Stop()
+  }
+
+  select {
+  case <-serviceDone:
+    scamp.Info.Printf("service exiting gracefully")
+  }
+
+  scamp.Info.Printf("going to timeout so you can send a SIGSTOP and dump the goroutines...")
+  select {
+  case <- time.After(time.Duration(1) * time.Minute):
+    scamp.Info.Printf("1 minute timeout achieved")
+  }
 }

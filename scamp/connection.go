@@ -187,7 +187,7 @@ func (conn *Connection) routePacket(pkt *Packet) (err error) {
 				// TODO: add 'error' path on connection
 				// Kill connection
 			case pkt.packetType == 	ACK:
-				Error.Printf("ACK `%d` for msgno %d", pkt.msgNo, pkt.body)
+				Trace.Printf("ACK `%d` for msgno %d", pkt.msgNo, len(pkt.body))
 				// panic("Xavier needs to support this")
 				// Add bytes to message stream tally
 		}
