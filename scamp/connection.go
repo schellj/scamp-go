@@ -109,26 +109,13 @@ func (conn *Connection) packetRouter() (err error) {
 			if err != nil {
 				if strings.Contains(err.Error(), "readline error: EOF") {
 				} else if strings.Contains(err.Error(), "use of closed network connection") {
+				} else if strings.Contains(err.Error(), "connection reset by peer") {
 				} else {
 					Error.Printf("err: %s", err)
 				}
 				close(readAttempt)
 				return
 			}
-
-			// if pkt.packetType == HEADER {
-			// 	Info.Printf("read header")
-			// }	else if pkt.packetType == DATA {
-			// 	Info.Printf("read data")
-			// } else if pkt.packetType == EOF {
-			// 	Info.Printf("read eof")
-			// } else if pkt.packetType == TXERR {
-			// 	Info.Printf("read txerr")
-			// } else if pkt.packetType == ACK {
-			// 	Info.Printf("read ack")
-			// } else {
-			// 	Info.Printf("read unknown packet type: %d", pkt.packetType)
-			// }
 
 			readAttempt <- pkt
 		}()
@@ -137,7 +124,7 @@ func (conn *Connection) packetRouter() (err error) {
 		select {
 		case pkt,ok = <-readAttempt:
 			if !ok {
-				Error.Printf("select statement got a closed channel. exiting packetRouter.")
+				Trace.Printf("select statement got a closed channel. exiting packetRouter.")
 				if conn.client != nil {
 					conn.client.Close()
 				}
@@ -288,7 +275,6 @@ func (conn *Connection)ackBytes() (err error) {
 
 	_, err = ackPacket.Write(conn.writer)
 	if err != nil {
-		Error.Printf("error writing ack packet: `%s`", err)
 		return err
 	}
 
@@ -300,7 +286,7 @@ func (conn *Connection)ackBytes() (err error) {
 func (conn *Connection)Close() {
 	conn.closedMutex.Lock()
 	if conn.isClosed {
-		Info.Printf("connection already closed. skipping shutdown.")
+		Trace.Printf("connection already closed. skipping shutdown.")
 		conn.closedMutex.Unlock()
 		return
 	}

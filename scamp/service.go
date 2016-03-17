@@ -196,16 +196,27 @@ func (serv *Service)Handle(client *Client) {
 				// yay
 				action.callback(msg, client)
 			} else {
-				// TODO: gotta tell them I don't know how to do that
-				// client.Close()
 				Error.Printf("do not know how to handle action `%s`", msg.Action)
+
+				reply := NewMessage()
+		    reply.SetMessageType(MESSAGE_TYPE_REPLY)
+		    reply.SetEnvelope(ENVELOPE_JSON)
+		    reply.SetRequestId(msg.RequestId)
+		    reply.Write([]byte(`{"error": "no such action"`))
+				_,err := client.Send(reply)
+				if err != nil {
+					client.Close()
+					break HandlerLoop
+				}
+
 			}
 		case <- time.After(msgTimeout):
 			Error.Printf("timeout... dying!")
-			serv.RemoveClient(client)
 			break HandlerLoop
 		}
 	}
+
+	serv.RemoveClient(client)
 
 	Trace.Printf("done handling client")
 	

@@ -44,7 +44,7 @@ func NewClient(conn *Connection) (client *Client){
 
   conn.SetClient(client)
   
-  go client.SplitReqsAndReps()
+  go client.splitReqsAndReps()
 
   return
 }
@@ -75,7 +75,7 @@ func (client *Client)Close() {
   client.conn.Close()
   client.closedMutex.Lock()
   if client.isClosed {
-    Error.Printf("client already closed. skipping shutdown.")
+    Trace.Printf("client already closed. skipping shutdown.")
     client.closedMutex.Unlock()
     return
   }
@@ -91,10 +91,10 @@ func (client *Client)Close() {
   client.closedMutex.Unlock()
 }
 
-func (client *Client)SplitReqsAndReps() (err error) {
+func (client *Client)splitReqsAndReps() (err error) {
   var replyChan MessageChan
 
-  SplitReqsAndRepsForLoop:
+  forLoop:
   for {
     select {
     case message := <-client.conn.msgs:
@@ -120,8 +120,8 @@ func (client *Client)SplitReqsAndReps() (err error) {
         continue
       }
     case <- client.closeSplitReqsAndReps:
-      Info.Printf("closing down SplitReqsAndReps")
-      break SplitReqsAndRepsForLoop
+      // Info.Printf("closing down SplitReqsAndReps")
+      break forLoop
     }
   }
 
@@ -131,7 +131,7 @@ func (client *Client)SplitReqsAndReps() (err error) {
   for _,openReplyChan := range client.openReplies {
     close(openReplyChan)
   }
-  
+
   return
 }
 
