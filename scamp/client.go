@@ -16,7 +16,9 @@ type Client struct {
   closeSplitReqsAndReps chan bool
 
   isClosed bool
-  closedMutex sync.Mutex
+  closedM sync.Mutex
+
+  sendM sync.Mutex
 }
 
 func Dial(connspec string) (client *Client, err error){
@@ -54,6 +56,9 @@ func (client *Client)SetService(serv *Service) {
 }
 
 func (client *Client)Send(msg *Message) (responseChan MessageChan, err error){ 
+  client.sendM.Lock()
+  defer client.sendM.Unlock()
+
   // Info.Printf("sending message `%d`", msg.RequestId)
   err = client.conn.Send(msg)
   if err != nil {
@@ -72,8 +77,8 @@ func (client *Client)Send(msg *Message) (responseChan MessageChan, err error){
 }
 
 func (client *Client)Close() {
-  client.closedMutex.Lock()
-  defer client.closedMutex.Unlock()
+  client.closedM.Lock()
+  defer client.closedM.Unlock()
   if client.isClosed {
     Trace.Printf("client already closed. skipping shutdown.")
     return
