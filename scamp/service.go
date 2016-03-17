@@ -97,22 +97,6 @@ func NewService(serviceSpec string, humanName string) (serv *Service, err error)
 	return
 }
 
-func (serv *Service)generateRandomName() {
-	randBytes := make([]byte, 18, 18)
-	read,err := rand.Read(randBytes)
-	if err != nil {
-		err = fmt.Errorf("could not generate all rand bytes needed. only read %d of 18", read)
-		return
-	}
-	base64RandBytes := base64.StdEncoding.EncodeToString(randBytes)
-
-	var buffer bytes.Buffer
-	buffer.WriteString(serv.humanName)
-	buffer.WriteString("-")
-	buffer.WriteString(base64RandBytes[0:])
-	serv.name = string(buffer.Bytes())
-}
-
 // TODO: port discovery and interface/IP discovery should happen here
 // important to set values so announce packets are correct
 func (serv *Service)listen() (err error) {
@@ -141,7 +125,8 @@ func (serv *Service)listen() (err error) {
 
 func (serv *Service)Register(name string, callback ServiceActionFunc) (err error) {
 	if serv.isRunning {
-		return errors.New("cannot register handlers while server is running")
+		err = errors.New("cannot register handlers while server is running")
+		return
 	}
 
 	serv.actions[name] = &ServiceAction {
@@ -156,11 +141,11 @@ func (serv *Service)Run() {
 
 	for {
 		netConn,err := serv.listener.Accept()
-		Trace.Printf("accepted new connection...")
 		if err != nil {
 			Info.Printf("exiting service service Run(): `%s`", err)
 			break
 		}
+		Trace.Printf("accepted new connection...")
 
 		var tlsConn (*tls.Conn) = (netConn).(*tls.Conn)
 		if tlsConn == nil {
@@ -188,8 +173,6 @@ func (serv *Service)Handle(client *Client) {
 			if !ok {
 				break HandlerLoop
 			}
-			// Trace.Printf("msg!!!! `%s`", msg)
-			// Trace.Printf("action: `%s`", msg.Action)
 			action = serv.actions[msg.Action]
 
 			if action != nil{
@@ -276,4 +259,20 @@ func (serv *Service)MarshalText() (b []byte, err error){
 
 	b = buf.Bytes()
 	return
+}
+
+func (serv *Service)generateRandomName() {
+	randBytes := make([]byte, 18, 18)
+	read,err := rand.Read(randBytes)
+	if err != nil {
+		err = fmt.Errorf("could not generate all rand bytes needed. only read %d of 18", read)
+		return
+	}
+	base64RandBytes := base64.StdEncoding.EncodeToString(randBytes)
+
+	var buffer bytes.Buffer
+	buffer.WriteString(serv.humanName)
+	buffer.WriteString("-")
+	buffer.WriteString(base64RandBytes[0:])
+	serv.name = string(buffer.Bytes())
 }

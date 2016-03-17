@@ -17,8 +17,10 @@ type Connection struct {
 	conn         *tls.Conn
 	Fingerprint  string
 
-	reader         *bufio.Reader
-	writer         *bufio.Writer
+	// reader         *bufio.Reader
+	// writer         *bufio.Writer
+	readWriter     *bufio.ReadWriter
+
 	incomingmsgno  IncomingMsgNo
 	outgoingmsgno  OutgoingMsgNo
 
@@ -63,8 +65,9 @@ func NewConnection(tlsConn *tls.Conn) (conn *Connection) {
 		conn.Fingerprint = sha1FingerPrint(peerCert)
 	}
 
-	conn.reader        = bufio.NewReader(conn.conn)
-	conn.writer        = bufio.NewWriter(conn.conn)
+	// conn.reader        = bufio.NewReader(conn.conn)
+	// conn.writer        = bufio.NewWriter(conn.conn)
+	conn.readWriter       = bufio.NewReadWriter(bufio.NewReader(conn.conn), bufio.NewWriter(conn.conn))
 	conn.incomingmsgno = 0
 	conn.outgoingmsgno = 0
 
@@ -73,8 +76,7 @@ func NewConnection(tlsConn *tls.Conn) (conn *Connection) {
 
 	conn.isClosed      = false
 
-	go conn.packetRouter()
-	// go conn.packetAcker()
+	go conn.packetReader()
 
 	return
 }
@@ -83,55 +85,35 @@ func (conn *Connection) SetClient(client *Client) {
 	conn.client = client
 }
 
-func (conn *Connection) packetRouter() (err error) {
+func (conn *Connection) packetReader() (err error) {
 	// Trace.Printf("starting packetrouter")
 	var pkt *Packet
-	var msg *Message
-
-	// defer func(){
-	// 	if conn.client != nil {
-	// 		// Notify wrapper client we're dead
-	// 		conn.client.Close()
-	// 	}
-	// }()
 
 	for {
 		Trace.Printf("reading packet...")
-		readAttempt := make(chan *Packet)
 
-		go func(){
-			pkt,err := ReadPacket(conn.reader)
-
-			if err != nil {
-				if strings.Contains(err.Error(), "readline error: EOF") {
-				} else if strings.Contains(err.Error(), "use of closed network connection") {
-				} else if strings.Contains(err.Error(), "connection reset by peer") {
-				} else {
-					Error.Printf("err: %s", err)
-				}
-				close(readAttempt)
-				return
+		pkt,err = ReadPacket(conn.readWriter)
+		if err != nil {
+			if strings.Contains(err.Error(), "readline error: EOF") {
+			} else if strings.Contains(err.Error(), "use of closed network connection") {
+			} else if strings.Contains(err.Error(), "connection reset by peer") {
+			} else {
+				Error.Printf("err: %s", err)
 			}
-
-			conn.ackBytes(IncomingMsgNo(pkt.msgNo), uint64(len(pkt.body)))
-
-			readAttempt <- pkt
-		}()
-
-		var ok bool
-		select {
-		case pkt,ok = <-readAttempt:
-			if !ok {
-				Trace.Printf("select statement got a closed channel. exiting packetRouter.")
-				if conn.client != nil {
-					conn.client.Close()
-				}
-				return
-			}
+			return
+		}
+		err = conn.routePacket(pkt)
+		if err != nil {
+			return
 		}
 
+	}
+}
 
-		Trace.Printf("switching...")
+func (conn *Connection) routePacket(pkt *Packet) (err error) {
+		var msg *Message
+
+		Trace.Printf("routing packet...")
 		switch {
 			case pkt.packetType == HEADER:
 				Trace.Printf("HEADER")
@@ -178,6 +160,7 @@ func (conn *Connection) packetRouter() (err error) {
 				}
 
 				msg.Write(pkt.body)
+				conn.ackBytes(IncomingMsgNo(pkt.msgNo), uint64(len(pkt.body)))
 			case pkt.packetType == EOF:
 				Trace.Printf("EOF")
 				// Deliver message
@@ -198,11 +181,12 @@ func (conn *Connection) packetRouter() (err error) {
 				// TODO: add 'error' path on connection
 				// Kill connection
 			case pkt.packetType == 	ACK:
-				Trace.Printf("ACK `%s` (unackedbytes: %d)", pkt.body)
+				Error.Printf("ACK `%d` for msgno %d", pkt.msgNo, pkt.body)
 				// panic("Xavier needs to support this")
 				// Add bytes to message stream tally
 		}
-	}
+
+		return
 }
 
 func (conn *Connection)Send(msg *Message) (err error) {
@@ -218,34 +202,17 @@ func (conn *Connection)Send(msg *Message) (err error) {
 
 	for i,pkt := range msg.toPackets(outgoingmsgno) {
 		Trace.Printf("sending pkt %d", i)
-		_, err := pkt.Write(conn.writer)
+		_, err := pkt.Write(conn.readWriter)
 		if err != nil {
 			Error.Printf("error writing packet: `%s`", err)
 			return err
 		}
 	}
-	conn.writer.Flush()
+	conn.readWriter.Flush()
 	Trace.Printf("done sending msg")
 
 	return
 }
-
-// func (conn *Connection)packetAcker() {
-// 	timeout := time.Duration(15) * time.Second
-
-// 	for {
-// 		select {
-// 		case <-conn.ackerShutdown:
-// 			break
-// 		case <-time.After(timeout):
-// 			err := conn.ackBytes()
-// 			if err != nil {
-// 				Error.Printf("could not ack bytes: %s", err.Error())
-// 			}
-// 		}
-// 	}
-// }
-
 
 func (conn *Connection)ackBytes(msgno IncomingMsgNo, unackedByteCount uint64) (err error) {
 	ackPacket := Packet{
@@ -254,7 +221,7 @@ func (conn *Connection)ackBytes(msgno IncomingMsgNo, unackedByteCount uint64) (e
 		body: []byte(fmt.Sprintf("%d", unackedByteCount)),
 	}
 
-	_, err = ackPacket.Write(conn.writer)
+	_, err = ackPacket.Write(conn.readWriter)
 	if err != nil {
 		return err
 	}

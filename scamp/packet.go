@@ -41,7 +41,7 @@ var theRestBytes = []byte("END\r\n")
 /*
   Will parse an io stream in to a packet struct
 */
-func ReadPacket(reader *bufio.Reader) (pkt *Packet, err error) {
+func ReadPacket(reader *bufio.ReadWriter) (pkt *Packet, err error) {
 	pkt = new(Packet)
 	var pktTypeBytes []byte
 	var bodyBytesNeeded int
