@@ -89,6 +89,7 @@ func (conn *Connection) packetReader() (err error) {
 	// Trace.Printf("starting packetrouter")
 	var pkt *Packet
 
+	PacketReaderLoop:
 	for {
 		Trace.Printf("reading packet...")
 
@@ -100,14 +101,19 @@ func (conn *Connection) packetReader() (err error) {
 			} else {
 				Error.Printf("err: %s", err)
 			}
-			return
+			break PacketReaderLoop
 		}
 		err = conn.routePacket(pkt)
 		if err != nil {
-			return
+			break PacketReaderLoop
 		}
-
 	}
+
+	// we close after routePacket is no longer possible
+	// to avoid any send after close panics
+	close(conn.msgs)
+
+	return
 }
 
 func (conn *Connection) routePacket(pkt *Packet) (err error) {
@@ -241,7 +247,6 @@ func (conn *Connection)Close() {
 	Trace.Printf("connection is closing")
 
 	conn.conn.Close()
-	// close(conn.msgs) // hit a very rare bug where this was closed on insert
 
 	conn.isClosed = true
 	conn.closedMutex.Unlock()

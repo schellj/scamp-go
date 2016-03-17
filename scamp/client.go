@@ -97,7 +97,11 @@ func (client *Client)splitReqsAndReps() (err error) {
   forLoop:
   for {
     select {
-    case message := <-client.conn.msgs:
+    case message,ok := <-client.conn.msgs:
+      if !ok {
+        break forLoop
+      }
+      
       Trace.Printf("splitting incoming message to reqs and reps")
 
       if message.MessageType == MESSAGE_TYPE_REQUEST {
