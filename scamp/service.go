@@ -199,6 +199,7 @@ func (serv *Service)Handle(client *Client) {
 		}
 	}
 
+	client.Close()
 	serv.RemoveClient(client)
 
 	Trace.Printf("done handling client")

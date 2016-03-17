@@ -72,13 +72,14 @@ func (client *Client)Send(msg *Message) (responseChan MessageChan, err error){
 }
 
 func (client *Client)Close() {
-  client.conn.Close()
   client.closedMutex.Lock()
+  defer client.closedMutex.Unlock()
   if client.isClosed {
     Trace.Printf("client already closed. skipping shutdown.")
-    client.closedMutex.Unlock()
     return
   }
+
+  client.conn.Close()
 
   client.closeSplitReqsAndReps <- true
 
@@ -88,7 +89,6 @@ func (client *Client)Close() {
   }
 
   client.isClosed = true
-  client.closedMutex.Unlock()
 }
 
 func (client *Client)splitReqsAndReps() (err error) {
@@ -101,7 +101,7 @@ func (client *Client)splitReqsAndReps() (err error) {
       if !ok {
         break forLoop
       }
-      
+
       Trace.Printf("splitting incoming message to reqs and reps")
 
       if message.MessageType == MESSAGE_TYPE_REQUEST {
