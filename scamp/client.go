@@ -23,10 +23,10 @@ func Dial(connspec string) (client *Client, err error){
   Trace.Printf("connecting to `%s`", connspec)
 
   conn,err := DialConnection(connspec)
-  client = NewClient(conn)
   if err != nil {
     return
   }
+  client = NewClient(conn)
   client.conn = conn
 
   return
