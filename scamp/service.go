@@ -224,6 +224,9 @@ func (serv *Service)Handle(client *Client) {
 }
 
 func (serv *Service)RemoveClient(client *Client) (err error){
+	serv.clientsM.Lock()
+	defer serv.clientsM.Unlock()
+	
 	index := -1
 	for i,entry := range serv.clients {
 		if client == entry {
@@ -237,11 +240,9 @@ func (serv *Service)RemoveClient(client *Client) (err error){
 		return fmt.Errorf("unknown client") // TODO can I get the client's IP?
 	}
 
-	serv.clientsM.Lock()
-	defer serv.clientsM.Unlock()
 	client.Close()
 	serv.clients = append(serv.clients[:index], serv.clients[index+1:]...)
-	
+
 	return nil
 }
 
