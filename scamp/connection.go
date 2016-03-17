@@ -5,11 +5,13 @@ import (
 	"fmt"
 	"bufio"
 
-	"time"
 	"sync/atomic"
 	"sync"
 	"strings"
 )
+
+type IncomingMsgNo uint64
+type OutgoingMsgNo uint64
 
 type Connection struct {
 	conn         *tls.Conn
@@ -17,19 +19,16 @@ type Connection struct {
 
 	reader         *bufio.Reader
 	writer         *bufio.Writer
-	incomingmsgno  uint64
-	outgoingmsgno  uint64
+	incomingmsgno  IncomingMsgNo
+	outgoingmsgno  OutgoingMsgNo
 
-	unackedbytes   uint64
-	ackerShutdown  chan bool
-
-	pktToMsg       map[uint64](*Message)
+	pktToMsg       map[IncomingMsgNo](*Message)
 	msgs           MessageChan
 
 	client         *Client
 
 	isClosed       bool
-	closedMutex     sync.Mutex
+	closedMutex    sync.Mutex
 }
 
 // Used by Client to establish a secure connection to the remote service.
@@ -69,16 +68,13 @@ func NewConnection(tlsConn *tls.Conn) (conn *Connection) {
 	conn.incomingmsgno = 0
 	conn.outgoingmsgno = 0
 
-	conn.pktToMsg      = make(map[uint64](*Message))
+	conn.pktToMsg      = make(map[IncomingMsgNo](*Message))
 	conn.msgs          = make(MessageChan)
-
-	conn.unackedbytes  = 0
-	conn.ackerShutdown = make(chan bool)
 
 	conn.isClosed      = false
 
 	go conn.packetRouter()
-	go conn.packetAcker()
+	// go conn.packetAcker()
 
 	return
 }
@@ -117,6 +113,8 @@ func (conn *Connection) packetRouter() (err error) {
 				return
 			}
 
+			conn.ackBytes(IncomingMsgNo(pkt.msgNo), uint64(len(pkt.body)))
+
 			readAttempt <- pkt
 		}()
 
@@ -139,14 +137,14 @@ func (conn *Connection) packetRouter() (err error) {
 				Trace.Printf("HEADER")
 				// Allocate new msg
 				// First verify it's the expected incoming msgno
-				incomingmsgno := atomic.LoadUint64(&conn.incomingmsgno)
+				incomingmsgno := atomic.LoadUint64((*uint64)(&conn.incomingmsgno))
 				if pkt.msgNo != incomingmsgno {
 					err = fmt.Errorf("out of sequence msgno: expected %d but got %d", incomingmsgno, pkt.msgNo)
 					Error.Printf("%s", err)
 					return err
 				}
 
-				msg = conn.pktToMsg[pkt.msgNo]
+				msg = conn.pktToMsg[IncomingMsgNo(pkt.msgNo)]
 				if msg != nil {
 					err = fmt.Errorf("Bad HEADER; already tracking msgno %d", pkt.msgNo)
 					Error.Printf("%s", err)
@@ -163,16 +161,16 @@ func (conn *Connection) packetRouter() (err error) {
 				msg.SetRequestId(pkt.packetHeader.RequestId)
 				// TODO: Do we need the requestId?
 
-				conn.pktToMsg[pkt.msgNo] = msg
+				conn.pktToMsg[IncomingMsgNo(pkt.msgNo)] = msg
 				// This is for sending out data
 				// conn.incomingNotifiers[pktMsgNo] = &make((chan *Message),1)
 
-				atomic.AddUint64(&conn.incomingmsgno, 1)
+				atomic.AddUint64((*uint64)(&conn.incomingmsgno), 1)
 			case pkt.packetType == 	DATA:
 				Trace.Printf("DATA")
 				// Append data
 				// Verify we are tracking that message
-				msg = conn.pktToMsg[pkt.msgNo]
+				msg = conn.pktToMsg[IncomingMsgNo(pkt.msgNo)]
 				if msg == nil {
 					err = fmt.Errorf("not tracking msgno %d", pkt.msgNo)
 					Error.Printf("unexpected error: `%s`", err)
@@ -183,24 +181,24 @@ func (conn *Connection) packetRouter() (err error) {
 			case pkt.packetType == EOF:
 				Trace.Printf("EOF")
 				// Deliver message
-				msg = conn.pktToMsg[pkt.msgNo]
+				msg = conn.pktToMsg[IncomingMsgNo(pkt.msgNo)]
 				if msg == nil {
 					err = fmt.Errorf("cannot process EOF for unknown msgno %d", pkt.msgNo)
 					Error.Printf("err: `%s`", err)
 					return
 				}
 
-				delete(conn.pktToMsg, pkt.msgNo)
+				delete(conn.pktToMsg, IncomingMsgNo(pkt.msgNo))
 				Trace.Printf("delivering msgno %d up the stack", pkt.msgNo)
 				conn.msgs <- msg
 			case pkt.packetType == 	TXERR:
 				Trace.Printf("TXERR")
-				delete(conn.pktToMsg, pkt.msgNo)				
+				delete(conn.pktToMsg, IncomingMsgNo(pkt.msgNo))
 				conn.msgs <- msg
 				// TODO: add 'error' path on connection
 				// Kill connection
 			case pkt.packetType == 	ACK:
-				Trace.Printf("ACK `%s` (unackedbytes: %d)", pkt.body, conn.unackedbytes)
+				Trace.Printf("ACK `%s` (unackedbytes: %d)", pkt.body)
 				// panic("Xavier needs to support this")
 				// Add bytes to message stream tally
 		}
@@ -213,20 +211,18 @@ func (conn *Connection)Send(msg *Message) (err error) {
 		return
 	}
 	
-	outgoingmsgno := atomic.LoadUint64(&conn.outgoingmsgno)
-	atomic.AddUint64(&conn.outgoingmsgno,1)
+	outgoingmsgno := atomic.LoadUint64((*uint64)(&conn.outgoingmsgno))
+	atomic.AddUint64((*uint64)(&conn.outgoingmsgno),1)
 
 	Trace.Printf("sending msgno %d", outgoingmsgno)
 
 	for i,pkt := range msg.toPackets(outgoingmsgno) {
 		Trace.Printf("sending pkt %d", i)
-		bytesWritten, err := pkt.Write(conn.writer)
+		_, err := pkt.Write(conn.writer)
 		if err != nil {
 			Error.Printf("error writing packet: `%s`", err)
 			return err
 		}
-
-		atomic.AddUint64(&conn.unackedbytes, uint64(bytesWritten))
 	}
 	conn.writer.Flush()
 	Trace.Printf("done sending msg")
@@ -234,51 +230,34 @@ func (conn *Connection)Send(msg *Message) (err error) {
 	return
 }
 
-func (conn *Connection)packetAcker() {
-	timeout := time.Duration(15) * time.Second
+// func (conn *Connection)packetAcker() {
+// 	timeout := time.Duration(15) * time.Second
 
-	for {
-		select {
-		case <-conn.ackerShutdown:
-			break
-		case <-time.After(timeout):
-			err := conn.ackBytes()
-			if err != nil {
-				Error.Printf("could not ack bytes: %s", err.Error())
-			}
-		}
-	}
-}
-
-
-// type Packet struct {
-// 	packetType   PacketType
-// 	msgNo        int
-// 	packetHeader PacketHeader
-// 	body         []byte
-// 	ackRequestId int
+// 	for {
+// 		select {
+// 		case <-conn.ackerShutdown:
+// 			break
+// 		case <-time.After(timeout):
+// 			err := conn.ackBytes()
+// 			if err != nil {
+// 				Error.Printf("could not ack bytes: %s", err.Error())
+// 			}
+// 		}
+// 	}
 // }
-func (conn *Connection)ackBytes() (err error) {
-	theseUnackedBytes := atomic.LoadUint64(&conn.unackedbytes)
-	if theseUnackedBytes == 0 {
-		return
-	}
 
-	outgoingmsgno := atomic.LoadUint64(&conn.outgoingmsgno)
-	atomic.AddUint64(&conn.outgoingmsgno,1)
 
+func (conn *Connection)ackBytes(msgno IncomingMsgNo, unackedByteCount uint64) (err error) {
 	ackPacket := Packet{
 		packetType: ACK,
-		msgNo: outgoingmsgno,
-		body: []byte(fmt.Sprintf("%d", theseUnackedBytes)),
+		msgNo: uint64(msgno),
+		body: []byte(fmt.Sprintf("%d", unackedByteCount)),
 	}
 
 	_, err = ackPacket.Write(conn.writer)
 	if err != nil {
 		return err
 	}
-
-	atomic.AddUint64(&conn.unackedbytes, -theseUnackedBytes)
 
 	return
 }
@@ -293,7 +272,6 @@ func (conn *Connection)Close() {
 
 
 	Trace.Printf("connection is closing")
-	conn.ackerShutdown <- true
 
 	conn.conn.Close()
 	// close(conn.msgs) // hit a very rare bug where this was closed on insert
