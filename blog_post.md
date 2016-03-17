@@ -79,4 +79,66 @@ So how do you shutdown a `Client` when there is contention from the `Service` (r
       }
     }
 
-This seems straight-forward enough but it will cause a `panic` when
+This seems straight-forward enough but it will cause a `panic` if we call `Client.close()` and `Connection.close()` -- this would result in calling `Connection.close()` twice and the go runtime will panic on a double close. There is also no way to interrogate a channel for its current state. You will also receive a panic if you try to send data on a closed channel. After working through these issues it's clear the golang creators intended channel closes to stay simple and be handled in a one-time manner.
+
+Why would a `Client` and a `Connection` try to close at the same time? Well, they're used by different parts of the system: the `Client` is managed by the `Service` and the `Connection` can close at anytime if its underlying TLS connection goes away. Our live service will experience all manner of ordering on shutdowns so we will eventually trigger this scenario.
+
+Enter the `sync.Mutex`. We'll protect state variable since we cannot interrogate channels.
+
+    import "sync"
+    type Connection struct {
+      conn           *tls.Conn
+      incomingmsgno  uint64
+      outgoingmsgno  uint64
+
+      pktToMsg       map[uint64](*Message)
+      msgs           chan *Message
+
+      isClosedM      sync.Mutex
+      isClosed       bool
+    }
+
+    func (conn *Connection)Close() {
+      conn.isClosedM.Lock()
+      defer conn.isClosedM.Lock()
+      if conn.isClosed {
+        return
+      }
+
+      conn.conn.Close()
+
+      conn.isClosed = true
+    }
+
+    type Client struct {
+      conn *Connection
+
+      requests    MessageChan
+      openReplies map[int]MessageChan
+
+      isClosedM   sync.Mutex
+      isClosed    bool
+    }
+    func (client *Client)Close() {
+      conn.isClosedM.Lock()
+      defer conn.isClosedM.Lock()
+      if conn.isClosed {
+        client.conn.Close()  
+      }
+      
+      close(client.requests)
+      for _,openReplyChan := range client.openReplies {
+        close(openReplyChan)
+      }
+
+      conn.isClosed = true
+    }
+
+    func (serv *Service)Stop(){
+      serv.listener.Close()
+      for _,client := range serv.clients {
+        client.Close()
+      }
+    }
+
+Yes, this ads more lines of code but now we can rest assured that we will not double-close a channel.
