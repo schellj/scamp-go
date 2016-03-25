@@ -86,21 +86,21 @@ func TestServiceProxySerialize(t *testing.T) {
 		protocols: []string{"json"},
     timestamp: 1440001142628,
     // ["reboot","",1],["report","",1]
-		actions: []ServiceProxyClass{
+		classes: []ServiceProxyClass{
 			ServiceProxyClass {
 				className: "bgdispatcher",
-				actions: []actionDescription {
-					actionDescription{
+				actions: []ActionDescription {
+					ActionDescription{
 						actionName: "poll",
 						crudTags: "",
 						version: 1,
 					},
-          actionDescription{
+          ActionDescription{
             actionName: "reboot",
             crudTags: "",
             version: 1,
           },
-          actionDescription{
+          ActionDescription{
             actionName: "report",
             crudTags: "",
             version: 1,

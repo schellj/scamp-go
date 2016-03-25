@@ -8,8 +8,9 @@ import "fmt"
 func TestReadHeaderPacketOK(t *testing.T) {
 	byteBuf := []byte("HEADER 1 46\r\n{\"action\":\"foo\",\"version\":1,\"envelope\":\"json\"}END\r\n")
 	byteReader := bufio.NewReader(bytes.NewReader(byteBuf))
+	byteRdrWrtr := bufio.NewReadWriter(byteReader, nil)
 
-	packet, err := ReadPacket(byteReader)
+	packet, err := ReadPacket(byteRdrWrtr)
 	if err != nil {
 		t.Errorf("got err `%s`", err)
 		t.FailNow()
@@ -46,8 +47,9 @@ func TestReadHeaderPacketOK(t *testing.T) {
 func TestReadDataPacketOK(t *testing.T) {
 	byteBuf := []byte("DATA 1 46\r\n{\"action\":\"foo\",\"version\":1,\"envelope\":\"json\"}END\r\n")
 	byteReader := bufio.NewReader(bytes.NewReader(byteBuf))
+	byteRdrWrtr := bufio.NewReadWriter(byteReader, nil)
 
-	packet, err := ReadPacket(byteReader)
+	packet, err := ReadPacket(byteRdrWrtr)
 	if err != nil {
 		t.Errorf("got err `%s`", err)
 		t.FailNow()
@@ -72,8 +74,9 @@ func TestReadDataPacketOK(t *testing.T) {
 func TestFailGarbage(t *testing.T) {
 	byteBuf := []byte("asdfasdf")
 	byteReader := bufio.NewReader(bytes.NewReader(byteBuf))
+	byteRdrWrtr := bufio.NewReadWriter(byteReader, nil)
 
-	_, err := ReadPacket(byteReader)
+	_, err := ReadPacket(byteRdrWrtr)
 	if err == nil {
 		t.Errorf("expected non-nil err, got `%s`", err)
 		t.FailNow()
@@ -88,8 +91,9 @@ func TestFailGarbage(t *testing.T) {
 func TestFailHeaderParams(t *testing.T) {
 	Initialize()
 	byteReader := bufio.NewReader(bytes.NewReader([]byte("HEADER 1\r\n{\"action\":\"foo\",\"version\":1,\"envelope\":\"json\"}END\r\n")))
+	byteRdrWrtr := bufio.NewReadWriter(byteReader, nil)
 
-	_, err := ReadPacket(byteReader)
+	_, err := ReadPacket(byteRdrWrtr)
 	if err == nil {
 		t.Fatalf("expected non-nil err `%s`", err)
 	}
@@ -116,8 +120,9 @@ func TestFailHeaderParams(t *testing.T) {
 
 func TestFailTooFewBodyBytes(t *testing.T) {
 	byteReader := bufio.NewReader(bytes.NewReader([]byte("HEADER 1 46\r\n{\"\":\"foo\",\"version\":1,\"\":\"json\"}END\r\n")))
+	byteRdrWrtr := bufio.NewReadWriter(byteReader, nil)
 
-	_, err := ReadPacket(byteReader)
+	_, err := ReadPacket(byteRdrWrtr)
 	if err == nil {
 		t.Fatalf("expected non-nil err. got `%s`", err)
 	}
@@ -129,8 +134,9 @@ func TestFailTooFewBodyBytes(t *testing.T) {
 
 func TestFailTooManyBodyBytes(t *testing.T) {
 	byteReader := bufio.NewReader(bytes.NewReader([]byte("HEADER 1 46\r\n{\"\":\"foo\",\"version\":1,\"\":\"jsonasdfasdfasdfasdf\"}END\r\n")))
+	byteRdrWrtr := bufio.NewReadWriter(byteReader, nil)
 
-	_, err := ReadPacket(byteReader)
+	_, err := ReadPacket(byteRdrWrtr)
 	expected := "packet was missing trailing bytes"
 	if err.Error() != expected {
 		t.Fatalf("expected `%s`, got `%s`", expected, err)

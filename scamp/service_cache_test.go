@@ -20,6 +20,23 @@ func TestScanCertificate(t *testing.T) {
 	}
 }
 
+func BenchmarkReadingProductionAnnounceCache(b *testing.B) {
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			file,err := os.Open("/Users/xavierlange/code/gudtech/scamp-patrol/fixtures/discovery.sample")
+			if err != nil {
+				panic("could not open file")
+			}
+			
+			cache := NewServiceCache()
+			err = cache.LoadAnnounceCache(bufio.NewScanner(file))
+			if err != nil {
+				panic("failed to load announce cache")
+			}
+		}
+	})
+}
+
 func TestReadAnnounceCache(t *testing.T) {
 	initSCAMPLogger()
 

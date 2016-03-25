@@ -11,6 +11,7 @@ type Message struct {
   Version int64
   MessageType messageType
   packets []*Packet
+  bytesWritten uint64
 }
 
 
@@ -40,8 +41,15 @@ func (msg *Message)SetRequestId(requestId int) {
 }
 
 func (msg *Message)Write(blob []byte) (n int, err error){
+  // TODO: should this be a sync add?
+  msg.bytesWritten += uint64(len(blob))
+
   msg.packets = append(msg.packets, &Packet{packetType: DATA, body: blob})
   return len(blob), nil
+}
+
+func (msg *Message)BytesWritten() (uint64) {
+  return msg.bytesWritten
 }
 
 func (msg *Message)toPackets(msgNo uint64) ([]*Packet) {

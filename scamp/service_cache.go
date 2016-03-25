@@ -1,12 +1,17 @@
 package scamp
 
-import "errors"
-import "bufio"
-import "bytes"
+import (
+  "errors"
+  "bufio"
+  "bytes"
+  "fmt"
+  "sync"
+)
 
 // Assumptions:
 // 1. Services offered on an instance do not change during life of instance
 type ServiceCache struct {
+	cacheM sync.Mutex
 	identIndex map[string]*ServiceProxy
 }
 
@@ -17,6 +22,15 @@ func NewServiceCache() (cache *ServiceCache) {
 }
 
 func (cache *ServiceCache) Store( instance *ServiceProxy ) {
+	cache.cacheM.Lock()
+	defer cache.cacheM.Unlock()
+
+	cache.storeNoLock( instance )
+
+	return
+}
+
+func (cache *ServiceCache) storeNoLock( instance *ServiceProxy ) {
 	_,ok := cache.identIndex[instance.ident]
 	if !ok {
 		cache.identIndex[instance.ident] = instance
@@ -29,6 +43,9 @@ func (cache *ServiceCache) Store( instance *ServiceProxy ) {
 }
 
 func (cache *ServiceCache) Retrieve( ident string ) ( instance *ServiceProxy ) {
+	cache.cacheM.Lock()
+	defer cache.cacheM.Unlock()
+
 	instance,ok := cache.identIndex[ident]
 	if !ok {
 		instance = nil
@@ -39,13 +56,36 @@ func (cache *ServiceCache) Retrieve( ident string ) ( instance *ServiceProxy ) {
 }
 
 func (cache *ServiceCache) Size() int {
+	cache.cacheM.Lock()
+	defer cache.cacheM.Unlock()
+
 	return len(cache.identIndex)
 }
+
+func (cache *ServiceCache) All() (proxies []*ServiceProxy) {
+	cache.cacheM.Lock()
+	defer cache.cacheM.Unlock()
+
+	size := len(cache.identIndex)
+	proxies = make([]*ServiceProxy, size)
+
+	index := 0
+	for _,proxy := range cache.identIndex {
+		proxies[index] = proxy
+		index += 1
+	}
+
+	return
+}
+
 
 var sep = []byte(`%%%`)
 var newline = []byte("\n")
 
 func (cache *ServiceCache) LoadAnnounceCache(s *bufio.Scanner) (err error) {
+	cache.cacheM.Lock()
+	defer cache.cacheM.Unlock()
+
 	// Scan through buf by lines according to this basic ABNF
 	// (SLOP* SEP CLASSRECORD NL CERT NL SIG NL NL)*
 	var classRecordsRaw, certRaw, sigRaw []byte
@@ -98,16 +138,17 @@ func (cache *ServiceCache) LoadAnnounceCache(s *bufio.Scanner) (err error) {
 		// Use those extracted value to make an instance
 		serviceProxy,err := NewServiceProxy(classRecordsRaw, certRaw, sigRaw)
 		if err != nil {
-			return err
+			return fmt.Errorf("NewServiceProxy: %s",err)
 		}
 
+		// A very expensive operation in the benchmarks
 		err = serviceProxy.Validate()
 		if err != nil {
-			Error.Printf("could not validate service proxy `%s`. Skipping.", err)
+			// Error.Printf("could not validate service proxy `%s`. Skipping.", err)
 			continue
 		}
 
-		cache.Store(serviceProxy)
+		cache.storeNoLock(serviceProxy)
 	}
 
 	return

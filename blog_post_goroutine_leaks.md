@@ -36,8 +36,6 @@ and the the spots where we spawn goroutines to keep data flowing:
     func NewConnection(tlsConn *tls.Conn) (conn *Connection) {
       conn = new(Connection)
 
-      // SNIP
-
       go conn.packetReader()
 
       return
@@ -71,3 +69,9 @@ and the the spots where we spawn goroutines to keep data flowing:
         go serv.Handle(client)
       }
     }
+
+so we spawn a `packetReader` for each `Connection`, a `splitReqsAndReps` for each `Client` and a `Handler` for each `Client` in the `Service`.
+
+The issue which triggered this exercise: my `serv.clients` never seemed to go down. Even when I had many clients coming and going I found that the numbers only went up. It looked like those spawned goroutines for the clients were not exiting or the shutdown accounting had a bug. Good thing I had an opportunity to use the `SIGQUIT` dump I had heard about.
+
+The `SIGQUIT` handler is built in to all go programs, you do not need to opt-in. It will exit the program and dump all the stacks of the goroutines (much like a panic). The great part about goroutine stacks is they track their spawn locations as well so you get a 

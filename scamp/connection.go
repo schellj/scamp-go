@@ -166,7 +166,7 @@ func (conn *Connection) routePacket(pkt *Packet) (err error) {
 				}
 
 				msg.Write(pkt.body)
-				conn.ackBytes(IncomingMsgNo(pkt.msgNo), uint64(len(pkt.body)))
+				conn.ackBytes(IncomingMsgNo(pkt.msgNo), msg.BytesWritten())
 			case pkt.packetType == EOF:
 				Trace.Printf("EOF")
 				// Deliver message

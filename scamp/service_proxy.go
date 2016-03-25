@@ -1,13 +1,28 @@
 package scamp
 
-import "encoding/json"
-import "encoding/pem"
-import "crypto/x509"
-import "crypto/rsa"
+import (
+  "encoding/json"
+  "encoding/pem"
+  "crypto/x509"
+  "crypto/rsa"
 
-import "fmt"
-import "errors"
-import "strings"
+  "fmt"
+  "errors"
+  "strings"
+)
+
+// Example:
+// {"vmin":0,"vmaj":4,"acsec":[[7,"background"]],"acname":["_evaluate","_execute","_evaluate","_execute","_munge","_evaluate","_execute"],"acver":[[7,1]],"acenv":[[7,"json,jsonstore,extdirect"]],"acflag":[[7,""]],"acns":[[2,"Channel.Amazon.FeedInterchange"],[3,"Channel.Amazon.InvPush"],[2,"Channel.Amazon.OrderImport"]]}
+type ServiceProxyDiscoveryExtension struct {
+	Vmin   int           `json:"vmin"`
+	Vmaj   int           `json:"vmaj"`
+	AcSec  []interface{} `json:"acsec"`
+	AcName []string      `json:"acname"`
+	AcVer  []interface{} `json:acver"`
+	AcEnv  []interface{} `json:acenv"`
+	AcFlag []interface{} `json:"acflag"`
+	AcNs   []interface{} `json:"acns"`
+}
 
 type ServiceProxy struct {
 	version int
@@ -17,7 +32,9 @@ type ServiceProxy struct {
 	announceInterval int
 	connspec string
 	protocols []string
-	actions []ServiceProxyClass
+	classes []ServiceProxyClass
+
+	extension *ServiceProxyDiscoveryExtension
 
 	rawClassRecords []byte
 	rawCert []byte
@@ -28,15 +45,35 @@ type ServiceProxy struct {
 	client *Client
 }
 
-type ServiceProxyClass struct {
-	className string
-	actions []actionDescription
+func (sp ServiceProxy)Ident() string {
+	return sp.ident
 }
 
-type actionDescription struct {
+type ServiceProxyClass struct {
+	className string
+	actions []ActionDescription
+}
+
+func (spc ServiceProxyClass)Name() string {
+	return spc.className
+}
+
+func (spc ServiceProxyClass)Actions() ([]ActionDescription) {
+	return spc.actions
+}
+
+type ActionDescription struct {
 	actionName string
 	crudTags string
 	version int
+}
+
+func (ad ActionDescription)Name() string {
+	return ad.actionName
+}
+
+func (ad ActionDescription)Version() int {
+	return ad.version
 }
 
 func ServiceAsServiceProxy(serv *Service) (proxy *ServiceProxy) {
@@ -49,7 +86,7 @@ func ServiceAsServiceProxy(serv *Service) (proxy *ServiceProxy) {
 	proxy.connspec = fmt.Sprintf("beepish+tls://%s:%d", serv.listenerIP.To4().String(), serv.listenerPort)
 	proxy.protocols = make([]string, 1, 1)
 	proxy.protocols[0] = "json"
-	proxy.actions = make([]ServiceProxyClass, 0)
+	proxy.classes = make([]ServiceProxyClass, 0)
 	proxy.rawClassRecords = []byte("rawClassRecords")
 	proxy.rawCert = []byte("rawCert")
 	proxy.rawSig = []byte("rawSig")
@@ -66,15 +103,15 @@ func ServiceAsServiceProxy(serv *Service) (proxy *ServiceProxy) {
 
 		newServiceProxyClass := ServiceProxyClass {
 			className: className,
-			actions: make([]actionDescription, 0),
+			actions: make([]ActionDescription, 0),
 		}
-		newServiceProxyClass.actions = append(newServiceProxyClass.actions, actionDescription {
+		newServiceProxyClass.actions = append(newServiceProxyClass.actions, ActionDescription {
 			actionName: actionName,
 			crudTags: serviceAction.crudTags,
 			version: serviceAction.version,
 		})
 
-		proxy.actions = append(proxy.actions, newServiceProxyClass)
+		proxy.classes = append(proxy.classes, newServiceProxyClass)
 	}
 
 	timestamp,err := Gettimeofday()
@@ -92,6 +129,7 @@ func NewServiceProxy(classRecordsRaw []byte, certRaw []byte, sigRaw []byte) (pro
 	proxy.rawClassRecords = classRecordsRaw
 	proxy.rawCert = certRaw
 	proxy.rawSig = sigRaw
+	proxy.protocols = make([]string,0)
 
 	var classRecords []json.RawMessage
 	err = json.Unmarshal(classRecordsRaw, &classRecords)
@@ -133,10 +171,32 @@ func NewServiceProxy(classRecordsRaw []byte, certRaw []byte, sigRaw []byte) (pro
 		return
 	}
 
-	err = json.Unmarshal(classRecords[6], &proxy.protocols)
+	var rawProtocols []*json.RawMessage
+	err = json.Unmarshal(classRecords[6], &rawProtocols)
 	if err != nil {
 		return
 	}
+
+	// Skip object-looking stuff. We only care about strings for now
+	for _,rawProtocol := range rawProtocols	{
+		var tempStr string
+		err := json.Unmarshal(*rawProtocol, &tempStr)
+		if err != nil {
+
+			var extension ServiceProxyDiscoveryExtension
+			err = json.Unmarshal(*rawProtocol, &extension)
+			if err != nil {
+				fmt.Printf("could not parse: %s\n", string(*rawProtocol))
+				continue
+			}
+
+			proxy.extension = &extension
+		} else {
+			proxy.protocols = append(proxy.protocols, tempStr)
+		}
+	}
+
+	// fmt.Printf("proxy.protocols: %s\n", proxy.protocols)
 
 	var rawClasses [][]json.RawMessage
 	err = json.Unmarshal(classRecords[7], &rawClasses)
@@ -144,7 +204,7 @@ func NewServiceProxy(classRecordsRaw []byte, certRaw []byte, sigRaw []byte) (pro
 		return
 	}
 	classes := make([]ServiceProxyClass, len(rawClasses), len(rawClasses))
-	proxy.actions = classes
+	proxy.classes = classes
 
 	for i,rawClass := range rawClasses {
 		if len(rawClass) < 2 {
@@ -158,7 +218,7 @@ func NewServiceProxy(classRecordsRaw []byte, certRaw []byte, sigRaw []byte) (pro
 		}
 
 		rawActionsSlice := rawClass[1:]
-		classes[i].actions = make([]actionDescription, len(rawActionsSlice), len(rawActionsSlice))
+		classes[i].actions = make([]ActionDescription, len(rawActionsSlice), len(rawActionsSlice))
 
 		for j,rawActionSpec := range rawActionsSlice {
 			var actionsRawMessages []json.RawMessage
@@ -255,13 +315,13 @@ func (proxy *ServiceProxy)MarshalJSON() (b []byte, err error) {
   arr[5] = &proxy.connspec
   arr[6] = &proxy.protocols
 
-  // TODO: move this to two MarshalJSON interfaces for `ServiceProxyClass` and `actionDescription`
+  // TODO: move this to two MarshalJSON interfaces for `ServiceProxyClass` and `ActionDescription`
   // doing so should remove manual copies and separate concerns
   //
   // Serialize actions in this format:
   // 	["bgdispatcher",["poll","",1],["reboot","",1],["report","",1]]
-  classSpecs := make([][]interface{}, len(proxy.actions), len(proxy.actions))
-  for i,class := range proxy.actions {
+  classSpecs := make([][]interface{}, len(proxy.classes), len(proxy.classes))
+  for i,class := range proxy.classes {
   	entry := make([]interface{}, 1+len(class.actions), 1+len(class.actions))
   	entry[0] = &class.className
   	for j,action := range class.actions {
@@ -282,4 +342,8 @@ func (proxy *ServiceProxy)MarshalJSON() (b []byte, err error) {
   arr[8] = &proxy.timestamp
 
 	return json.Marshal(arr)
+}
+
+func (proxy *ServiceProxy)Classes() ([]ServiceProxyClass) {
+	return proxy.classes
 }
