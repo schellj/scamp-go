@@ -8,7 +8,7 @@ import (
 	"bytes"
 
 	"encoding/base64"
-	
+
 	"crypto"
 	"crypto/rsa"
 	"crypto/sha256"
@@ -20,7 +20,7 @@ var padding = []byte("=")
 func VerifySHA256(rawPayload []byte, rsaPubKey *rsa.PublicKey, encodedSignature []byte, isURLEncoded bool) (err error) {
 	expectedSig, err := decodeUnpaddedBase64(encodedSignature, isURLEncoded)
 	if err != nil {
-		err = fmt.Errorf("failed to decode base64: `%s`", err)
+		err = fmt.Errorf("failed to decode base64: `%s`/`%s`", err, encodedSignature)
 		return
 	}
 
@@ -51,8 +51,6 @@ func SignSHA256(rawPayload []byte, priv *rsa.PrivateKey) (base64signature string
 }
 
 func decodeUnpaddedBase64(incoming []byte, isURLEncoded bool) (decoded []byte, err error) {
-	decoded = make([]byte, len(incoming))
-
 	if isURLEncoded {
 		if m := len(incoming) % 4; m != 0 {
 			paddingBytes := bytes.Repeat(padding, 4-m)
@@ -61,9 +59,6 @@ func decodeUnpaddedBase64(incoming []byte, isURLEncoded bool) (decoded []byte, e
 		_,err = base64.URLEncoding.Decode(decoded, incoming)
 	} else {
 		decoded,err = base64.StdEncoding.DecodeString(string(incoming))
-	}
-	if(err != nil){
-		return
 	}
 
 	return

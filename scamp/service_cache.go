@@ -12,7 +12,7 @@ import (
 // Assumptions:
 // 1. Services offered on an instance do not change during life of instance
 type ServiceCache struct {
-	fileHandle *os.File
+	path string
 
 	cacheM sync.Mutex
 	identIndex map[string]*ServiceProxy
@@ -21,10 +21,7 @@ type ServiceCache struct {
 
 func NewServiceCache(path string) (cache *ServiceCache, err error) {
 	cache = new(ServiceCache)
-	cache.fileHandle,err = os.Open(path)
-	if err != nil {
-		return
-	}
+	cache.path = path
 
 	cache.identIndex = make(map[string]*ServiceProxy)
 	cache.verifyRecords = true
@@ -118,12 +115,19 @@ func (cache *ServiceCache) Scan() (err error) {
 	cache.cacheM.Lock()
 	defer cache.cacheM.Unlock()
 
-	_,err = cache.fileHandle.Seek(0,0)
+	stat,err := os.Stat(cache.path)
+	if err != nil {
+		return
+	}
+	Error.Printf("mtime: %s\n",stat.ModTime())
+
+
+	cacheHandle,err := os.Open(cache.path)
 	if err != nil {
 		return
 	}
 
-  s := bufio.NewScanner(cache.fileHandle)
+  s := bufio.NewScanner(cacheHandle)
 
 	// Scan through buf by lines according to this basic ABNF
 	// (SLOP* SEP CLASSRECORD NL CERT NL SIG NL NL)*
