@@ -16,18 +16,19 @@ type Config struct {
 var defaultConfig *Config
 
 var defaultAnnounceInterval = 5
-var defaultConfigPath = "/etc/SCAMP/soa.conf"
+var DefaultConfigPath = "/etc/SCAMP/soa.conf"
 var configLine = regexp.MustCompile(`^\s*([\S^=]+)\s*=\s*([\S]+)`)
 var globalConfig *Config
 
 var defaultGroupIP = net.IPv4(239, 63, 248, 106)
 var defaultGroupPort = 5555
 
-func initConfig() (err error) {
+func initConfig(configPath string) (err error) {
 	defaultConfig = NewConfig()
-	err = defaultConfig.Load()
+	err = defaultConfig.Load(configPath)
 	if err != nil {
-		panic( fmt.Sprintf("could not load config: %s", err) )
+		err = fmt.Errorf("could not load config: %s", err)
+		return
 	}
 
 	return
@@ -44,10 +45,10 @@ func DefaultConfig() (conf *Config) {
 	return defaultConfig
 }
 
-func (conf *Config) Load() (err error) {
-	file,err := os.Open(defaultConfigPath)
+func (conf *Config) Load(configPath string) (err error) {
+	file,err := os.Open(configPath)
 	if err != nil {
-		err = fmt.Errorf("no such file %s", defaultConfigPath)
+		err = fmt.Errorf("no such file %s", DefaultConfigPath)
 		return
 	}
 	scanner := bufio.NewScanner(file)
@@ -106,5 +107,10 @@ func (conf *Config) DiscoveryMulticastPort() (port int) {
 
 	port = defaultGroupPort
 	return
+}
 
+func (conf *Config) Get(key string) (value string, ok bool) {
+	valueBytes,ok := conf.values[key]
+	value = string(valueBytes)
+	return
 }

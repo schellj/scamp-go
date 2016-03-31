@@ -52,7 +52,12 @@ SCAMP is a layered architecture:
 package scamp
 
 // Package-level setup. Right now it just sets up logging.
-func Initialize() {
+func Initialize(configPath string) (err error) {
 	initSCAMPLogger()
-  initConfig()
+  err = initConfig(configPath)
+  if err != nil {
+    return
+  }
+
+  return
 }
