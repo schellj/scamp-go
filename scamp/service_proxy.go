@@ -272,7 +272,8 @@ func (proxy *ServiceProxy)validateSignature() (hexSha1 string, err error) {
 	// Put pem in form useful for fingerprinting
 	cert,err := x509.ParseCertificate(decoded.Bytes)
 	if err != nil {
-		return "", err
+		err = fmt.Errorf("failed to parse certificate: `%s`", err)
+		return
 	}
 
 	pkixInterface := cert.PublicKey
@@ -282,8 +283,8 @@ func (proxy *ServiceProxy)validateSignature() (hexSha1 string, err error) {
 		return
 	}
 
-	valid,err := VerifySHA256(proxy.rawClassRecords, rsaPubKey, proxy.rawSig, false)
-	if !valid {
+	err = VerifySHA256(proxy.rawClassRecords, rsaPubKey, proxy.rawSig, false)
+	if err != nil {
 		return
 	}
 

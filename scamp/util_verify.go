@@ -3,20 +3,24 @@ package scamp
 // import "errors"
 // import "fmt"
 
-import "bytes"
-import "encoding/base64"
+import (
+	"fmt"
+	"bytes"
 
-import "crypto"
-import "crypto/rsa"
-import "crypto/sha256"
-import "crypto/rand"
+	"encoding/base64"
+	
+	"crypto"
+	"crypto/rsa"
+	"crypto/sha256"
+	"crypto/rand"
+)
 
 var padding = []byte("=")
 
-func VerifySHA256(rawPayload []byte, rsaPubKey *rsa.PublicKey, encodedSignature []byte, isURLEncoded bool) (valid bool, err error) {
+func VerifySHA256(rawPayload []byte, rsaPubKey *rsa.PublicKey, encodedSignature []byte, isURLEncoded bool) (err error) {
 	expectedSig, err := decodeUnpaddedBase64(encodedSignature, isURLEncoded)
 	if err != nil {
-		valid = false
+		err = fmt.Errorf("failed to decode base64: `%s`", err)
 		return
 	}
 
@@ -26,11 +30,11 @@ func VerifySHA256(rawPayload []byte, rsaPubKey *rsa.PublicKey, encodedSignature 
 
 	err = rsa.VerifyPKCS1v15(rsaPubKey, crypto.SHA256, digest, expectedSig)
 	if err != nil {
-		valid = false
+		err = fmt.Errorf("failed to verify PKCS1v15: `%s`", err)
 		return
 	}
 
-	return true, nil
+	return
 }
 
 func SignSHA256(rawPayload []byte, priv *rsa.PrivateKey) (base64signature string, err error) {

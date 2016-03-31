@@ -30,9 +30,8 @@ func ReadTicket(incoming []byte, signingPubKey []byte) (ticket Ticket, err error
 
 	ticketBytes, signature := splitTicketPayload(incoming)
 
-	valid,err := VerifySHA256(ticketBytes, rsaPubKey, signature, true)
-
-	if !valid || err != nil {
+	err = VerifySHA256(ticketBytes, rsaPubKey, signature, true)
+	if err != nil {
 		return
 	}
 
