@@ -6,18 +6,26 @@ import (
   "bytes"
   "fmt"
   "sync"
+  "os"
 )
 
 // Assumptions:
 // 1. Services offered on an instance do not change during life of instance
 type ServiceCache struct {
+	fileHandle *os.File
+
 	cacheM sync.Mutex
 	identIndex map[string]*ServiceProxy
 	verifyRecords bool
 }
 
-func NewServiceCache() (cache *ServiceCache) {
+func NewServiceCache(path string) (cache *ServiceCache, err error) {
 	cache = new(ServiceCache)
+	cache.fileHandle,err = os.Open(path)
+	if err != nil {
+		return
+	}
+
 	cache.identIndex = make(map[string]*ServiceProxy)
 	cache.verifyRecords = true
 	return
@@ -106,9 +114,16 @@ func (cache *ServiceCache) All() (proxies []*ServiceProxy) {
 var sep = []byte(`%%%`)
 var newline = []byte("\n")
 
-func (cache *ServiceCache) LoadAnnounceCache(s *bufio.Scanner) (err error) {
+func (cache *ServiceCache) Scan() (err error) {
 	cache.cacheM.Lock()
 	defer cache.cacheM.Unlock()
+
+	_,err = cache.fileHandle.Seek(0,0)
+	if err != nil {
+		return
+	}
+
+  s := bufio.NewScanner(cache.fileHandle)
 
 	// Scan through buf by lines according to this basic ABNF
 	// (SLOP* SEP CLASSRECORD NL CERT NL SIG NL NL)*
