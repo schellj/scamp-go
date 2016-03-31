@@ -1,7 +1,7 @@
 package main
 
 import (
-	"scamp"
+	"github.com/gudtech/scamp-go/scamp"
 	"time"
 )
 

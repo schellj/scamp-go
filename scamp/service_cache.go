@@ -13,12 +13,22 @@ import (
 type ServiceCache struct {
 	cacheM sync.Mutex
 	identIndex map[string]*ServiceProxy
+	verifyRecords bool
 }
 
 func NewServiceCache() (cache *ServiceCache) {
 	cache = new(ServiceCache)
 	cache.identIndex = make(map[string]*ServiceProxy)
+	cache.verifyRecords = true
 	return
+}
+
+func (cache *ServiceCache) DisableRecordVerification() (){
+	cache.verifyRecords = true
+}
+
+func (cache *ServiceCache) EnableRecordVerification() (){
+	cache.verifyRecords = false
 }
 
 func (cache *ServiceCache) Store( instance *ServiceProxy ) {
@@ -36,8 +46,22 @@ func (cache *ServiceCache) storeNoLock( instance *ServiceProxy ) {
 		cache.identIndex[instance.ident] = instance
 	} else {
 		// Not sure if this is a hard error yet
-		Error.Printf("tried to store instance that was already tracked")
+		// Error.Printf("tried to store instance that was already tracked")
+		// Override existing version. Correct logic?
+		cache.identIndex[instance.ident] = instance
 	}
+
+	return
+}
+
+func (cache *ServiceCache) removeNoLock( instance *ServiceProxy ) (err error) {
+	_,ok := cache.identIndex[instance.ident]
+	if !ok {
+		err = fmt.Errorf("tried removing an ident which was not being tracked: %s", instance.ident)
+		return
+	}
+
+	delete(cache.identIndex,instance.ident)
 
 	return
 }
@@ -141,11 +165,17 @@ func (cache *ServiceCache) LoadAnnounceCache(s *bufio.Scanner) (err error) {
 			return fmt.Errorf("NewServiceProxy: %s",err)
 		}
 
-		// A very expensive operation in the benchmarks
-		err = serviceProxy.Validate()
-		if err != nil {
-			// Error.Printf("could not validate service proxy `%s`. Skipping.", err)
-			continue
+		// Validating is a very expensive operation in the benchmarks
+		if cache.verifyRecords {
+			err = serviceProxy.Validate()
+			if err != nil {
+				Error.Printf("could not validate service proxy `%s`. Removing from cache.", err)
+				err = cache.removeNoLock(serviceProxy)
+				if err != nil {
+					Error.Printf("could not remove service proxy (benign on first pass, otherwise it means the service has gone to a bad state): `%s`", err)
+				}
+				continue
+			}
 		}
 
 		cache.storeNoLock(serviceProxy)

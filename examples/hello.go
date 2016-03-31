@@ -1,6 +1,6 @@
 package main
 
-import "scamp"
+import "github.com/gudtech/scamp-go/scamp"
 import "fmt"
 import "bytes"
 import "time"

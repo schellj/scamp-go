@@ -1,6 +1,6 @@
 package main
 
-import "scamp"
+import "github.com/gudtech/scamp-go/scamp"
 
 var famous_words = []byte("SCAMP SHOUTS `HELLO WORLD`")
 
