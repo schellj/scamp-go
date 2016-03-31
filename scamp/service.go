@@ -273,7 +273,7 @@ func (serv *Service)MarshalText() (b []byte, err error){
 	buf.Write(serv.pemCert)
 	buf.WriteString("\n\n")
 	buf.WriteString(sig)
-	buf.WriteString("\n")
+	buf.WriteString("\n\n\n")
 
 	b = buf.Bytes()
 	return
