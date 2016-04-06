@@ -157,7 +157,7 @@ func (serv *Service)Run() {
 			break forLoop
 		}
 
-		conn := NewConnection(tlsConn)
+		conn := NewConnection(tlsConn,"service")
 		client := NewClient(conn)
 
 		serv.clientsM.Lock()

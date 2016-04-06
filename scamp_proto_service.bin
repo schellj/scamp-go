@@ -1,0 +1,219 @@
+read: HEADER 0 86
+read: {"action":"Logger.log","envelope":"json","request_id":1,"type":"request","version":1}
+
+read: DATA 0 15
+read: TEST MESSAGE 0
+
+write: ACK 0 2
+write: 15write: END
+read: EOF 0 0
+read: 
+write: HEADER 0 74
+write: {"action":"","envelope":"json","request_id":1,"type":"reply","version":0}
+write: END
+
+write: DATA 0 2
+write: {}write: END
+
+write: EOF 0 0
+write: write: END
+
+read: ACK 0 1
+read: 2
+read: HEADER 1 86
+read: {"action":"Logger.log","envelope":"json","request_id":2,"type":"request","version":1}
+
+read: DATA 1 15
+read: TEST MESSAGE 1
+
+write: ACK 1 2
+write: 15write: END
+read: EOF 1 0
+read: 
+write: HEADER 1 74
+write: {"action":"","envelope":"json","request_id":2,"type":"reply","version":0}
+write: END
+
+write: DATA 1 2
+write: {}write: END
+
+write: EOF 1 0
+write: write: END
+
+read: ACK 1 1
+read: 2
+read: HEADER 2 86
+read: {"action":"Logger.log","envelope":"json","request_id":3,"type":"request","version":1}
+
+read: DATA 2 15
+read: TEST MESSAGE 2
+
+write: ACK 2 2
+write: 15write: END
+read: EOF 2 0
+read: 
+write: HEADER 2 74
+write: {"action":"","envelope":"json","request_id":3,"type":"reply","version":0}
+write: END
+
+write: DATA 2 2
+write: {}write: END
+
+write: EOF 2 0
+write: write: END
+
+read: ACK 2 1
+read: 2
+read: HEADER 3 86
+read: {"action":"Logger.log","envelope":"json","request_id":4,"type":"request","version":1}
+
+read: DATA 3 15
+read: TEST MESSAGE 3
+
+write: ACK 3 2
+write: 15write: END
+read: EOF 3 0
+read: 
+write: HEADER 3 74
+write: {"action":"","envelope":"json","request_id":4,"type":"reply","version":0}
+write: END
+
+write: DATA 3 2
+write: {}write: END
+
+write: EOF 3 0
+write: write: END
+
+read: ACK 3 1
+read: 2
+read: HEADER 4 86
+read: {"action":"Logger.log","envelope":"json","request_id":5,"type":"request","version":1}
+
+read: DATA 4 15
+read: TEST MESSAGE 4
+
+write: ACK 4 2
+write: 15write: END
+read: EOF 4 0
+read: 
+write: HEADER 4 74
+write: {"action":"","envelope":"json","request_id":5,"type":"reply","version":0}
+write: END
+
+write: DATA 4 2
+write: {}write: END
+
+write: EOF 4 0
+write: write: END
+
+read: ACK 4 1
+read: 2
+read: HEADER 5 86
+read: {"action":"Logger.log","envelope":"json","request_id":6,"type":"request","version":1}
+
+read: DATA 5 15
+read: TEST MESSAGE 5
+
+write: ACK 5 2
+write: 15write: END
+read: EOF 5 0
+read: 
+write: HEADER 5 74
+write: {"action":"","envelope":"json","request_id":6,"type":"reply","version":0}
+write: END
+
+write: DATA 5 2
+write: {}write: END
+
+write: EOF 5 0
+write: write: END
+
+read: ACK 5 1
+read: 2
+read: HEADER 6 86
+read: {"action":"Logger.log","envelope":"json","request_id":7,"type":"request","version":1}
+
+read: DATA 6 15
+read: TEST MESSAGE 6
+
+write: ACK 6 2
+write: 15write: END
+read: EOF 6 0
+read: 
+write: HEADER 6 74
+write: {"action":"","envelope":"json","request_id":7,"type":"reply","version":0}
+write: END
+
+write: DATA 6 2
+write: {}write: END
+
+write: EOF 6 0
+write: write: END
+
+read: ACK 6 1
+read: 2
+read: HEADER 7 86
+read: {"action":"Logger.log","envelope":"json","request_id":8,"type":"request","version":1}
+
+read: DATA 7 15
+read: TEST MESSAGE 7
+
+write: ACK 7 2
+write: 15write: END
+read: EOF 7 0
+read: 
+write: HEADER 7 74
+write: {"action":"","envelope":"json","request_id":8,"type":"reply","version":0}
+write: END
+
+write: DATA 7 2
+write: {}write: END
+
+write: EOF 7 0
+write: write: END
+
+read: ACK 7 1
+read: 2
+read: HEADER 8 86
+read: {"action":"Logger.log","envelope":"json","request_id":9,"type":"request","version":1}
+
+read: DATA 8 15
+read: TEST MESSAGE 8
+
+write: ACK 8 2
+write: 15write: END
+read: EOF 8 0
+read: 
+write: HEADER 8 74
+write: {"action":"","envelope":"json","request_id":9,"type":"reply","version":0}
+write: END
+
+write: DATA 8 2
+write: {}write: END
+
+write: EOF 8 0
+write: write: END
+
+read: ACK 8 1
+read: 2
+read: HEADER 9 87
+read: {"action":"Logger.log","envelope":"json","request_id":10,"type":"request","version":1}
+
+read: DATA 9 15
+read: TEST MESSAGE 9
+
+write: ACK 9 2
+write: 15write: END
+read: EOF 9 0
+read: 
+write: HEADER 9 75
+write: {"action":"","envelope":"json","request_id":10,"type":"reply","version":0}
+write: END
+
+write: DATA 9 2
+write: {}write: END
+
+write: EOF 9 0
+write: write: END
+
+read: 

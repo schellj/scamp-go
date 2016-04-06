@@ -3,6 +3,7 @@ package scamp
 import (
 	"crypto/tls"
 	"fmt"
+	"io"
 	"bufio"
 
 	"sync/atomic"
@@ -31,6 +32,8 @@ type Connection struct {
 
 	isClosed       bool
 	closedMutex    sync.Mutex
+
+	scampDebugger  *ScampDebugger
 }
 
 // Used by Client to establish a secure connection to the remote service.
@@ -48,13 +51,13 @@ func DialConnection(connspec string) (conn *Connection, err error) {
 		return
 	}
 
-	conn = NewConnection(tlsConn)
+	conn = NewConnection(tlsConn,"client")
 	
 	return
 }
 
 // Used by Service
-func NewConnection(tlsConn *tls.Conn) (conn *Connection) {
+func NewConnection(tlsConn *tls.Conn, connType string) (conn *Connection) {
 	conn = new(Connection)
 	conn.conn = tlsConn
 
@@ -65,9 +68,24 @@ func NewConnection(tlsConn *tls.Conn) (conn *Connection) {
 		conn.Fingerprint = sha1FingerPrint(peerCert)
 	}
 
-	// conn.reader        = bufio.NewReader(conn.conn)
-	// conn.writer        = bufio.NewWriter(conn.conn)
-	conn.readWriter       = bufio.NewReadWriter(bufio.NewReader(conn.conn), bufio.NewWriter(conn.conn))
+	var reader io.Reader = conn.conn
+	var writer io.Writer = conn.conn
+	if enableWriteTee {
+		var err error
+		conn.scampDebugger,err = NewScampDebugger(conn.conn, connType)
+		if err != nil {
+			panic(fmt.Sprintf("could not create debugger: %s", err))
+		}
+		// reader = conn.scampDebugger.WrapReader(reader)
+		writer = io.MultiWriter(writer, conn.scampDebugger)
+		debuggerReaderWriter := ScampDebuggerReader{
+			wraps: conn.scampDebugger,
+		}
+		reader = io.TeeReader(reader, &debuggerReaderWriter)
+		// nothing
+	}
+
+	conn.readWriter       = bufio.NewReadWriter(bufio.NewReader(reader), bufio.NewWriter(writer))
 	conn.incomingmsgno = 0
 	conn.outgoingmsgno = 0
 
@@ -208,11 +226,24 @@ func (conn *Connection)Send(msg *Message) (err error) {
 
 	for i,pkt := range msg.toPackets(outgoingmsgno) {
 		Trace.Printf("sending pkt %d", i)
-		_, err := pkt.Write(conn.readWriter)
-		if err != nil {
-			Error.Printf("error writing packet: `%s`", err)
-			return err
+
+		if enableWriteTee {
+			writer := io.MultiWriter(conn.readWriter, conn.scampDebugger)
+			_, err := pkt.Write(writer)
+			conn.scampDebugger.file.Write([]byte("\n"))
+			if err != nil {
+				Error.Printf("error writing packet: `%s`", err)
+				return err
+			}
+		} else {
+			_, err := pkt.Write(conn.readWriter)
+			if err != nil {
+				Error.Printf("error writing packet: `%s`", err)
+				return err
+			}
 		}
+
+
 	}
 	conn.readWriter.Flush()
 	Trace.Printf("done sending msg")
@@ -227,10 +258,19 @@ func (conn *Connection)ackBytes(msgno IncomingMsgNo, unackedByteCount uint64) (e
 		body: []byte(fmt.Sprintf("%d", unackedByteCount)),
 	}
 
-	_, err = ackPacket.Write(conn.readWriter)
-	if err != nil {
-		return err
+	if enableWriteTee {
+		writer := io.MultiWriter(conn.readWriter, conn.scampDebugger)
+		_, err = ackPacket.Write(writer)
+		if err != nil {
+			return err
+		}
+	} else {
+		_, err = ackPacket.Write(conn.readWriter)
+		if err != nil {
+			return err
+		}		
 	}
+
 
 	return
 }

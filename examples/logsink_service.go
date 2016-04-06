@@ -1,7 +1,7 @@
 package main
 
 import (
-  "github.com/gudtech/scamp-go/scamp"
+  "scamp"
 
   "os"
   "os/signal"
@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-  scamp.Initialize()
+  scamp.Initialize("/etc/SCAMP/soa.conf")
 
   service,err := scamp.NewService(":30100", "staticdev")
   if err != nil {

@@ -1,11 +1,13 @@
 package scamp
 
-import "os"
-import "bufio"
-import "regexp"
-import "fmt"
-import "strconv"
-import "net"
+import (
+  "os"
+  "bufio"
+  "regexp"
+  "fmt"
+  "strconv"
+  "net"
+)
 
 type Config struct {
 	// string key for easy equals, byte return for easy nil
@@ -30,6 +32,8 @@ func initConfig(configPath string) (err error) {
 		err = fmt.Errorf("could not load config: %s", err)
 		return
 	}
+
+	randomDebuggerString = scampDebuggerRandomString()
 
 	return
 }
