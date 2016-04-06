@@ -1,6 +1,8 @@
 package scamp
 
 import (
+  "time"
+
   "fmt"
 
   "io"
@@ -53,7 +55,7 @@ func NewScampDebugger(conn *tls.Conn, clientType string) (handle *ScampDebugger,
   return
 }
 func (handle *ScampDebugger)Write(p []byte) (n int, err error) {
-  formattedStr := fmt.Sprintf("write: %s", p)
+  formattedStr := fmt.Sprintf("write: %d %s", time.Now().Unix(), p)
   _,err = handle.file.Write([]byte(formattedStr))
   if err != nil {
     return
@@ -63,7 +65,7 @@ func (handle *ScampDebugger)Write(p []byte) (n int, err error) {
 }
 
 func (handle *ScampDebugger)ReadWriter(p []byte) (n int, err error) {
-  formattedStr := fmt.Sprintf("read: %s", p)
+  formattedStr := fmt.Sprintf("read: %d %s", time.Now().Unix(), p)
   _,err = handle.file.Write([]byte(formattedStr))
   if err != nil {
     return
