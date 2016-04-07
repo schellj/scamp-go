@@ -258,19 +258,19 @@ func (conn *Connection)ackBytes(msgno IncomingMsgNo, unackedByteCount uint64) (e
 		body: []byte(fmt.Sprintf("%d", unackedByteCount)),
 	}
 
+	var thisWriter io.Writer
 	if enableWriteTee {
-		writer := io.MultiWriter(conn.readWriter, conn.scampDebugger)
-		_, err = ackPacket.Write(writer)
-		if err != nil {
-			return err
-		}
+		thisWriter = io.MultiWriter(conn.readWriter, conn.scampDebugger)
 	} else {
-		_, err = ackPacket.Write(conn.readWriter)
-		if err != nil {
-			return err
-		}		
+		thisWriter = conn.readWriter
 	}
 
+	_, err = ackPacket.Write(thisWriter)
+	if err != nil {
+		return err
+	}
+
+	conn.readWriter.Flush()
 
 	return
 }
