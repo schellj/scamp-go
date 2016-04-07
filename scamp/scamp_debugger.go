@@ -19,7 +19,7 @@ import (
 
 // TODO: crazy debug mode enabled for now
 var randomDebuggerString string
-var enableWriteTee bool = true
+var enableWriteTee bool = false
 var writeTeeTargetPath string = "/tmp/scamp_proto.bin"
 type ScampDebugger struct {
   file *os.File
