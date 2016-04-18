@@ -52,7 +52,7 @@ func DefaultConfig() (conf *Config) {
 func (conf *Config) Load(configPath string) (err error) {
 	file,err := os.Open(configPath)
 	if err != nil {
-		err = fmt.Errorf("no such file %s", DefaultConfigPath)
+		err = fmt.Errorf("no such file `%s`", configPath)
 		return
 	}
 	scanner := bufio.NewScanner(file)

@@ -1,0 +1,9 @@
+FROM golang:1.6
+
+ENV GOBIN=/usr/local/bin
+
+COPY . /go/src/app
+
+RUN go get golang.org/x/net/ipv4
+
+RUN go install /go/src/app/bin/watchdog.go

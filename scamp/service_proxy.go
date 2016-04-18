@@ -49,6 +49,10 @@ func (sp ServiceProxy)Ident() string {
 	return sp.ident
 }
 
+func (sp ServiceProxy)Sector() string {
+	return sp.sector
+}
+
 type ServiceProxyClass struct {
 	className string
 	actions []ActionDescription

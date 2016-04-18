@@ -69,14 +69,15 @@ func (at *ActionTracker)markEpoch() {
   at.identsAActive = !at.identsAActive
 }
 
-func (at *ActionTracker)ClearIdents() {
-  // We reset the lists of to-be-filled in data
-  if at.identsAActive {
-    at.identsA = at.identsA[:0]
-  } else {
-    at.identsB = at.identsB[:0]
-  }
-}
+// Potentially dead code
+// func (at *ActionTracker)ClearIdents() {
+//   // We reset the lists of to-be-filled in data
+//   if at.identsAActive {
+//     at.identsA = at.identsA[:0]
+//   } else {
+//     at.identsB = at.identsB[:0]
+//   }
+// }
 
 func (at *ActionTracker)MissingIdentsThisEpoch() (missing []string) {
   before := at.IdentsBefore()

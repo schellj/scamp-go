@@ -1,1 +1,0 @@
-This is a customized build of scamp go example code. The big change is modifying the TLS read/write calls to "tee" to a log file. The read/writes are differentiated by "read: "/"write: ". 

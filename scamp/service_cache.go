@@ -9,8 +9,6 @@ import (
   "os"
 )
 
-// Assumptions:
-// 1. Services offered on an instance do not change during life of instance
 type ServiceCache struct {
 	path string
 
