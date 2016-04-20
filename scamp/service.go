@@ -279,6 +279,7 @@ func (serv *Service)MarshalText() (b []byte, err error){
 		buf.WriteString(part)
 		buf.WriteString("\n")
 	}
+	buf.WriteString("\n")
 
 	b = buf.Bytes()
 	return
