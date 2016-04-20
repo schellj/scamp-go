@@ -267,15 +267,47 @@ func (serv *Service)MarshalText() (b []byte, err error){
 	if err != nil {
 		return
 	}
+	sigParts := stringToRows(sig, 76)
 
 	buf.Write(classRecord)
 	buf.WriteString("\n\n")
 	buf.Write(serv.pemCert)
 	buf.WriteString("\n\n")
-	buf.WriteString(sig)
-	buf.WriteString("\n\n")
+	// buf.WriteString(sig)
+	// buf.WriteString("\n\n")
+	for _,part := range sigParts {
+		buf.WriteString(part)
+		buf.WriteString("\n")
+	}
 
 	b = buf.Bytes()
+	return
+}
+
+func stringToRows(input string, rowlen int) (output []string) {
+	output = make([]string,0)
+
+	if len(input) <= 76 {
+		output = append(output, input)
+	} else {
+		substr := input[:]
+		var row string
+		var done bool = false
+		for {
+			if len(substr) > 76 {
+				row = substr[0:76]
+				substr = substr[76:]
+			} else {
+				row = substr[:]
+				done = true
+			}
+			output = append(output,row)
+			if done {
+				break
+			}
+		}
+	}
+
 	return
 }
 
