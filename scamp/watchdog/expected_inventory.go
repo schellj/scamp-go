@@ -6,6 +6,8 @@ import (
   "io"
 
   "encoding/json"
+
+  "github.com/gudtech/scamp-go/scamp"
 )
 
 // Two levels of indirection for sector -> actions.
@@ -16,6 +18,48 @@ type ExpectedInventoryFile struct {
 type ExpectedSectorInventory map[string]int
 
 type ExpectedInventory map[string]int
+
+func NewExpectedInventoryFile() (eif ExpectedInventoryFile) {
+  eif.Sectors = make(map[string]ExpectedSectorInventory)
+  return
+}
+
+func ExpectedInventoryFileFromServiceCache(serviceCache *scamp.ServiceCache) (expectedInventory ExpectedInventoryFile, err error) {
+  serviceProxies := serviceCache.All()
+  if len(serviceProxies) == 0 {
+    err = fmt.Errorf("could not find any proxies in cache provided")
+    return
+  }
+
+  expectedInventory = NewExpectedInventoryFile()
+
+  for _,serviceProxy := range serviceProxies {
+    // fmt.Println("  ", serviceProxy.Sector(), serviceProxy.Ident())
+    sectorInventory,ok := expectedInventory.Sectors[serviceProxy.Sector()]
+    if !ok {
+      expectedInventory.Sectors[serviceProxy.Sector()] = make(ExpectedSectorInventory)
+      sectorInventory = expectedInventory.Sectors[serviceProxy.Sector()]
+    }
+
+    for _,serviceProxyClass := range serviceProxy.Classes() {
+      // fmt.Println("    ", serviceProxyClass.Name())
+      for _,serviceProxyAction := range serviceProxyClass.Actions() {
+        // fmt.Println("    ", serviceProxyAction.Name(), serviceProxyAction.Version())
+        mangledName := MangleForShorthand(serviceProxyClass.Name(), serviceProxyAction.Name(), serviceProxyAction.Version())
+        _,ok := sectorInventory[mangledName]
+        if !ok {
+          sectorInventory[mangledName] = 1
+        } else {
+          sectorInventory[mangledName] += 1
+        }
+      }
+    }
+
+    // panic(sectorInventory)
+  }
+
+  return
+}
 
 func LoadExpectedInventoryFromFile(path string) (ei ExpectedInventory, err error) {
   file,err := os.Open(path)
@@ -61,7 +105,7 @@ type DeficientActionDescription struct {
 }
 type DeficientActionsReport []DeficientActionDescription
 
-func (ei ExpectedInventory) Check(sit *ServiceInventoryTracker) (dar DeficientActionsReport) {
+func (ei ExpectedInventory) Check(sit *WatchdogTracker) (dar DeficientActionsReport) {
   dar = make(DeficientActionsReport, 0)
   for actionName,actionTracker := range *sit {
     if expectedCount,ok := ei[actionName]; ok {

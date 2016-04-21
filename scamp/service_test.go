@@ -10,7 +10,7 @@ import "io/ioutil"
 
 // TODO: fix Session API (aka, simplify design by dropping it)
 func TestServiceHandlesRequest(t *testing.T) {
-	Initialize()
+	Initialize("/etc/SCAMP/soa.conf")
 
 	hasStopped := make(chan bool)
 	service := spawnTestService(hasStopped)
@@ -139,10 +139,10 @@ func TestFullServiceMarshal(t *testing.T) {
 	})
 
 	// TODO: confirm output of marshalling the payload.
-	_,err = s.MarshalText()
+	b,err := s.MarshalText()
 	if err != nil {
 		t.Fatalf("unexpected error serializing service: `%s`", err)
 	}
-	// t.Fatalf("b: `%s`", b)
+	t.Fatalf("b: `%s`", b)
 
 }

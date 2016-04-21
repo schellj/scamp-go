@@ -6,7 +6,7 @@ import "bytes"
 import "time"
 
 func main() {
-	scamp.Initialize()
+	scamp.Initialize("/etc/SCAMP/soa.conf")
 
 	client, err := scamp.Dial("127.0.0.1:30100")
   if err != nil {

@@ -8,7 +8,7 @@ var scampGroupName = "239.63.248.106"
 var scampAnnounceDest = &net.UDPAddr{IP: net.IPv4(239,63,248,106), Port: 5555}
 
 func main() {
-  scamp.Initialize()
+  scamp.Initialize("/etc/SCAMP/soa.conf")
   var err error
 
   multicastPacketConn,err := scamp.LocalMulticastPacketConn()

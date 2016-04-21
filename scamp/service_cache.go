@@ -119,13 +119,18 @@ func (cache *ServiceCache) Scan() (err error) {
 	}
 	Error.Printf("mtime: %s\n",stat.ModTime())
 
-
 	cacheHandle,err := os.Open(cache.path)
 	if err != nil {
 		return
 	}
 
   s := bufio.NewScanner(cacheHandle)
+  cache.doScan(s)
+
+	return
+}
+
+func (cache *ServiceCache)doScan(s *bufio.Scanner) (err error) {
 
 	// Scan through buf by lines according to this basic ABNF
 	// (SLOP* SEP CLASSRECORD NL CERT NL SIG NL NL)*
@@ -144,8 +149,8 @@ func (cache *ServiceCache) Scan() (err error) {
 		s.Scan() // consume the separator
 
 		if len(s.Bytes()) == 0 {
-			err = errors.New("unexpected newline after separator")
-			return
+			// err = errors.New("unexpected newline after separator")
+			break
 		}
 		classRecordsRaw = make([]byte, len(s.Bytes()))
 		copy(classRecordsRaw, s.Bytes())
@@ -158,6 +163,7 @@ func (cache *ServiceCache) Scan() (err error) {
 
 		var certBuffer bytes.Buffer
 		for s.Scan() {
+			// Error.Printf("%s", s.Bytes())
 			if len(s.Bytes()) == 0 {
 				break
 			}
@@ -168,13 +174,18 @@ func (cache *ServiceCache) Scan() (err error) {
 
 		var sigBuffer bytes.Buffer
 		for s.Scan() {
+			// Error.Printf("%s", s.Bytes())
 			if len(s.Bytes()) == 0 {
+				break
+			} else if bytes.Equal(s.Bytes(), sep) {
 				break
 			}
 			sigBuffer.Write(s.Bytes())
 			sigBuffer.Write(newline)
 		}
 		sigRaw = sigBuffer.Bytes()[0:len(sigBuffer.Bytes())-1]
+
+		// Error.Printf("`%s`", sigRaw)
 
 		// Use those extracted value to make an instance
 		serviceProxy,err := NewServiceProxy(classRecordsRaw, certRaw, sigRaw)
@@ -186,7 +197,6 @@ func (cache *ServiceCache) Scan() (err error) {
 		if cache.verifyRecords {
 			err = serviceProxy.Validate()
 			if err != nil {
-				Error.Printf("could not validate service proxy `%s`. Removing from cache.", err)
 				err = cache.removeNoLock(serviceProxy)
 				if err != nil {
 					Error.Printf("could not remove service proxy (benign on first pass, otherwise it means the service has gone to a bad state): `%s`", err)

@@ -16,4 +16,8 @@ func mangledNameFromParts(sector, actionShorthand string) (string) {
 
 func mangleNameWithSectorString(sector string, class scamp.ServiceProxyClass, actionDesc scamp.ActionDescription) (string) {
   return fmt.Sprintf("%s:%s.%s~%d", sector, class.Name(), actionDesc.Name(), actionDesc.Version())
-} 
+}
+
+func MangleForShorthand(class, action string, version int) (mangled string) {
+  return fmt.Sprintf("%s.%s~%d", class, action, version)
+}

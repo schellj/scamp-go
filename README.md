@@ -16,7 +16,7 @@ Usage
 -----
 
 	func main() {
-		scamp.Initialize()
+		scamp.Initialize("/etc/SCAMP/soa.conf")
 
 		conn := new(scamp.Connection)
 		err := conn.Connect("127.0.0.1:30100")
@@ -93,7 +93,7 @@ Features
    - [x] Ticket verification
    - [ ] Put it to use?
  - [ ] Chunk body to 128k
- - [ ] Reconnect logic (`scamp.Connection` connects with exponential backoff)
+ - [ ] Reconnect logic
  - [ ] What to do if connection goes down during `Session` exchange?
  - [ ] Time out connections
    - [ ] Investigate using http://devdocs.io/go/crypto/tls/index#ClientSessionCache

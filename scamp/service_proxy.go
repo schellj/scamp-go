@@ -6,6 +6,8 @@ import (
   "crypto/x509"
   "crypto/rsa"
 
+  "strconv"
+
   "fmt"
   "errors"
   "strings"
@@ -242,6 +244,29 @@ func NewServiceProxy(classRecordsRaw []byte, certRaw []byte, sigRaw []byte) (pro
 			err = json.Unmarshal(actionsRawMessages[1], &classes[i].actions[j].crudTags)
 			if err != nil {
 				return nil, err
+			}
+
+			// TODO: it's gross that some of the services announce version
+			// as a string.
+			if len(actionsRawMessages) < 3 {
+				// TODO: safe to assume a version-less thing is version 0?
+				classes[i].actions[j].version = 0
+			} else {
+				err = json.Unmarshal(actionsRawMessages[2], &classes[i].actions[j].version)
+				if err != nil {
+					var versionStr string
+					err = json.Unmarshal(actionsRawMessages[2], &versionStr)
+					if err != nil {
+						return nil, err
+					}
+
+					versionInt,err := strconv.ParseInt(versionStr, 10, 64)
+					if err != nil {
+						return nil, err
+					}
+
+					classes[i].actions[j].version = int(versionInt)
+				}
 			}
 		}	
 	}

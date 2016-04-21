@@ -146,6 +146,7 @@ func (pkt *Packet) Write(writer io.Writer) (written int, err error) {
 	if pkt.packetType == HEADER {
 		err = pkt.packetHeader.Write(bodyBuf)
 		if err != nil {
+			err = fmt.Errorf("err writing packet header: `%s`", err)
 			return
 		}
 	// } else if pkt.packetType == ACK {
@@ -164,6 +165,7 @@ func (pkt *Packet) Write(writer io.Writer) (written int, err error) {
 	headerBytesWritten, err := fmt.Fprintf(writer, "%s %d %d\r\n", packetTypeBytes, pkt.msgNo, len(bodyBytes))
 	written = written + headerBytesWritten
 	if err != nil {
+		err = fmt.Errorf("err writing packet header: `%s`", err)
 		return
 	}
 	bodyBytesWritten, err := writer.Write(bodyBytes)

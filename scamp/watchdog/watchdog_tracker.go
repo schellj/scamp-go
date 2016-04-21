@@ -6,13 +6,13 @@ import (
   "github.com/gudtech/scamp-go/scamp"
 )
 
-type ServiceInventoryTracker map[string]*ActionTracker
+type WatchdogTracker map[string]*ActionTracker
 
-func NewServiceInventoryTracker() (ServiceInventoryTracker) {
-  return make(ServiceInventoryTracker)
+func NewWatchdogTracker() (WatchdogTracker) {
+  return make(WatchdogTracker)
 }
 
-func (sit *ServiceInventoryTracker) TrackActions(serviceCache *scamp.ServiceCache) {
+func (sit *WatchdogTracker) TrackActions(serviceCache *scamp.ServiceCache) {
   for _,remoteService := range serviceCache.All() {
     classes := remoteService.Classes()
     for _,class := range classes {
@@ -34,7 +34,7 @@ func (sit *ServiceInventoryTracker) TrackActions(serviceCache *scamp.ServiceCach
   sit.markEpoch()
 }
 
-func (sit ServiceInventoryTracker) markEpoch() {
+func (sit WatchdogTracker) markEpoch() {
   for _,actionTracker := range sit {
     actionTracker.markEpoch()
   }

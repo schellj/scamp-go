@@ -36,8 +36,8 @@ func TestCheckingInventory(t *testing.T) {
   at.AdvertisedBy("xavier")
   at.AdvertisedBy("daniel")
 
-  sit := NewServiceInventoryTracker()
-  sit["asdf1234~1"] = at
+  wt := NewWatchdogTracker()
+  wt["asdf1234~1"] = at
 
   inventoryDesc := strings.NewReader(`{
   "sectors": {
@@ -53,7 +53,7 @@ func TestCheckingInventory(t *testing.T) {
   }
   ei := expectedInventoryFileToExpectedInventory(eif)
 
-  deficientActions := ei.Check(&sit)
+  deficientActions := ei.Check(&wt)
   if len(deficientActions) != 0 {
     t.Fatalf("the inventory check should have succeeded: `%s`", deficientActions)
   }
