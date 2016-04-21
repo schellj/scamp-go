@@ -3,7 +3,7 @@ FROM golang:1.6
 ENV GOBIN=/usr/local/bin
 
 COPY . /go/src/app
-COPY ./docker/PagerDutyKey /etc/PagerDutyKey
+COPY ./docker/PagerDutyServiceKey /etc/PagerDutyServiceKey
 RUN mkdir -p /go/src/github.com/gudtech/scamp-go && ln -s /go/src/app/scamp /go/src/github.com/gudtech/scamp-go/scamp
 
 RUN go get golang.org/x/net/ipv4

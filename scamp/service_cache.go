@@ -69,6 +69,14 @@ func (cache *ServiceCache) removeNoLock( instance *ServiceProxy ) (err error) {
 	return
 }
 
+// TODO: in a perfect world we'd do upserts to the cache
+// and sweep for stale proxy definitions.
+func (cache *ServiceCache) clearNoLock( ) ( err error ) {
+	cache.identIndex = make(map[string]*ServiceProxy)
+
+	return
+}
+
 func (cache *ServiceCache) Retrieve( ident string ) ( instance *ServiceProxy ) {
 	cache.cacheM.Lock()
 	defer cache.cacheM.Unlock()
@@ -131,6 +139,7 @@ func (cache *ServiceCache) Scan() (err error) {
 }
 
 func (cache *ServiceCache)doScan(s *bufio.Scanner) (err error) {
+	cache.clearNoLock()
 
 	// Scan through buf by lines according to this basic ABNF
 	// (SLOP* SEP CLASSRECORD NL CERT NL SIG NL NL)*

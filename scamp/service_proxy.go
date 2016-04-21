@@ -55,6 +55,10 @@ func (sp ServiceProxy)Sector() string {
 	return sp.sector
 }
 
+func (sp *ServiceProxy)Classes() ([]ServiceProxyClass) {
+	return sp.classes
+}
+
 type ServiceProxyClass struct {
 	className string
 	actions []ActionDescription
@@ -372,8 +376,4 @@ func (proxy *ServiceProxy)MarshalJSON() (b []byte, err error) {
   arr[8] = &proxy.timestamp
 
 	return json.Marshal(arr)
-}
-
-func (proxy *ServiceProxy)Classes() ([]ServiceProxyClass) {
-	return proxy.classes
 }
