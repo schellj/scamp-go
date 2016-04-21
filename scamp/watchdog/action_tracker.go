@@ -69,6 +69,18 @@ func (at *ActionTracker)markEpoch() {
   at.identsAActive = !at.identsAActive
 }
 
+func (at *ActionTracker)ClearThisEpoch() {
+  var identsPtr *[]string
+  if at.identsAActive {
+    identsPtr = &at.identsA
+  } else {
+    identsPtr = &at.identsB
+  }
+
+  // idents := *identsPtr
+  *identsPtr = (*identsPtr)[:0]
+}
+
 // Potentially dead code
 // func (at *ActionTracker)ClearIdents() {
 //   // We reset the lists of to-be-filled in data

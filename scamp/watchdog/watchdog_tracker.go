@@ -13,6 +13,10 @@ func NewWatchdogTracker() (WatchdogTracker) {
 }
 
 func (sit *WatchdogTracker) TrackActions(serviceCache *scamp.ServiceCache) {
+  for _,actionTracker := range (*sit) {
+    actionTracker.ClearThisEpoch()
+  }
+
   for _,remoteService := range serviceCache.All() {
     classes := remoteService.Classes()
     for _,class := range classes {
@@ -30,11 +34,9 @@ func (sit *WatchdogTracker) TrackActions(serviceCache *scamp.ServiceCache) {
       }
     }
   }
-
-  sit.markEpoch()
 }
 
-func (sit WatchdogTracker) markEpoch() {
+func (sit WatchdogTracker) MarkEpoch() {
   for _,actionTracker := range sit {
     actionTracker.markEpoch()
   }
