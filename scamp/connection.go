@@ -237,7 +237,8 @@ func (conn *Connection)Send(msg *Message) (err error) {
 			}
 		} else {
 			_, err := pkt.Write(conn.readWriter)
-			if err != nil {
+			// TODO: should we actually blacklist this error?
+			if err != nil && err.Error() != "short write" {
 				Error.Printf("error writing packet: `%s`", err)
 				return err
 			}
