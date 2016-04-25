@@ -7,6 +7,18 @@ The `scamp` package provides all the facilities necessary for participating in a
   * Parsing packets streams
   * Parsing and verifying messages
 
+// inventory map[string]int
+
+// severity = expectedInventory.checkIsBad(inventory)
+
+// if severity < happy {
+//   incident = newIncident()
+//   inventoryDiff = diff(inventoryPrev, inventoryNow)
+//   incident.remember(inventoryPrev)
+// } else {
+//   incident.close()
+// }
+
 Architecture
 --------
 
