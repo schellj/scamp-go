@@ -6,6 +6,39 @@ import (
   "strings"
 )
 
+func TestSystemHealth(t *testing.T) {
+  i,err := NewInventory("/Users/xavierlange/code/gudtech/workspace/src/github.com/gudtech/scamp-go/fixtures/watchdog/discovery.sample")
+  if err != nil {
+    t.Fatalf(err.Error())
+  }
+
+  i.Reload()
+
+  content := strings.NewReader(`{
+  "main": {
+    "Inventory.Count.AddContainers~0": {
+      "red": 0,
+      "yellow": 3
+    }
+  }
+}
+`)
+
+  eif,err := eifFromReader(content)
+  if err != nil {
+    t.Fatalf( err.Error() )
+  }
+  ei := eif.toExpectedInventory()
+
+  healthCheck := ei.GetSystemHealth(i)
+  if !healthCheck.IsDegraded() {
+    t.Fatalf("expected to be degraded")
+  }
+  if len(healthCheck.Yellow) != 1 {
+    t.Fatalf("expected yellow entries, got %s", healthCheck.Yellow)
+  }
+}
+
 func TestEifFromReader(t *testing.T) {
   content := strings.NewReader(`{
   "main": {

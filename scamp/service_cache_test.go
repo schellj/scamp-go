@@ -32,7 +32,7 @@ func BenchmarkReadingProductionAnnounceCache(b *testing.B) {
 			if err != nil {
 				panic("wah wah")
 			}
-			err = cache.doScan(bufio.NewScanner(file))
+			err = cache.DoScan(bufio.NewScanner(file))
 			if err != nil {
 				panic("failed to load announce cache")
 			}
@@ -54,7 +54,7 @@ func TestReadAnnounceCache(t *testing.T) {
 	if err != nil {
 		t.Fatalf("could not create new service cache: `%s`", err)
 	}
-	err = cache.doScan(s)
+	err = cache.DoScan(s)
 	if err != nil {
 		t.Errorf("unexpected error parsing announce cache: `%s`", err)
 	}
@@ -72,7 +72,7 @@ func TestScanNoNewLineCert(t *testing.T) {
 	if err != nil {
 		t.Fatalf("could not create new service cache: `%s`", err)
 	}
-	err = cache.doScan(s)
+	err = cache.DoScan(s)
 	if err != nil {
 		t.Fatalf("failed: `%s`", err)
 	}

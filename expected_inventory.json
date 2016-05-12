@@ -1,0 +1,2882 @@
+{
+  "background:Channel.ADNSF.Catalog._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.ADNSF.Catalog._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.ADNSF.InvSync._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.ADNSF.InvSync._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.ADNSF.OrderImport._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.ADNSF.OrderImport._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.AmeriCommerce.Catalog._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.AmeriCommerce.Catalog._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.AmeriCommerce.InvSync._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.AmeriCommerce.InvSync._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.AmeriCommerce.OrderImport._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.AmeriCommerce.OrderImport._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.CA.Catalog._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.CA.Catalog._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.CA.Catalog._munge~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.CA.InvSync._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.CA.InvSync._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.CA.OrderImport._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.CA.OrderImport._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.LimeLight.OrderPull._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.LimeLight.OrderPull._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.Magento.Catalog._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.Magento.Catalog._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.Magento.Catalog2._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.Magento.Catalog2._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.Magento.Catalog2._munge~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.Magento.Images._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.Magento.Images._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.Magento.InvSync._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.Magento.InvSync._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.Magento.OrderImport._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.Magento.OrderImport._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.Magento.OrderImport2._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.Magento.OrderImport2._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.MagentoExtension.CatPush._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.MagentoExtension.CatPush._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.MagentoExtension.CatPush._munge~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.MagentoExtension.InvPush._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.MagentoExtension.InvPush._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.MagentoExtension.InvPush._munge~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.MagentoExtension.OrderPull._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.MagentoExtension.OrderPull._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.NuOrder.InvSync._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.NuOrder.InvSync._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.NuOrder.InvSync._munge~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.NuOrder.OrderPull._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.NuOrder.OrderPull._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.SM_Loehmanns.InvPush._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.SM_Loehmanns.InvPush._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.SM_Loehmanns.OrderImport._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.SM_Loehmanns.OrderImport._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.SM_Loehmanns.Tracking._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.SM_Loehmanns.Tracking._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.SM_Overstock.InvPush._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.SM_Overstock.InvPush._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.SM_Overstock.OrderImport._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.SM_Overstock.OrderImport._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.SM_Overstock.Tracking._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.SM_Overstock.Tracking._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.Shopify.CatPush._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.Shopify.CatPush._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.Shopify.CatPush._munge~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.Shopify.InvPush._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.Shopify.InvPush._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.Shopify.InvPush._munge~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.Shopify.OrderPull._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.Shopify.OrderPull._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.Spree.CatPush._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.Spree.CatPush._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.Spree.InvPush._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.Spree.InvPush._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.Spree.OrderImport._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Channel.Spree.OrderImport._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:DWH.ETL._evaluate~0": {
+    "red": 1,
+    "yellow": 2
+  },
+  "background:DWH.ETL._execute~0": {
+    "red": 1,
+    "yellow": 2
+  },
+  "background:ExchangeRatePull._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:ExchangeRatePull._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Index.Load.Attribute._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Index.Load.Attribute._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Index.Load.Customer._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Index.Load.Customer._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Index.Load.Family._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Index.Load.Family._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Index.Load.Order._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Index.Load.Order._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Index.Load.Receivable._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Index.Load.Receivable._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Index.Load.Sku._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Index.Load.Sku._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Index.Load.SkuGroup._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Index.Load.SkuGroup._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:InvPoker._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:InvPoker._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:InventoryEvents._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:InventoryEvents._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:InventoryEvents._munge~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:OrderCancel._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:OrderCancel._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:OrderEvents._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:OrderEvents._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:OrderPull._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:OrderPull._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:OrderScreen._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:OrderScreen._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:POEnforcer._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:POEnforcer._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Picking.BHFOBastian.InvReconcile._evaluate~0": {
+    "red": 1,
+    "yellow": 2
+  },
+  "background:Picking.BHFOBastian.InvReconcile._execute~0": {
+    "red": 1,
+    "yellow": 2
+  },
+  "background:Picking.BHFOBastian.PickConfirm._evaluate~0": {
+    "red": 1,
+    "yellow": 2
+  },
+  "background:Picking.BHFOBastian.PickConfirm._execute~0": {
+    "red": 1,
+    "yellow": 2
+  },
+  "background:Picking.BHFOBastian.PickOrder._evaluate~0": {
+    "red": 1,
+    "yellow": 2
+  },
+  "background:Picking.BHFOBastian.PickOrder._execute~0": {
+    "red": 1,
+    "yellow": 2
+  },
+  "background:Picking.BHFOBastian.PutawayConfirm._evaluate~0": {
+    "red": 1,
+    "yellow": 2
+  },
+  "background:Picking.BHFOBastian.PutawayConfirm._execute~0": {
+    "red": 1,
+    "yellow": 2
+  },
+  "background:Picking.BHFOBastian.PutawayOrder._evaluate~0": {
+    "red": 1,
+    "yellow": 2
+  },
+  "background:Picking.BHFOBastian.PutawayOrder._execute~0": {
+    "red": 1,
+    "yellow": 2
+  },
+  "background:Picking.BHFOBastian.RcvInvAdjust._evaluate~0": {
+    "red": 1,
+    "yellow": 2
+  },
+  "background:Picking.BHFOBastian.RcvInvAdjust._execute~0": {
+    "red": 1,
+    "yellow": 2
+  },
+  "background:ProdComplete._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:ProdComplete._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:ProductEvents._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:ProductEvents._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:ProductEvents._munge~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:RecalcOrder._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:RecalcOrder._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:RecalcOrder._munge~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Retry._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Retry._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Ship.Processor.Asendia.Manifest._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Ship.Processor.Asendia.Manifest._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Ship.Processor.Asendia.Manifest._munge~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Ship.Processor.Endicia.PostageAutoBuy._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Ship.Processor.Endicia.PostageAutoBuy._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Shipment.POGenerator._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Shipment.POGenerator._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:SkuRegroup._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:SkuRegroup._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Test.Interval._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Test.Interval._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Test.Munge._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Test.Munge._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Test.Munge._munge~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Test.RabbitMQ._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Test.RabbitMQ._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Upload.DeleteFile._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Upload.DeleteFile._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Upload.ProcessFile._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Upload.ProcessFile._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Vendor.Europa.CostSync._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Vendor.Europa.CostSync._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Vendor.Europa.InvSync._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Vendor.Europa.InvSync._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Vendor.FBA.InvSync._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Vendor.FBA.InvSync._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Vendor.FBA.OrderTracking._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Vendor.FBA.OrderTracking._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Vendor.FBA.OrderTransmit._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Vendor.FBA.OrderTransmit._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Vendor.HonestGreen.InvSync._evaluate~0": {
+    "red": -1,
+    "yellow": 0
+  },
+  "background:Vendor.HonestGreen.InvSync._execute~0": {
+    "red": -1,
+    "yellow": 0
+  },
+  "background:Vendor.HonestGreen.POExport._evaluate~0": {
+    "red": -1,
+    "yellow": 0
+  },
+  "background:Vendor.HonestGreen.POExport._execute~0": {
+    "red": -1,
+    "yellow": 0
+  },
+  "background:Vendor.HonestGreen.ShipFetch._evaluate~0": {
+    "red": -1,
+    "yellow": 0
+  },
+  "background:Vendor.HonestGreen.ShipFetch._execute~0": {
+    "red": -1,
+    "yellow": 0
+  },
+  "background:Vendor.InvAdviceExpiry._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Vendor.InvAdviceExpiry._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Vendor.NowFoods.InvSync._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Vendor.NowFoods.InvSync._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Vendor.Orgill.EDIFetch._evaluate~0": {
+    "red": -1,
+    "yellow": 0
+  },
+  "background:Vendor.Orgill.EDIFetch._execute~0": {
+    "red": -1,
+    "yellow": 0
+  },
+  "background:Vendor.Orgill.InvSync._evaluate~0": {
+    "red": -1,
+    "yellow": 0
+  },
+  "background:Vendor.Orgill.InvSync._execute~0": {
+    "red": -1,
+    "yellow": 0
+  },
+  "background:Vendor.Orgill.POExport._evaluate~0": {
+    "red": -1,
+    "yellow": 0
+  },
+  "background:Vendor.Orgill.POExport._execute~0": {
+    "red": -1,
+    "yellow": 0
+  },
+  "background:Vendor.POEmail._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Vendor.POEmail._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Vendor.POSubmit._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Vendor.POSubmit._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Vendor.Prime.InvSync._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Vendor.Prime.InvSync._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Vendor.Rothco.InvPull._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Vendor.Rothco.InvPull._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Vendor.Rothco.POExport._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Vendor.Rothco.POExport._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Vendor.Threshold.InvSync._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Vendor.Threshold.InvSync._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Webhooks._evaluate~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Webhooks._execute~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:Webhooks._munge~0": {
+    "red": 3,
+    "yellow": 4
+  },
+  "background:_meta.documentation~0": {
+    "red": 1,
+    "yellow": 2
+  },
+  "channelmodule:ADNSF.Order._isvalid~0": {
+    "red": 7,
+    "yellow": 8
+  },
+  "channelmodule:ADNSF.Order.order_cancel~0": {
+    "red": 7,
+    "yellow": 8
+  },
+  "channelmodule:ADNSF.Order.order_complete~0": {
+    "red": 7,
+    "yellow": 8
+  },
+  "channelmodule:ADNSF.Order.shipment_submit~0": {
+    "red": 7,
+    "yellow": 8
+  },
+  "channelmodule:Aabaco.Order._isvalid~0": {
+    "red": 7,
+    "yellow": 8
+  },
+  "channelmodule:Aabaco.Order.shipment_submit~0": {
+    "red": 7,
+    "yellow": 8
+  },
+  "channelmodule:Aabaco.OrderPull.order_ack~0": {
+    "red": 7,
+    "yellow": 8
+  },
+  "channelmodule:Aabaco.OrderPull.order_fetch~0": {
+    "red": 7,
+    "yellow": 8
+  },
+  "channelmodule:Aabaco.Product._isvalid~0": {
+    "red": 7,
+    "yellow": 8
+  },
+  "channelmodule:Aabaco.Product.catpush_config~0": {
+    "red": 7,
+    "yellow": 8
+  },
+  "channelmodule:Aabaco.Product.catpush_transmit~0": {
+    "red": 7,
+    "yellow": 8
+  },
+  "channelmodule:Amazon.Order._isvalid~0": {
+    "red": 7,
+    "yellow": 8
+  },
+  "channelmodule:Amazon.Order.items_returned~0": {
+    "red": 7,
+    "yellow": 8
+  },
+  "channelmodule:Amazon.Order.order_cancel~0": {
+    "red": 7,
+    "yellow": 8
+  },
+  "channelmodule:Amazon.Order.order_complete~0": {
+    "red": 7,
+    "yellow": 8
+  },
+  "channelmodule:Amazon.Order.shipment_submit~0": {
+    "red": 7,
+    "yellow": 8
+  },
+  "channelmodule:AmeriCommerce.Order._isvalid~0": {
+    "red": 7,
+    "yellow": 8
+  },
+  "channelmodule:AmeriCommerce.Order.order_cancel~0": {
+    "red": 7,
+    "yellow": 8
+  },
+  "channelmodule:AmeriCommerce.Order.order_complete~0": {
+    "red": 7,
+    "yellow": 8
+  },
+  "channelmodule:AmeriCommerce.Order.shipment_submit~0": {
+    "red": 7,
+    "yellow": 8
+  },
+  "channelmodule:CA.Order._isvalid~0": {
+    "red": 7,
+    "yellow": 8
+  },
+  "channelmodule:CA.Order.items_returned~0": {
+    "red": 7,
+    "yellow": 8
+  },
+  "channelmodule:CA.Order.order_cancel~0": {
+    "red": 7,
+    "yellow": 8
+  },
+  "channelmodule:CA.Order.order_complete~0": {
+    "red": 7,
+    "yellow": 8
+  },
+  "channelmodule:CA.Order.shipment_submit~0": {
+    "red": 7,
+    "yellow": 8
+  },
+  "channelmodule:Generic.Order._isvalid~0": {
+    "red": 7,
+    "yellow": 8
+  },
+  "channelmodule:LimeLight.Order._isvalid~0": {
+    "red": 7,
+    "yellow": 8
+  },
+  "channelmodule:LimeLight.Order.shipment_submit~0": {
+    "red": 7,
+    "yellow": 8
+  },
+  "channelmodule:Magento.Order._isvalid~0": {
+    "red": 7,
+    "yellow": 8
+  },
+  "channelmodule:Magento.Order.order_cancel~0": {
+    "red": 7,
+    "yellow": 8
+  },
+  "channelmodule:Magento.Order.order_complete~0": {
+    "red": 7,
+    "yellow": 8
+  },
+  "channelmodule:Magento.Order.shipment_submit~0": {
+    "red": 7,
+    "yellow": 8
+  },
+  "channelmodule:MagentoExtension.Order._isvalid~0": {
+    "red": 7,
+    "yellow": 8
+  },
+  "channelmodule:MagentoExtension.Order.items_returned~0": {
+    "red": 7,
+    "yellow": 8
+  },
+  "channelmodule:MagentoExtension.Order.order_cancel~0": {
+    "red": 7,
+    "yellow": 8
+  },
+  "channelmodule:MagentoExtension.Order.order_complete~0": {
+    "red": 7,
+    "yellow": 8
+  },
+  "channelmodule:MagentoExtension.Order.shipment_submit~0": {
+    "red": 7,
+    "yellow": 8
+  },
+  "channelmodule:SM_Loehmanns.Order._isvalid~0": {
+    "red": 7,
+    "yellow": 8
+  },
+  "channelmodule:SM_Overstock.Order._isvalid~0": {
+    "red": 7,
+    "yellow": 8
+  },
+  "channelmodule:Shopify.Order._isvalid~0": {
+    "red": 7,
+    "yellow": 8
+  },
+  "channelmodule:Shopify.Order.items_returned~0": {
+    "red": 7,
+    "yellow": 8
+  },
+  "channelmodule:Shopify.Order.order_cancel~0": {
+    "red": 7,
+    "yellow": 8
+  },
+  "channelmodule:Shopify.Order.order_complete~0": {
+    "red": 7,
+    "yellow": 8
+  },
+  "channelmodule:Shopify.Order.shipment_submit~0": {
+    "red": 7,
+    "yellow": 8
+  },
+  "channelmodule:Spree.Order._isvalid~0": {
+    "red": 7,
+    "yellow": 8
+  },
+  "channelmodule:Spree.Order.capture_channel_payments~0": {
+    "red": 7,
+    "yellow": 8
+  },
+  "channelmodule:Spree.Order.items_returned~0": {
+    "red": 7,
+    "yellow": 8
+  },
+  "channelmodule:Spree.Order.order_cancel~0": {
+    "red": 7,
+    "yellow": 8
+  },
+  "channelmodule:Spree.Order.order_complete~0": {
+    "red": 7,
+    "yellow": 8
+  },
+  "channelmodule:Spree.Order.shipment_submit~0": {
+    "red": 7,
+    "yellow": 8
+  },
+  "channelmodule:Spree.Order.writeback~0": {
+    "red": 7,
+    "yellow": 8
+  },
+  "channelmodule:_meta.documentation~0": {
+    "red": 16,
+    "yellow": 17
+  },
+  "channelmodule:mozu.inventory.invpush_transmit~1": {
+    "red": 1,
+    "yellow": 2
+  },
+  "channelmodule:mozu.order._isvalid~1": {
+    "red": 1,
+    "yellow": 2
+  },
+  "channelmodule:mozu.order.items_returned~1": {
+    "red": 1,
+    "yellow": 2
+  },
+  "channelmodule:mozu.order.order_cancel~1": {
+    "red": 1,
+    "yellow": 2
+  },
+  "channelmodule:mozu.order.order_complete~1": {
+    "red": 1,
+    "yellow": 2
+  },
+  "channelmodule:mozu.order.shipment_submit~1": {
+    "red": 1,
+    "yellow": 2
+  },
+  "channelmodule:mozu.orderpull.order_ack~1": {
+    "red": 1,
+    "yellow": 2
+  },
+  "channelmodule:mozu.orderpull.order_fetch~1": {
+    "red": 1,
+    "yellow": 2
+  },
+  "channelmodule:mozu.product.catpush_config~1": {
+    "red": 1,
+    "yellow": 2
+  },
+  "channelmodule:mozu.product.catpush_transmit~1": {
+    "red": 1,
+    "yellow": 2
+  },
+  "compute:FeedIn.preprocessChunk~0": {
+    "red": 7,
+    "yellow": 8
+  },
+  "compute:FeedIn.preprocessEnd~0": {
+    "red": 7,
+    "yellow": 8
+  },
+  "compute:FeedIn.preprocessStart~0": {
+    "red": 7,
+    "yellow": 8
+  },
+  "compute:FeedIn.processBegin~0": {
+    "red": 7,
+    "yellow": 8
+  },
+  "compute:FeedIn.processChunk~0": {
+    "red": 7,
+    "yellow": 8
+  },
+  "compute:FeedIn.processEnd~0": {
+    "red": 7,
+    "yellow": 8
+  },
+  "compute:TSV.feedChunk~3": {
+    "red": 7,
+    "yellow": 8
+  },
+  "compute:TSV.feedPrepare~3": {
+    "red": 7,
+    "yellow": 8
+  },
+  "compute:TSV.feedScroll~3": {
+    "red": 7,
+    "yellow": 8
+  },
+  "compute:_meta.documentation~0": {
+    "red": 7,
+    "yellow": 8
+  },
+  "main:API.Documentation.fetch_tree~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:API.clientInitiatedLog~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:API.getNodeList~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Auth.authorize~0": {
+    "red": 1,
+    "yellow": 2
+  },
+  "main:Auth.getAuthzTable~0": {
+    "red": 1,
+    "yellow": 2
+  },
+  "main:Auth.requestPasswordReset~0": {
+    "red": 1,
+    "yellow": 2
+  },
+  "main:Auth.resetPassword~0": {
+    "red": 1,
+    "yellow": 2
+  },
+  "main:Auth.slow~0": {
+    "red": 1,
+    "yellow": 2
+  },
+  "main:Auth.switchAccount~0": {
+    "red": 1,
+    "yellow": 2
+  },
+  "main:Auth.terminalTokenToIDs~0": {
+    "red": 1,
+    "yellow": 2
+  },
+  "main:Config.ACL.Privs.read~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.ACL.Roles.read~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Account.Param.read~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Account.Param.update~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Account.RoutingParam.getOrderMode~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Account.RoutingParam.read~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Account.RoutingParam.test~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Account.RoutingParam.test~2": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Account.RoutingParam.update~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Account.read~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Account.update~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Attribute.Dependency.list~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Attribute.Map.list~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Attribute.Map.save~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Attribute.MetaFields.create~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Attribute.MetaFields.list~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Attribute.MetaFields.update~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Attribute.ValTree.list~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Attribute.ValTree.update~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Attribute.Value.list~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Attribute.create~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Attribute.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Attribute.list~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Attribute.update~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Brand.create~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Brand.get~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Brand.list~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Brand.update~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Channel.CA.get~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Channel.CA.set~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Channel.CA.test~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Channel.Definition.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Channel.MagentoExtension.get~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Channel.MagentoExtension.set~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Channel.MagentoExtension.test~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Channel.create~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Channel.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Channel.update~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Container.Range.assertContainers~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Container.Range.create~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Container.Range.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Container.Range.update~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Device.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Device.printCommandLabel~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Device.register~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Device.test~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.DeviceProxy.get~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Employee.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Facility.Zone.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Facility.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Feed.ErrorRecords.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Feed.Module.list~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Feed.Schema.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Feed.Schema.update~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Feed.Test.getFields~2": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Feed.Test.testTemplates~3": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Feed.create~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Feed.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Feed.getErrorInfo~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Feed.poke~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Feed.update~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Fulfillment.Actor.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Fulfillment.ActorRole.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Fulfillment.ActorRole.update~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Inventory.AdjustmentReason.create~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Inventory.AdjustmentReason.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Inventory.AdjustmentReason.update~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.MapTable.Line.create~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.MapTable.Line.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.MapTable.Line.update~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.MapTable.create~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.MapTable.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.MapTable.update~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.OldFeed.create~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.OldFeed.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.OldFeed.update~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Order.CancelReason.create~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Order.CancelReason.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Order.CancelReason.update~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Order.DiscountReason.create~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Order.DiscountReason.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Order.DiscountReason.update~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.PO.RoutingGuide.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.PO.RoutingGuide.load~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.PO.RoutingGuide.save~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Param.getAll~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.ReturnItemReason.create~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.ReturnItemReason.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.ReturnItemReason.update~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Ship.Account.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.ShipService.CarrierClassMapping.create~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.ShipService.CarrierClassMapping.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.ShipService.CarrierClassMapping.update~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.ShipService.ChannelMapping.create~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.ShipService.ChannelMapping.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.ShipService.ChannelMapping.update~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.ShipService.MappingRules.create~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.ShipService.MappingRules.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.ShipService.MappingRules.update~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.ShipService.create~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.ShipService.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.ShipService.update~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Subchannel.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Subchannel.update~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Terminal.DevicePrefs.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Terminal.DevicePrefs.save~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Terminal.create~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Terminal.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Terminal.getMyTerminalInfo~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Terminal.reauth~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Terminal.update~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.User.ACL.create~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.User.ACL.destroy~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.User.ACL.read~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.User.Credentials.createApiKey~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.User.Credentials.printBadge~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.User.Credentials.read~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.User.Credentials.setCredentialActive~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.User.Credentials.setLoginData~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.User.create~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.User.read~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.User.update~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Vendor.Contact.create~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Vendor.Contact.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Vendor.Contact.update~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Vendor.create~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Vendor.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Config.Vendor.update~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Constant.AppVersion.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Constant.Country.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Constant.Enum.allEnums~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Constant.Enum.list~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Constant.Payment.Terms.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Constant.Ship.Carrier.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Constant.Ship.CarrierClass.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Constant.Ship.PackagingType.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Constant.Ship.Speed.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Constant.State.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Constant.Template.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Constant.TimeZone.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Customer.Address.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Customer.Address.get~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Customer.Address.retire~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Customer.Address.verifyAndSave~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Customer.Order.FraudRisk.list~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Customer.Order.Item.create~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Customer.Order.Item.list~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Customer.Order.Item.retire~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Customer.Order.Item.update~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Customer.Order.RMA.create~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Customer.Order.RMA.list~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Customer.Order.RMA.update~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Customer.Order.Report.list~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Customer.Order.Return.create~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Customer.Order.Return.submit~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Customer.Order.RoutingGroup.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Customer.Order.RoutingGroup.regroup~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Customer.Order.Shipment.Item.cancel~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Customer.Order.Shipment.Item.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Customer.Order.Shipment.Item.reorder~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Customer.Order.Shipment.Package.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Customer.Order.Shipment.Package.reprint~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Customer.Order.Shipment.Package.void~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Customer.Order.Shipment.Picks.list~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Customer.Order.Shipment.Report.list~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Customer.Order.Shipment.Report.list~2": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Customer.Order.Shipment.SkuReport.list~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Customer.Order.Shipment.get~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Customer.Order.Shipment.list~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Customer.Order.Shipment.ship~0": {
+    "red": 4,
+    "yellow": 5
+  },
+  "main:Customer.Order.applyStoreCredit~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Customer.Order.authCard~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Customer.Order.authCheck~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Customer.Order.authMoneyOrder~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Customer.Order.authTradeCredit~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Customer.Order.cancel~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Customer.Order.capTradeCredit~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Customer.Order.chargeCash~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Customer.Order.emailInvoice~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Customer.Order.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Customer.Order.hold~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Customer.Order.printInvoice~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Customer.Order.printReceipt~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Customer.Order.push~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Customer.Order.push~2": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Customer.Order.recCredit~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Customer.Order.recordPaymentEvent~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Customer.Order.submit~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Customer.Order.update~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Customer.RMA.Item.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Customer.RMA.Item.update~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Customer.RMA.create~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Customer.RMA.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Customer.RMA.update~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Customer.StoreCredit.Transaction.list~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Customer.StoreCredit.adjust~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Customer.create~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Customer.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Customer.update~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Device.Printer.kickCash~0": {
+    "red": 4,
+    "yellow": 5
+  },
+  "main:Device.Scale.getWeight~0": {
+    "red": 4,
+    "yellow": 5
+  },
+  "main:Device.print~1": {
+    "red": -1,
+    "yellow": 0
+  },
+  "main:Device.weigh~1": {
+    "red": -1,
+    "yellow": 0
+  },
+  "main:Fulfillment.ASN.acknowledge~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Fulfillment.ASN.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Fulfillment.Package.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Fulfillment.Package.update~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Fulfillment.Ship.Session.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Fulfillment.Ship.Session.getStats~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Fulfillment.Ship.Session.open~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Fulfillment.Ship.Session.update~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Fulfillment.Shipment.MarkTransmitted~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Fulfillment.Shipment.complete~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Fulfillment.Shipment.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Fulfillment.Shipment.get~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Fulfillment.Wave.bulkPrint~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Fulfillment.Wave.bulkShipmentAdd~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Fulfillment.Wave.consolidatedPrint~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Fulfillment.Wave.consolidatedShipmentAdd~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Fulfillment.Wave.create~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Fulfillment.Wave.exportPickList~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Fulfillment.Wave.list~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Fulfillment.Wave.print~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Fulfillment.Wave.setPicksClosed~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Fulfillment.Wave.setPicksTransmitted~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Index.Customer.search~0": {
+    "red": 4,
+    "yellow": 5
+  },
+  "main:Index.ExportField.fetch~0": {
+    "red": 4,
+    "yellow": 5
+  },
+  "main:Index.Family.search~0": {
+    "red": 4,
+    "yellow": 5
+  },
+  "main:Index.Order.search~0": {
+    "red": 4,
+    "yellow": 5
+  },
+  "main:Index.Sku.search~0": {
+    "red": 4,
+    "yellow": 5
+  },
+  "main:Inventory.Container.Contents.list~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Inventory.Container.bulkAssert~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Inventory.Container.createTote~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Inventory.Container.create~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Inventory.Container.get~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Inventory.Container.list~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Inventory.Container.move~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Inventory.Container.print~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Inventory.Container.search~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Inventory.Count.AddContainers~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Inventory.Count.LogItemCount~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Inventory.Count.NextItemCountRequest~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Inventory.Count.Report.Progress.list~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Inventory.Count.Report.User.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Inventory.Count.create~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Inventory.Count.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Inventory.Count.update~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Inventory.ExternalLot.create~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Inventory.ExternalLot.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Inventory.ExternalLot.update~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Inventory.Lot.create~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Inventory.Lot.reprint~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Inventory.Lot.search~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Inventory.Lot.update~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Inventory.Lot.void~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Inventory.Quantity.Adjustment.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Inventory.Quantity.adjust~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Inventory.Quantity.search~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Inventory.Receive.createRecItem~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Inventory.Receive.getWeight~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Inventory.Receive.receive~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Inventory.Receive.reprint~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Inventory.Transfer.Batch.cancel~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Inventory.Transfer.Batch.create~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Inventory.Transfer.Batch.list~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Inventory.Transfer.Batch.update~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Inventory.Transfer.Item.ack~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Inventory.Transfer.Item.next~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Inventory.Transfer.Item.notfound~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Logger.log~1": {
+    "red": 1,
+    "yellow": 2
+  },
+  "main:Media.Map.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Media.Map.update~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Media.Work.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Media.Work.get~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Media.Work.update~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Media.formats~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Media.mapWork~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Media.registerFile~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Media.registerWork~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Media.workInfo~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Nav.HomeFeed.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Nav.Shortcuts.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Nav.Shortcuts.update~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Nav.list~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Notes.add~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Notes.create~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Notes.create~2": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Notes.list~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Payment.CreditCard.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Payment.CreditCard.retire~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Payment.Series.auth~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Payment.Series.charge~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Payment.Series.credit~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Payment.Series.query~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Payment.Series.record~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Payment.Series.save_card~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Payment.Series.settle~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Payment.Series.void~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Payment.Transaction.cancel~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Payment.Transaction.capture~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Payment.Transaction.list~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Payment.Transaction.void~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Po.Item.create~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Po.Item.itemsByGroup~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Po.Item.retire~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Po.Item.update~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Po.ItemGroup.create~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Po.ItemGroup.list~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Po.ItemGroup.update~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Po.Manifest.Item.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Po.Manifest.Item.fetch~2": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Po.Manifest.Item.get~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Po.Note.add~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Po.Note.list~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Product.APETree.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Product.APETree.update~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Product.Association.create~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Product.Association.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Product.Association.update~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Product.ExternalSku.Quant.read~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Product.ExternalSku.create~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Product.ExternalSku.search~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Product.ExternalSku.update~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Product.ExternalSku.update~2": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Product.Family.Locator.locate~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Product.Family.create~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Product.Family.get~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Product.Family.save~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Product.Family.search~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Product.FamilyIdent.search~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Product.Ident.assert~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Product.Ident.get~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Product.Ident.search~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Product.PhotoSample.choose~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Product.PhotoSample.list~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Product.Po.create~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Product.Po.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Product.Po.markReady~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Product.Po.markSubmitted~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Product.Po.update~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Product.PriceHistory.read~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Product.PriceHistoryAttr.read~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Product.Sku.Barcode.add~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Product.Sku.Barcode.delete~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Product.Sku.Barcode.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Product.Sku.MediaUtil.getRepSkus~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Product.Sku.addMediaMapping~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Product.Sku.getAttributeData~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Product.Sku.getLegacyLot~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Product.Sku.get~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Product.Sku.queryMedia~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Product.Sku.reserve~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Product.Sku.retire~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Product.Sku.save~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Product.Sku.search~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Receive.Piece.create~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Receive.Piece.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Receive.Piece.move~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Receive.Piece.reprint~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Receive.Piece.update~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Receive.Shipment.createAndPrint~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Receive.Shipment.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Receive.Shipment.update~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Reporting.Fact.fetch~0": {
+    "red": 1,
+    "yellow": 2
+  },
+  "main:Reporting.Field.fetch~0": {
+    "red": 1,
+    "yellow": 2
+  },
+  "main:Reporting.Query.run~0": {
+    "red": 1,
+    "yellow": 2
+  },
+  "main:Reporting.Reorder.fetch~0": {
+    "red": 1,
+    "yellow": 2
+  },
+  "main:Reporting.Reorder.update~0": {
+    "red": 1,
+    "yellow": 2
+  },
+  "main:Reporting.Report.fetch~0": {
+    "red": 1,
+    "yellow": 2
+  },
+  "main:Reporting.Report.list~0": {
+    "red": 1,
+    "yellow": 2
+  },
+  "main:Reporting.Report.save~0": {
+    "red": 1,
+    "yellow": 2
+  },
+  "main:Reporting.Report.update~0": {
+    "red": 1,
+    "yellow": 2
+  },
+  "main:User.getInfo~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:User.getPrivs~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:User.login~0": {
+    "red": 1,
+    "yellow": 2
+  },
+  "main:User.logout~0": {
+    "red": 1,
+    "yellow": 2
+  },
+  "main:User.reportError~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:User.updateSession~0": {
+    "red": 1,
+    "yellow": 2
+  },
+  "main:Utility.EventLog.annotate~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Utility.EventLog.createEvent~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Utility.EventLog.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Utility.EventLogSummary.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Utility.EventLogSummary.resolve~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Utility.FileUpload.Fields.list~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Utility.FileUpload.Fields.list~2": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Utility.FileUpload.Modules.list~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Utility.FileUpload.Profiles.create~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Utility.FileUpload.Profiles.create~2": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Utility.FileUpload.Profiles.list~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Utility.FileUpload.Profiles.list~2": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Utility.FileUpload.Profiles.update~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Utility.FileUpload.Profiles.update~2": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Utility.FileUpload.Rows.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Utility.FileUpload.Rows.fetch~2": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Utility.FileUpload.Rows.update~2": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Utility.FileUpload.commit~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Utility.FileUpload.deprepare~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Utility.FileUpload.list~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Utility.FileUpload.prepare~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Utility.FileUpload.update~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Utility.Tag.search~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Vendor.PO.CompleteDS~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Vendor.PO.Complete~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Vendor.PO.MarkAccepted~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Vendor.PO.MarkSubmitted~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Vendor.PO.UpdateEstShipDate~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:Vendor.PO.fetch~0": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:_meta.documentation~0": {
+    "red": 21,
+    "yellow": 22
+  },
+  "main:bgdispatcher.poll~1": {
+    "red": 1,
+    "yellow": 2
+  },
+  "main:bgdispatcher.reboot~1": {
+    "red": 1,
+    "yellow": 2
+  },
+  "main:bgdispatcher.report~1": {
+    "red": 1,
+    "yellow": 2
+  },
+  "main:secproxy.audit.fetch~1": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:secproxy.control.inject_masterkey~1": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:secproxy.ftp.get~1": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:secproxy.ftp.ls~1": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:secproxy.ftp.put~1": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:secproxy.ftp.rm~1": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:secproxy.http.get~1": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:secproxy.http.post~1": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:secproxy.http.put~1": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:secproxy.key.delete~1": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:secproxy.key.fetch~1": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:secproxy.key.get~1": {
+    "red": 0,
+    "yellow": 1
+  },
+  "main:secproxy.key.set~1": {
+    "red": 0,
+    "yellow": 1
+  },
+  "shipmodule:AmazonMFS.get_account_config_fields~0": {
+    "red": 1,
+    "yellow": 2
+  },
+  "shipmodule:AmazonMFS.get_label_call_params~0": {
+    "red": 1,
+    "yellow": 2
+  },
+  "shipmodule:AmazonMFS.get_labels~0": {
+    "red": 1,
+    "yellow": 2
+  },
+  "shipmodule:AmazonMFS.get_rate_and_time~0": {
+    "red": 1,
+    "yellow": 2
+  },
+  "shipmodule:AmazonMFS.get_rate~0": {
+    "red": 1,
+    "yellow": 2
+  },
+  "shipmodule:AmazonMFS.get_time~0": {
+    "red": 1,
+    "yellow": 2
+  },
+  "shipmodule:AmazonMFS.void_label~0": {
+    "red": 1,
+    "yellow": 2
+  },
+  "shipmodule:FirstMile.GenerateLabels~0": {
+    "red": 1,
+    "yellow": 2
+  },
+  "shipmodule:FirstMile.get_account_config_fields~0": {
+    "red": 1,
+    "yellow": 2
+  },
+  "shipmodule:FirstMile.get_label_call_params~0": {
+    "red": 1,
+    "yellow": 2
+  },
+  "shipmodule:FirstMile.get_labels~0": {
+    "red": 1,
+    "yellow": 2
+  },
+  "shipmodule:FirstMile.get_rate_and_time~0": {
+    "red": 1,
+    "yellow": 2
+  },
+  "shipmodule:FirstMile.get_rate~0": {
+    "red": 1,
+    "yellow": 2
+  },
+  "shipmodule:FirstMile.get_time~0": {
+    "red": 1,
+    "yellow": 2
+  },
+  "shipmodule:FirstMile.void_label~0": {
+    "red": 1,
+    "yellow": 2
+  },
+  "shipmodule:Landmark.get_account_config_fields~0": {
+    "red": 1,
+    "yellow": 2
+  },
+  "shipmodule:Landmark.get_label_call_params~0": {
+    "red": 1,
+    "yellow": 2
+  },
+  "shipmodule:Landmark.get_labels~0": {
+    "red": 1,
+    "yellow": 2
+  },
+  "shipmodule:Landmark.get_rate_and_time~0": {
+    "red": 1,
+    "yellow": 2
+  },
+  "shipmodule:Landmark.get_rate~0": {
+    "red": 1,
+    "yellow": 2
+  },
+  "shipmodule:Landmark.get_time~0": {
+    "red": 1,
+    "yellow": 2
+  },
+  "shipmodule:Landmark.void_label~0": {
+    "red": 1,
+    "yellow": 2
+  },
+  "soapoffload:AmeriCommerce.call~0": {
+    "red": 7,
+    "yellow": 8
+  },
+  "soapoffload:_meta.documentation~0": {
+    "red": 7,
+    "yellow": 8
+  }
+}

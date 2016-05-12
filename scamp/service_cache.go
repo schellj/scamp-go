@@ -117,7 +117,7 @@ func (cache *ServiceCache) All() (proxies []*ServiceProxy) {
 var sep = []byte(`%%%`)
 var newline = []byte("\n")
 
-func (cache *ServiceCache) Scan() (err error) {
+func (cache *ServiceCache) Refresh() (err error) {
 	cache.cacheM.Lock()
 	defer cache.cacheM.Unlock()
 
@@ -133,12 +133,15 @@ func (cache *ServiceCache) Scan() (err error) {
 	}
 
   s := bufio.NewScanner(cacheHandle)
-  cache.doScan(s)
+  err = cache.DoScan(s)
+  if err != nil {
+  	return
+  }
 
 	return
 }
 
-func (cache *ServiceCache)doScan(s *bufio.Scanner) (err error) {
+func (cache *ServiceCache)DoScan(s *bufio.Scanner) (err error) {
 	cache.clearNoLock()
 
 	// Scan through buf by lines according to this basic ABNF

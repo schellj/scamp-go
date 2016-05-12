@@ -51,6 +51,10 @@ func (sp ServiceProxy)Ident() string {
 	return sp.ident
 }
 
+func (sp ServiceProxy)ConnSpec() string {
+	return sp.connspec
+}
+
 func (sp ServiceProxy)Sector() string {
 	return sp.sector
 }
