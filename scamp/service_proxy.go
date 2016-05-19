@@ -11,6 +11,9 @@ import (
   "fmt"
   "errors"
   "strings"
+
+  "net"
+  u "net/url"
 )
 
 // Example:
@@ -49,6 +52,28 @@ type ServiceProxy struct {
 
 func (sp ServiceProxy)Ident() string {
 	return sp.ident
+}
+
+func (sp ServiceProxy)ShortHostname() string {
+	url,err := u.Parse(sp.ident)
+	if err != nil {
+		return sp.ident
+	}
+
+	hostParts := strings.Split(url.Host,":")
+	if len(hostParts) != 2 {
+		return sp.ident
+	}
+	host := hostParts[0]
+
+	names,err := net.LookupAddr(host)
+	if err != nil {
+		return sp.ident
+	} else if len(names) == 0 {
+		return sp.ident
+	}
+
+	return names[0]
 }
 
 func (sp ServiceProxy)ConnSpec() string {

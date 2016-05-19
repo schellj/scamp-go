@@ -42,6 +42,10 @@ type InventoryDiffEntry struct {
   Missing []string `json:"missing"`
 }
 
+type DegradedServiceEntry struct {
+  MissingActions []string `json:"missing_actions"`
+}
+
 func (old *Inventory)Diff(inv *Inventory) (diff map[string]InventoryDiffEntry) {
   diff = make(map[string]InventoryDiffEntry)
 
@@ -107,7 +111,7 @@ func (i *Inventory)Reload() (err error) {
       for _,action := range klass.Actions() {
         mangledName := mangleFromParts(service.Sector(), klass.Name(), action.Name(), action.Version())
         _,ok := i.Inventory[mangledName]
-        id := fmt.Sprintf("%s at %s", service.Ident(), service.ConnSpec())
+        id := fmt.Sprintf("%s at %s", service.ShortHostname(), service.ConnSpec())
         if !ok {
           i.Inventory[mangledName] = []string{ id }
         } else {
