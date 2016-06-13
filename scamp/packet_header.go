@@ -22,7 +22,7 @@ const (
 type PacketHeader struct {
 	Action   string         `json:"action"`   // request
 	Envelope envelopeFormat `json:"envelope"` // request
-	// error  string        `json:"error"`            // reply
+	// ErrorStr string      `json:"error"`            // reply
 	// error_code []byte    `json:"error_code"`   // reply
 	RequestId int           `json:"request_id"` // both
 	// station []byte       `json:"station"`         // request

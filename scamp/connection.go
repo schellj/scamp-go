@@ -21,6 +21,7 @@ type Connection struct {
 	// reader         *bufio.Reader
 	// writer         *bufio.Writer
 	readWriter     *bufio.ReadWriter
+	readWriterLock sync.Mutex
 
 	incomingmsgno  IncomingMsgNo
 	outgoingmsgno  OutgoingMsgNo
@@ -104,6 +105,11 @@ func (conn *Connection) SetClient(client *Client) {
 }
 
 func (conn *Connection) packetReader() (err error) {
+	// I think we only need to lock on writes, packetReader is only running
+	// from one spot.
+	// conn.readWriterLock.Lock()
+	// defer conn.readWriterLock.Unlock()
+
 	// Trace.Printf("starting packetrouter")
 	var pkt *Packet
 
@@ -214,6 +220,8 @@ func (conn *Connection) routePacket(pkt *Packet) (err error) {
 }
 
 func (conn *Connection)Send(msg *Message) (err error) {
+	conn.readWriterLock.Lock()
+	defer conn.readWriterLock.Unlock()
 	if msg.RequestId == 0 {
 		err = fmt.Errorf("must specify `ReqestId` on msg before sending")
 		return
@@ -236,11 +244,14 @@ func (conn *Connection)Send(msg *Message) (err error) {
 				return err
 			}
 		} else {
-			_, err := pkt.Write(conn.readWriter)
-			// TODO: should we actually blacklist this error?
-			if err != nil && err.Error() != "short write" {
-				Error.Printf("error writing packet: `%s`", err)
-				return err
+			for {
+				_, err := pkt.Write(conn.readWriter)
+				// TODO: should we actually blacklist this error?
+				if err != nil {
+					Error.Printf("error writing packet: `%s` (retrying)", err)
+					continue
+				}
+				break
 			}
 		}
 
@@ -253,6 +264,9 @@ func (conn *Connection)Send(msg *Message) (err error) {
 }
 
 func (conn *Connection)ackBytes(msgno IncomingMsgNo, unackedByteCount uint64) (err error) {
+	conn.readWriterLock.Lock()
+	defer conn.readWriterLock.Unlock()
+
 	ackPacket := Packet{
 		packetType: ACK,
 		msgNo: uint64(msgno),

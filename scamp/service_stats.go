@@ -28,7 +28,7 @@ func PrintStatsLoop(service *Service, timeout time.Duration, closeChan chan bool
         continue
       }
 
-      Info.Printf("periodic stats: `%s`", statsBytes)
+      Info.Printf("periodic stats (%s): `%s`", service.name, statsBytes)
     case <-closeChan:
       break forLoop
     }

@@ -215,3 +215,23 @@ lF8B42EZvKY3mZVbuQq8TxStTMwbKoByMN7BsAczI2cwpe0VRLy9cJeIwfoMQCfI
 DzZqcZjWY5gs9UaTHBBMAwp5G3tr1uQ6Fgi3mFlo1tA9J5Vex8CEaw+U0YklidTKMVDN3y8OLZsICLwTSmjO3iHuhoiJK0WuKMkg2PcA7VOJcTS//pufF/8BqRM/4ZjwKXr8yuEwALhamvcMqdvLKdjYi+XyoU+6dzsg3nHKGGeiPlvVoplZ5n7rw4RnrfSTJedyQNy3n8edFzuhbElf4iNP1eg2cdyITtvC55rQ7QCQ9fggkNR1U4yAnganMpXHsrvCcRnpRprTD3YO8/nKqaiJrsTX1xskxdikPvFc8u6M9vSK3oEWVJDE7six/bfLGR/bFgTkpDqfeVVdCkJbE8p1qzxqOpzNA93wChloKcKhCQDND/A8bCfa5Ex0FyLO8PFuRH6CTiPzV4ds3EgzY8hcYe0+8ql6ER4jz0QmmHeyBWsxur39VzBuN7ewI1Kl9niShW6amFF5I0PAR9CPt1R/eT9CiW2JvUUBPJnzeqf+vM7Bupg9QFNSUsB0QItbJa1birCNJp/js3tw581mTNzZg2iwuei7KSxRTJ+l8v5BBw15hXNB9q60v4sFmJMMUX123sYmyM/JAfgTlPubzyEH+WpiEeq5Ps6Pc+aqiR2lE0sioLgC1n0BGZbCS0v6ELYZ6jNz1+2SuJWpUvUNdR2SoQ7D5sIpaKTT/rjUngg=
 %%%
 `)
+
+func TestSearchByAction(t *testing.T) {
+  cache,err := NewServiceCache("/Users/xavierlange/code/gudtech/workspace/src/github.com/gudtech/scamp-go/fixtures/sample_discovery_cache")
+  if err != nil {
+    t.Fatalf(err.Error())
+  }
+
+  cache.DisableRecordVerification()
+  err = cache.Refresh()
+  if err != nil {
+    t.Fatalf(err.Error())
+  }
+
+  // t.Fatalf("%s", cache.actionIndex)
+
+  serviceProxy := cache.SearchByAction("main","Logger.info",1,"json")
+  if serviceProxy == nil {
+    t.Fatalf("hmm, no hit!")
+  }
+}

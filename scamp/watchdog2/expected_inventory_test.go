@@ -1,6 +1,7 @@
 package watchdog2
 
 import (
+  // "fmt"
   "testing"
   "encoding/json"
 
@@ -38,6 +39,36 @@ func TestSystemHealth(t *testing.T) {
   if len(healthCheck.Yellow) != 1 {
     // t.Fatalf("expected yellow entries, got %s", healthCheck.Yellow)
   }
+}
+
+func TestSectorHealth(t *testing.T) {
+  i,err := NewInventory("/Users/xavierlange/code/gudtech/workspace/src/github.com/gudtech/scamp-go/fixtures/watchdog/discovery.sample")
+  if err != nil {
+    t.Fatalf(err.Error())
+  }
+
+  i.Reload()
+
+  content := strings.NewReader(`{
+    "main:Inventory.Count.AddContainers~0": {
+      "red": 0,
+      "yellow": 3
+    }
+}
+`)
+
+  ei := make(ExpectedInventory)
+  err = json.NewDecoder(content).Decode(&ei)
+  if err != nil {
+    t.Fatalf(err.Error())
+  }
+
+  sectorHealth := ei.GetSectorHealth(i)
+  if !sectorHealth.IsDegraded() {
+    t.Fatalf("sector health should have been degraded")
+  }
+
+  // panicjson(sectorHealth)
 }
 
 func TestEifFromReader(t *testing.T) {

@@ -1,6 +1,9 @@
 package scamp
 
-import "bytes"
+import (
+  "bytes"
+  "encoding/json"
+)
 
 type MessageChan chan *Message
 
@@ -17,6 +20,18 @@ type Message struct {
 
 func NewMessage() (msg *Message) {
   msg = new(Message)
+  return
+}
+
+func NewRequestMessage() (msg *Message) {
+  msg = new(Message)
+  msg.SetMessageType(1)
+  return
+}
+
+func NewResponseMessage() (msg *Message) {
+  msg = new(Message)
+  msg.SetMessageType(2)
   return
 }
 
@@ -46,6 +61,42 @@ func (msg *Message)Write(blob []byte) (n int, err error){
 
   msg.packets = append(msg.packets, &Packet{packetType: DATA, body: blob})
   return len(blob), nil
+}
+
+var MSG_CHUNK_SIZE = 256*1024
+
+func (msg *Message)WriteJson(data interface{}) (n int, err error) {
+  var buf bytes.Buffer
+  err = json.NewEncoder(&buf).Encode(data)
+  if err != nil {
+    return
+  }
+
+  msg.bytesWritten += uint64(len(buf.Bytes()))
+
+  // Trace.Printf("WriteJson data size: %d", len(buf.Bytes()))
+
+  if len(buf.Bytes()) > MSG_CHUNK_SIZE {
+    slice := buf.Bytes()[:]
+    for {
+      // Trace.Printf("slice size: %d", len(slice))
+
+      if len(slice) < MSG_CHUNK_SIZE {
+        msg.packets = append(msg.packets, &Packet{packetType: DATA, body: slice} )
+        break
+      } else {
+        chunk := make([]byte, MSG_CHUNK_SIZE)
+        copy(chunk,slice[0:MSG_CHUNK_SIZE])
+        slice = slice[MSG_CHUNK_SIZE:]
+        msg.packets = append(msg.packets, &Packet{packetType: DATA, body: chunk})
+      }
+    }
+
+  } else {
+    msg.packets = append(msg.packets, &Packet{packetType: DATA, body: buf.Bytes()})
+  }
+
+  return
 }
 
 func (msg *Message)BytesWritten() (uint64) {
@@ -87,6 +138,10 @@ func (msg *Message)toPackets(msgNo uint64) ([]*Packet) {
 
 func (msg *Message)Bytes() ([]byte) {
   buf := new(bytes.Buffer)
+  // Info.Printf("packet count: %d", len(msg.packets))
+  // for _,pkt := range msg.packets {
+  //   Info.Printf("packet len: %d", len(pkt.body))
+  // }
   for _,pkt := range msg.packets {
     buf.Write(pkt.body)
   }

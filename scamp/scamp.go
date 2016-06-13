@@ -51,10 +51,27 @@ SCAMP is a layered architecture:
 */
 package scamp
 
+import (
+  "fmt"
+)
+
+var defaultCache *ServiceCache
+
 // Package-level setup. Right now it just sets up logging.
 func Initialize(configPath string) (err error) {
 	initSCAMPLogger()
   err = initConfig(configPath)
+  if err != nil {
+    return
+  }
+
+  cachePath,found := DefaultConfig().Get("discovery.cache_path")
+  if !found {
+    err = fmt.Errorf("no such config param `discovery.cache_path`. must be set to use scamp-go.")
+    return
+  }
+
+  defaultCache,err = NewServiceCache(cachePath)
   if err != nil {
     return
   }

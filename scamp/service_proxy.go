@@ -12,6 +12,8 @@ import (
   "errors"
   "strings"
 
+  "sync"
+
   "net"
   u "net/url"
 )
@@ -47,30 +49,60 @@ type ServiceProxy struct {
 
 	timestamp HighResTimestamp
 
+	clientM sync.Mutex
 	client *Client
+}
+
+func (sp ServiceProxy)GetClient() (client *Client, err error) {
+	sp.clientM.Lock()
+	defer sp.clientM.Unlock()
+
+	if sp.client == nil {
+		var url *u.URL
+		url,err = u.Parse(sp.connspec)
+		if err != nil {
+			return nil, err
+		}
+
+		sp.client,err = Dial(url.Host)
+	}
+
+	client = sp.client
+
+	return
 }
 
 func (sp ServiceProxy)Ident() string {
 	return sp.ident
 }
 
-func (sp ServiceProxy)ShortHostname() string {
-	url,err := u.Parse(sp.ident)
-	if err != nil {
+func (sp ServiceProxy)BaseIdent() string {
+	baseAndRest := strings.SplitN(sp.ident, ":", 2)
+	if len(baseAndRest) != 2 {
 		return sp.ident
+	} else {
+		return baseAndRest[0]
+	}
+}
+
+func (sp ServiceProxy)ShortHostname() string {
+	url,err := u.Parse(sp.connspec)
+	if err != nil {
+		panic("BOMBING OUT")
+		return sp.connspec
 	}
 
 	hostParts := strings.Split(url.Host,":")
 	if len(hostParts) != 2 {
-		return sp.ident
+		return sp.connspec
 	}
 	host := hostParts[0]
 
 	names,err := net.LookupAddr(host)
 	if err != nil {
-		return sp.ident
+		return host
 	} else if len(names) == 0 {
-		return sp.ident
+		return host
 	}
 
 	return names[0]

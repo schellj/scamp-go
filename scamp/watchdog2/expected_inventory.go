@@ -4,6 +4,7 @@ import (
   "os"
   "fmt"
   "encoding/json"
+  "strings"
 
   "github.com/gudtech/scamp-go/scamp"
 )
@@ -49,6 +50,77 @@ func (ei ExpectedInventory) GetSystemHealth(inv *Inventory) (sh *SystemHealth) {
       // all good
     }
   }
+
+  return
+}
+
+func (ei ExpectedInventory) GetSectorHealth(inv *Inventory) (secH SectorHealth) {
+  secH = NewSectorHealth()
+
+  for mangledName,eiEntry := range ei {
+    list,ok := inv.GetList(mangledName)
+    if !ok {
+      continue
+    }
+
+    sector,action,_ := parseMangledName(mangledName)
+    // panic(fmt.Sprintf("sector: `%s`, action: `%s`, stuff: `%s`", sector, action, list))
+    // panic(err.Error())
+
+    missingInstances := make([]DegradedService, 0, len(list))
+    for _,entry := range list {
+      missingInstances = append(missingInstances, DegradedService(entry))
+    }
+
+    if len(list) <= eiEntry.Red {
+      da := DegradedAction {
+        ActionName: action,
+        MinHealthyCount: eiEntry.Yellow+1,
+        CurrentCount: len(list),
+        HealthLabel: "red",
+        MissingInstances: missingInstances,
+      }
+
+      _,ok := secH[sector]
+      if !ok {
+        secH[sector] = make([]DegradedAction,0)
+      }
+
+      secH[sector] = append(secH[sector], da)
+    } else if len(list) <= eiEntry.Yellow {
+      da := DegradedAction {
+        ActionName: action,
+        MinHealthyCount: eiEntry.Yellow+1,
+        CurrentCount: len(list),
+        HealthLabel: "yellow",
+        MissingInstances: missingInstances,
+      }
+
+      _,ok := secH[sector]
+      if !ok {
+        secH[sector] = make([]DegradedAction,0)
+      }
+
+      secH[sector] = append(secH[sector], da)
+
+      // panicjson(secH)
+    } else {
+      /* ALL GOOD */
+    }
+
+  }
+
+  return
+}
+
+func parseMangledName(mangledName string) (sector,action string, err error) {
+  sectorAndRest := strings.SplitN(mangledName,":",2)
+  if len(sectorAndRest) != 2 {
+    return "", "", fmt.Errorf("could not find : in `%s`", mangledName)
+  }
+
+  sector = sectorAndRest[0]
+  action = sectorAndRest[1]
 
   return
 }

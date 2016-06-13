@@ -1,7 +1,6 @@
 package watchdog2
 
 import (
-  "fmt"
   "github.com/gudtech/scamp-go/scamp"
 )
 
@@ -10,7 +9,12 @@ import (
   to the scamp.ServiceCache and this file should go away
 */
 
-type InventoryType map[string][]string
+type ServiceDesc struct {
+  ShortHostname string `json:"short_hostname"`
+  ServiceName string `json:"service_name"`
+}
+
+type InventoryType map[string][]ServiceDesc
 
 type Inventory struct {
   Cache *scamp.ServiceCache
@@ -39,11 +43,7 @@ func (i *Inventory)Clone() (i2 *Inventory) {
 }
 
 type InventoryDiffEntry struct {
-  Missing []string `json:"missing"`
-}
-
-type DegradedServiceEntry struct {
-  MissingActions []string `json:"missing_actions"`
+  Missing []ServiceDesc `json:"missing"`
 }
 
 func (old *Inventory)Diff(inv *Inventory) (diff map[string]InventoryDiffEntry) {
@@ -61,7 +61,7 @@ func (old *Inventory)Diff(inv *Inventory) (diff map[string]InventoryDiffEntry) {
       // but rather as "replaced". for now we skip it.
       continue
     } else {
-      missing := make([]string,0)
+      missing := make([]ServiceDesc,0)
 
       for _,oldEntry := range oldList {
         found := false
@@ -111,11 +111,14 @@ func (i *Inventory)Reload() (err error) {
       for _,action := range klass.Actions() {
         mangledName := mangleFromParts(service.Sector(), klass.Name(), action.Name(), action.Version())
         _,ok := i.Inventory[mangledName]
-        id := fmt.Sprintf("%s at %s", service.ShortHostname(), service.ConnSpec())
+        serviceDesc := ServiceDesc {
+          ShortHostname: service.ShortHostname(),
+          ServiceName: service.BaseIdent(),
+        }
         if !ok {
-          i.Inventory[mangledName] = []string{ id }
+          i.Inventory[mangledName] = []ServiceDesc{ serviceDesc }
         } else {
-          i.Inventory[mangledName] = append(i.Inventory[mangledName], id )
+          i.Inventory[mangledName] = append(i.Inventory[mangledName], serviceDesc )
         }
       }
     }
@@ -127,5 +130,10 @@ func (i *Inventory)Reload() (err error) {
 func (i *Inventory) Get(mangledName string) (val int, ok bool) {
   list,ok := i.Inventory[mangledName]
   val = len(list)
+  return
+}
+
+func (i *Inventory) GetList(mangledName string) (list []ServiceDesc, ok bool) {
+  list,ok = i.Inventory[mangledName]
   return
 }

@@ -12,6 +12,7 @@ type Client struct {
 
   requests MessageChan
   openReplies map[int]MessageChan
+  openRepliesLock sync.Mutex
 
   isClosed bool
   closedM sync.Mutex
@@ -27,7 +28,6 @@ func Dial(connspec string) (client *Client, err error){
     return
   }
   client = NewClient(conn)
-  client.conn = conn
 
   return
 }
@@ -62,11 +62,13 @@ func (client *Client)Send(msg *Message) (responseChan MessageChan, err error){
   }
 
   if msg.MessageType == MESSAGE_TYPE_REQUEST {
-    Trace.Printf("sending request so waiting for reply")
+    // Info.Printf("sending request so waiting for reply")
     responseChan = make(MessageChan)
+    client.openRepliesLock.Lock()
     client.openReplies[msg.RequestId] = responseChan
+    client.openRepliesLock.Unlock()
   } else {
-    Trace.Printf("sending reply so done with this message")
+    // Info.Printf("sending reply so done with this message")
   }
 
   return
@@ -115,14 +117,17 @@ func (client *Client)splitReqsAndReps() (err error) {
         // and the client closes
         client.requests <- message
       } else if message.MessageType == MESSAGE_TYPE_REPLY {
+        client.openRepliesLock.Lock()
         replyChan = client.openReplies[message.RequestId]
-
         if replyChan == nil {
           Error.Printf("got an unexpected reply for requestId: %d. Skipping.", message.RequestId)
+          client.openRepliesLock.Unlock()
           continue
         }
 
         delete(client.openReplies, message.RequestId)
+        client.openRepliesLock.Unlock()
+
         replyChan <- message
 
       } else {
@@ -135,6 +140,8 @@ func (client *Client)splitReqsAndReps() (err error) {
   Trace.Printf("done with SplitReqsAndReps")
 
   close(client.requests)
+  client.openRepliesLock.Lock()
+  defer client.openRepliesLock.Unlock()
   for _,openReplyChan := range client.openReplies {
     close(openReplyChan)
   }

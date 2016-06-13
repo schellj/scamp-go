@@ -112,6 +112,8 @@ func (serv *Service)listen() (err error) {
 	if err != nil {
 		return err
 	}
+	addr := serv.listener.Addr()
+	Info.Printf("service now listening to %s", addr.String())
 
   // TODO: get listenerIP to return 127.0.0.1 or something other than '::'/nil
   // serv.listenerIP = serv.listener.Addr().(*net.TCPAddr).IP

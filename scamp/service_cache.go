@@ -14,6 +14,7 @@ type ServiceCache struct {
 
 	cacheM sync.Mutex
 	identIndex map[string]*ServiceProxy
+	actionIndex map[string][]*ServiceProxy
 	verifyRecords bool
 }
 
@@ -22,6 +23,7 @@ func NewServiceCache(path string) (cache *ServiceCache, err error) {
 	cache.path = path
 
 	cache.identIndex = make(map[string]*ServiceProxy)
+	cache.actionIndex = make(map[string][]*ServiceProxy)
 	cache.verifyRecords = true
 	return
 }
@@ -52,6 +54,23 @@ func (cache *ServiceCache) storeNoLock( instance *ServiceProxy ) {
 		// Error.Printf("tried to store instance that was already tracked")
 		// Override existing version. Correct logic?
 		cache.identIndex[instance.ident] = instance
+	}
+
+	for _,class := range instance.classes {
+		for _,action := range class.actions {
+			for _,protocol := range instance.protocols {
+				mungedName := fmt.Sprintf("%s:%s.%s~%d#%s", instance.sector, class.className, action.actionName, action.version, protocol)
+
+				serviceProxies,ok := cache.actionIndex[mungedName]
+				if ok {
+					serviceProxies = append(serviceProxies, instance)
+				} else {
+					serviceProxies = []*ServiceProxy{ instance }
+				}
+
+				cache.actionIndex[mungedName] = serviceProxies				
+			}
+		}
 	}
 
 	return
@@ -90,6 +109,11 @@ func (cache *ServiceCache) Retrieve( ident string ) ( instance *ServiceProxy ) {
 	return
 }
 
+func (cache *ServiceCache) SearchByAction(sector, action string, version int, envelope string) (instances []*ServiceProxy) {
+	mungedName := fmt.Sprintf("%s:%s~%d#%s", sector, action, version, envelope)
+	return cache.actionIndex[mungedName]
+}
+
 func (cache *ServiceCache) Size() int {
 	cache.cacheM.Lock()
 	defer cache.cacheM.Unlock()
@@ -124,8 +148,11 @@ func (cache *ServiceCache) Refresh() (err error) {
 	stat,err := os.Stat(cache.path)
 	if err != nil {
 		return
+	} else if stat.IsDir() {
+		err = fmt.Errorf("cannot use cache path: `%s` is a directory", cache.path)
+		return
 	}
-	Error.Printf("mtime: %s\n",stat.ModTime())
+	Info.Printf("mtime: %s\n",stat.ModTime())
 
 	cacheHandle,err := os.Open(cache.path)
 	if err != nil {
@@ -144,6 +171,8 @@ func (cache *ServiceCache) Refresh() (err error) {
 func (cache *ServiceCache)DoScan(s *bufio.Scanner) (err error) {
 	cache.clearNoLock()
 
+
+	var entries int = 0
 	// Scan through buf by lines according to this basic ABNF
 	// (SLOP* SEP CLASSRECORD NL CERT NL SIG NL NL)*
 	var classRecordsRaw, certRaw, sigRaw []byte
@@ -219,6 +248,8 @@ func (cache *ServiceCache)DoScan(s *bufio.Scanner) (err error) {
 
 		cache.storeNoLock(serviceProxy)
 	}
+
+	fmt.Println("entries:", entries)
 
 	return
 }

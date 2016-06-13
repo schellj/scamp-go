@@ -1,12 +1,12 @@
 package watchdog2
 
 import (
-  "fmt"
+  // "fmt"
   "bytes"
-  "strings"
+  // "strings"
   "text/template"
 
-  "github.com/gudtech/scamp-go/scamp"
+  // "github.com/gudtech/scamp-go/scamp"
 )
 
 type Incident interface {
@@ -16,25 +16,42 @@ type Incident interface {
 }
 
 type PagerdutyIncident struct {
-  Missing map[string]InventoryDiffEntry
+  Missing SectorHealth
 }
 
-func NewPagerdutyIncident(pagerdutyKey string, missing map[string]InventoryDiffEntry) (yi *PagerdutyIncident) {
+func NewPagerdutyIncident(pagerdutyKey string, missing SectorHealth) (yi *PagerdutyIncident) {
   return &PagerdutyIncident {
     Missing: missing,
   }
 }
 
+// var piTmpl = template.Must(
+//   template.New("desc").Parse(
+// `System is in a degraded state ({{.Level}}):
+// {{range $index, $element := .DegradedActions}}Action "{{$index}}" has lost:
+// {{range $element.Missing}} - {{.}}
+// {{end}}
+// {{end}}
+// `,
+//   ),
+// )
+
+/*
+type SectorHealthByInventory map[string][]InventoryHealth
+type InventoryHealth struct {
+  Digest string
+  Services []ServiceDesc
+}
+*/
 var piTmpl = template.Must(
-  template.New("desc").Parse(
-`System is in a degraded state ({{.Level}}):
-{{range $index, $element := .DegradedActions}}Action "{{$index}}" has lost:
-{{range $element.Missing}} - {{.}}
-{{end}}
-{{end}}
+  template.New("desc").Parse(`{{ range $sector,$digMap := . }}{{$sector}}
+{{ range $digest,$degSvcs := $digMap }}{{$digest}}
+{{ range $i2,$degSvc := $degSvcs }}  {{$degSvc.ShortHostname}}
+{{end}}{{end}}{{end}}
 `,
   ),
 )
+
 type piTmplArgs struct {
   DegradedActions map[string]InventoryDiffEntry
   Level string
@@ -57,71 +74,13 @@ type pdTmplServiceDigest struct {
   missingActions []string
 }
 
-func (pi *PagerdutyIncident)MissingToPdTmplArgs() (args pdTmplArgs) {
-  args.sectors = make(map[string]pdTmplArgsSector)
-
-  for k,missingIdents := range pi.Missing {
-    // main:Classy.thingy~3
-    parts := strings.SplitN(k,":",2)
-    if len(parts) != 2 {
-      scamp.Error.Printf("could not parse %s", k)
-      continue
-    }
-
-    sector := parts[0]
-
-    tmplArgsSector,ok := args.sectors[sector]
-    if !ok {
-      tmplArgsSector = pdTmplArgsSector{
-        digests: make(map[string][]pdTmplServiceDigest),
-      }
-      args.sectors[sector] = tmplArgsSector
-    }
-
-    rest := parts[1]
-    restParts := strings.SplitN(rest,"~",2)
-
-    digestStr := fmt.Sprintf("missing %d instances", len(missingIdents.Missing))
-
-    // var action,version string
-    if len(restParts) != 2 {
-      scamp.Error.Printf("could not parse rest: %s", rest)
-      continue
-    }
-
-    // action := restParts[0]
-    // version := restParts[1]
-
-    tmpDigest := pdTmplServiceDigest {
-      serverHost: "hostasdf",
-      serviceName: "servasdf",
-      missingActions: []string{},
-    }
-
-    _,ok = tmplArgsSector.digests[digestStr]
-    if !ok {
-      tmplArgsSector.digests[digestStr] = []pdTmplServiceDigest{ tmpDigest }
-    } else {
-      tmplArgsSector.digests[digestStr] = append(tmplArgsSector.digests[digestStr], tmpDigest)
-    }
-
-
-    }
-
-    return
-
-  }
-
 
 func (pi *PagerdutyIncident)Description() (desc string, err error) {
-  pi.MissingToPdTmplArgs()
-
   var descBuf bytes.Buffer
-  tmplArgs := piTmplArgs {
-    DegradedActions: pi.Missing,
-    Level: "red",
-  }
-  err = piTmpl.Execute(&descBuf, tmplArgs)
+
+  shi := pi.Missing.ToSectorHealthByInventory()
+
+  err = piTmpl.Execute(&descBuf, shi)
   if err != nil {
     return "", err
   }

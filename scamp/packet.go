@@ -1,11 +1,13 @@
 package scamp
 
-import "io"
-import "bufio"
-import "errors"
-import "bytes"
-import "fmt"
-import "encoding/json"
+import (
+	"io"
+	"bufio"
+	"errors"
+	"bytes"
+	"fmt"
+	"encoding/json"
+)
 
 const (
 	the_rest_size = 5
