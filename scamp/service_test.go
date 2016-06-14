@@ -22,7 +22,7 @@ func TestServiceHandlesRequest(t *testing.T) {
 }
 
 func spawnTestService(hasStopped (chan bool)) (service *Service) {
-	service,err := NewService("127.0.0.1:40400", "helloworld")
+	service,err := NewService("test", "127.0.0.1:40400", "helloworld")
 	if err != nil {
 		Error.Fatalf("error creating new service: `%s`", err)
 	}

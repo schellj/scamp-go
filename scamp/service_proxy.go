@@ -151,7 +151,7 @@ func ServiceAsServiceProxy(serv *Service) (proxy *ServiceProxy) {
 	proxy = new(ServiceProxy)
 	proxy.version = 3
 	proxy.ident = serv.name
-	proxy.sector = "main"
+	proxy.sector = serv.sector
 	proxy.weight = 1
 	proxy.announceInterval = defaultAnnounceInterval * 500
 	proxy.connspec = fmt.Sprintf("beepish+tls://%s:%d", serv.listenerIP.To4().String(), serv.listenerPort)

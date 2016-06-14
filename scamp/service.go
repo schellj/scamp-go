@@ -29,6 +29,7 @@ type ServiceAction struct {
 
 type Service struct {
 	serviceSpec   string
+	sector        string
 	name          string
 	humanName     string
 
@@ -52,13 +53,14 @@ type Service struct {
 	connectionsAccepted uint64
 }
 
-func NewService(serviceSpec string, humanName string) (serv *Service, err error){
+func NewService(sector string, serviceSpec string, humanName string) (serv *Service, err error){
 	if len(humanName) > 18 {
 		err = fmt.Errorf("name `%s` is too long, must be less than 18 bytes", humanName)
 		return
 	}
 
 	serv = new(Service)
+	serv.sector = sector
 	serv.serviceSpec = serviceSpec
 	serv.humanName = humanName
 	serv.generateRandomName()
