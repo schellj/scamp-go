@@ -53,7 +53,9 @@ func LocalMulticastPacketConn() (conn *ipv4.PacketConn, err error) {
 
   // TODO fundamentally change how multicast is sent. I can't get the API to work
   // without creating a listener socket first but I shouldn't need it.
-  localMulticastSpec := "127.0.0.1:5556"
+  // Had issues with running multiple services (heka and sdk_service) so I'm
+  // going to the let the OS pick the port. `127.0.0.1:5556` used to work!
+  localMulticastSpec := "127.0.0.1:"
   Trace.Printf("announce binding to port: `%s`", localMulticastSpec)
   udpConn, err := net.ListenPacket("udp", localMulticastSpec)
   if err != nil {
