@@ -167,7 +167,7 @@ func ServiceAsServiceProxy(serv *Service) (proxy *ServiceProxy) {
 		actionDotIndex := strings.LastIndex(classAndActionName, ".")
 		// TODO: this is the only spot that could fail? shouldn't happen in any usage...
 		if actionDotIndex == -1 {
-			panic("bad action name")
+			panic(fmt.Sprintf("bad action name: `%s` (no dot found)", classAndActionName))
 		}
 		className := classAndActionName[0:actionDotIndex]
 		actionName := classAndActionName[actionDotIndex+1:len(classAndActionName)]
