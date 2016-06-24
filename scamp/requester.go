@@ -30,6 +30,9 @@ func MakeJsonRequest(sector, action string, version int, msg *Message) (response
     return
   }
 
+  msg.SetAction(action)
+  msg.SetVersion(int64(version))
+
   // TODO: shuffle serviceProxies
 
   sent := false

@@ -22,13 +22,14 @@ const (
 type PacketHeader struct {
 	Action   string         `json:"action"`   // request
 	Envelope envelopeFormat `json:"envelope"` // request
-	// ErrorStr string      `json:"error"`            // reply
-	// error_code []byte    `json:"error_code"`   // reply
+	Error string            `json:"error,omitempty"`            // reply
+	ErrorCode string        `json:"error_code,omitempty"`   // reply
 	RequestId int           `json:"request_id"` // both
-	// station []byte       `json:"station"`         // request
-	// ticket []byte        `json:"ticket"`           // request
+	Ticket string           `json:"ticket"`           // request
+	IdentifyTicket string   `json:"identifying_ticket"`
 	MessageType messageType `json:"type"`    // both
 	Version     int64       `json:"version"` // request
+	ApiKey string           `json:"apikey,omitempty"`
 }
 
 var envelope_json_bytes = []byte(`"json"`)

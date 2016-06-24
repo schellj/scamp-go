@@ -161,8 +161,8 @@ func (pkt *Packet) Write(writer io.Writer) (written int, err error) {
 	}
 
 	bodyBytes := bodyBuf.Bytes()
-	Trace.Printf("writing pkt: (%d, `%s`)", pkt.msgNo, packetTypeBytes)
-	Trace.Printf("packet_body: `%s`", bodyBytes)
+	Info.Printf("writing pkt: (%d, `%s`)", pkt.msgNo, packetTypeBytes)
+	Info.Printf("packet_body: `%s`", bodyBytes)
 
 	headerBytesWritten, err := fmt.Fprintf(writer, "%s %d %d\r\n", packetTypeBytes, pkt.msgNo, len(bodyBytes))
 	written = written + headerBytesWritten

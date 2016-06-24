@@ -111,6 +111,7 @@ func (cache *ServiceCache) Retrieve( ident string ) ( instance *ServiceProxy ) {
 
 func (cache *ServiceCache) SearchByAction(sector, action string, version int, envelope string) (instances []*ServiceProxy) {
 	mungedName := fmt.Sprintf("%s:%s~%d#%s", sector, action, version, envelope)
+
 	return cache.actionIndex[mungedName]
 }
 
@@ -171,8 +172,7 @@ func (cache *ServiceCache) Refresh() (err error) {
 func (cache *ServiceCache)DoScan(s *bufio.Scanner) (err error) {
 	cache.clearNoLock()
 
-
-	var entries int = 0
+	// var entries int = 0
 	// Scan through buf by lines according to this basic ABNF
 	// (SLOP* SEP CLASSRECORD NL CERT NL SIG NL NL)*
 	var classRecordsRaw, certRaw, sigRaw []byte
@@ -249,7 +249,7 @@ func (cache *ServiceCache)DoScan(s *bufio.Scanner) (err error) {
 		cache.storeNoLock(serviceProxy)
 	}
 
-	fmt.Println("entries:", entries)
+	// fmt.Println("entries:", entries)
 
 	return
 }

@@ -15,6 +15,12 @@ type Message struct {
   MessageType messageType
   packets []*Packet
   bytesWritten uint64
+
+  Ticket string
+  IdentifyingTicket string
+
+  Error string
+  ErrorCode string
 }
 
 
@@ -53,6 +59,30 @@ func (msg *Message)SetMessageType(mtype messageType) {
 
 func (msg *Message)SetRequestId(requestId int) {
   msg.RequestId = requestId
+}
+
+func (msg *Message)SetTicket(ticket string) {
+  msg.Ticket = ticket
+}
+
+func (msg *Message)SetIdentifyingTicket(ticket string) {
+  msg.IdentifyingTicket = ticket
+}
+
+func (msg *Message)SetError(err string) {
+  msg.Error = err
+}
+
+func (msg *Message)SetErrorCode(errCode string) {
+  msg.ErrorCode = errCode
+}
+
+func (msg *Message)GetError() (err string) {
+  return msg.Error
+}
+
+func (msg *Message)GetErrorCode() (errCode string) {
+  return msg.ErrorCode
 }
 
 func (msg *Message)Write(blob []byte) (n int, err error){
@@ -110,8 +140,9 @@ func (msg *Message)toPackets(msgNo uint64) ([]*Packet) {
     Version:     msg.Version,
     RequestId:   msg.RequestId, // TODO: nope, can't do this
     MessageType: msg.MessageType,
+    Ticket:      msg.Ticket,
   }
-  
+
   headerPacket := Packet {
     packetHeader: headerHeader,
     packetType:   HEADER,

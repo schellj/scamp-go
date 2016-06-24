@@ -315,7 +315,7 @@ func NewServiceProxy(classRecordsRaw []byte, certRaw []byte, sigRaw []byte) (pro
 			// as a string.
 			if len(actionsRawMessages) < 3 {
 				// TODO: safe to assume a version-less thing is version 0?
-				classes[i].actions[j].version = 0
+				classes[i].actions[j].version = 1
 			} else {
 				err = json.Unmarshal(actionsRawMessages[2], &classes[i].actions[j].version)
 				if err != nil {
