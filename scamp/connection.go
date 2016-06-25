@@ -173,6 +173,7 @@ func (conn *Connection) routePacket(pkt *Packet) (err error) {
 				msg.SetRequestId(pkt.packetHeader.RequestId)
 				msg.SetError(pkt.packetHeader.Error)
 				msg.SetErrorCode(pkt.packetHeader.ErrorCode)
+				msg.SetTicket(pkt.packetHeader.Ticket)
 				// TODO: Do we need the requestId?
 
 				conn.pktToMsg[IncomingMsgNo(pkt.msgNo)] = msg

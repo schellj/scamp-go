@@ -17,7 +17,7 @@ type Message struct {
   bytesWritten uint64
 
   Ticket string
-  IdentifyingTicket string
+  IdentifyingToken string
 
   Error string
   ErrorCode string
@@ -65,8 +65,8 @@ func (msg *Message)SetTicket(ticket string) {
   msg.Ticket = ticket
 }
 
-func (msg *Message)SetIdentifyingTicket(ticket string) {
-  msg.IdentifyingTicket = ticket
+func (msg *Message)SetIdentifyingToken(token string) {
+  msg.IdentifyingToken = token
 }
 
 func (msg *Message)SetError(err string) {
@@ -83,6 +83,14 @@ func (msg *Message)GetError() (err string) {
 
 func (msg *Message)GetErrorCode() (errCode string) {
   return msg.ErrorCode
+}
+
+func (msg *Message)GetTicket() (ticket string) {
+  return msg.Ticket
+}
+
+func (msg *Message)GetIdentifyingToken() (token string) {
+  return msg.IdentifyingToken
 }
 
 func (msg *Message)Write(blob []byte) (n int, err error){
@@ -135,12 +143,13 @@ func (msg *Message)BytesWritten() (uint64) {
 
 func (msg *Message)toPackets(msgNo uint64) ([]*Packet) {
   headerHeader := PacketHeader{
-    Action:      msg.Action,
-    Envelope:    msg.Envelope,
-    Version:     msg.Version,
-    RequestId:   msg.RequestId, // TODO: nope, can't do this
-    MessageType: msg.MessageType,
-    Ticket:      msg.Ticket,
+    Action:           msg.Action,
+    Envelope:         msg.Envelope,
+    Version:          msg.Version,
+    RequestId:        msg.RequestId, // TODO: nope, can't do this
+    MessageType:      msg.MessageType,
+    Ticket:           msg.GetTicket(),
+    IdentifyingToken: msg.GetIdentifyingToken(),
   }
 
   headerPacket := Packet {

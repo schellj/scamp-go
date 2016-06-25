@@ -111,7 +111,7 @@ func ReadPacket(reader *bufio.ReadWriter) (pkt *Packet, err error) {
 }
 
 func (pkt *Packet) parseHeader() (err error) {
-	Trace.Printf("parsing header (%s)", pkt.body)
+	Trace.Printf("PARSING HEADER (%s)", pkt.body)
 	err = json.Unmarshal(pkt.body, &pkt.packetHeader)
 	if err != nil {
 		return
@@ -161,8 +161,8 @@ func (pkt *Packet) Write(writer io.Writer) (written int, err error) {
 	}
 
 	bodyBytes := bodyBuf.Bytes()
-	Info.Printf("writing pkt: (%d, `%s`)", pkt.msgNo, packetTypeBytes)
-	Info.Printf("packet_body: `%s`", bodyBytes)
+	Trace.Printf("writing pkt: (%d, `%s`)", pkt.msgNo, packetTypeBytes)
+	Trace.Printf("packet_body: `%s`", bodyBytes)
 
 	headerBytesWritten, err := fmt.Fprintf(writer, "%s %d %d\r\n", packetTypeBytes, pkt.msgNo, len(bodyBytes))
 	written = written + headerBytesWritten

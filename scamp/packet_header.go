@@ -26,10 +26,9 @@ type PacketHeader struct {
 	ErrorCode string        `json:"error_code,omitempty"`   // reply
 	RequestId int           `json:"request_id"` // both
 	Ticket string           `json:"ticket"`           // request
-	IdentifyTicket string   `json:"identifying_ticket"`
+	IdentifyingToken string `json:"identifying_token"`
 	MessageType messageType `json:"type"`    // both
 	Version     int64       `json:"version"` // request
-	ApiKey string           `json:"apikey,omitempty"`
 }
 
 var envelope_json_bytes = []byte(`"json"`)
