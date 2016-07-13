@@ -41,7 +41,7 @@ type Connection struct {
 // TODO: You must use the *connection.Fingerprint to verify the
 // remote host
 func DialConnection(connspec string) (conn *Connection, err error) {
-	Trace.Printf("dialing connection to `%s`", connspec)
+	Info.Printf("dialing connection to `%s`", connspec)
 	config := &tls.Config{
 		InsecureSkipVerify: true,
 	}
@@ -51,9 +51,9 @@ func DialConnection(connspec string) (conn *Connection, err error) {
 	if err != nil {
 		return
 	}
-
+	Info.Printf("Past TLS")
 	conn = NewConnection(tlsConn,"client")
-	
+
 	return
 }
 
@@ -229,7 +229,7 @@ func (conn *Connection)Send(msg *Message) (err error) {
 		err = fmt.Errorf("must specify `ReqestId` on msg before sending")
 		return
 	}
-	
+
 	outgoingmsgno := atomic.LoadUint64((*uint64)(&conn.outgoingmsgno))
 	atomic.AddUint64((*uint64)(&conn.outgoingmsgno),1)
 

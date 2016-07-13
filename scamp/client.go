@@ -21,7 +21,7 @@ type Client struct {
 }
 
 func Dial(connspec string) (client *Client, err error){
-  Trace.Printf("connecting to `%s`", connspec)
+  Info.Printf("connecting to `%s`", connspec)
 
   conn,err := DialConnection(connspec)
   if err != nil {
@@ -41,7 +41,7 @@ func NewClient(conn *Connection) (client *Client){
   client.openReplies = make(map[int]MessageChan)
 
   conn.SetClient(client)
-  
+
   go client.splitReqsAndReps()
 
   return
@@ -51,7 +51,7 @@ func (client *Client)SetService(serv *Service) {
   client.serv = serv
 }
 
-func (client *Client)Send(msg *Message) (responseChan MessageChan, err error){ 
+func (client *Client)Send(msg *Message) (responseChan MessageChan, err error){
   client.sendM.Lock()
   defer client.sendM.Unlock()
 
