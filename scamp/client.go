@@ -51,6 +51,9 @@ func (client *Client)SetService(serv *Service) {
   client.serv = serv
 }
 
+// TODO: would be nice to have different code path for scamp responses
+// so that we don't need to rely on garbage collection of channels
+// when we're replying and don't expect or need a response
 func (client *Client)Send(msg *Message) (responseChan MessageChan, err error){
   client.sendM.Lock()
   defer client.sendM.Unlock()
