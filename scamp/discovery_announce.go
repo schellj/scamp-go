@@ -38,7 +38,7 @@ func (announcer *DiscoveryAnnouncer)Track(serv *Service){
 
 func (announcer *DiscoveryAnnouncer)AnnounceLoop() {
   Trace.Printf("starting announcer loop")
-
+  Error.Printf("starting announcer loop")
   for {
     select {
     case <- announcer.stopSig:
@@ -58,6 +58,7 @@ func (announcer *DiscoveryAnnouncer)doAnnounce() (err error){
       Error.Printf("failed to marshal service as text: `%s`. skipping.", err)
     }
 
+    Error.Printf("service addr: ", announcer.multicastDest)
     _,err = announcer.multicastConn.WriteTo(serviceDesc, nil, announcer.multicastDest)
     if err != nil {
       return err
