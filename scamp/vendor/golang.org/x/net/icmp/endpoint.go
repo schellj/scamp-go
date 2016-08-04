@@ -66,7 +66,7 @@ func (c *PacketConn) WriteTo(b []byte, dst net.Addr) (int, error) {
 	if !c.ok() {
 		return 0, syscall.EINVAL
 	}
-    Error.Printf("WriteTo net.Addr: ", net.Addr)
+    log.Printf("WriteTo net.Addr: ", net.Addr)
 	return c.c.WriteTo(b, dst)
 }
 
