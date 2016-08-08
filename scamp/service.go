@@ -122,7 +122,7 @@ func (serv *Service)listen() (err error) {
   serv.listenerIP, err = IPForAnnouncePacket()
   Trace.Printf("serv.listenerIP: `%s`", serv.listenerIP)
   Info.Printf("serv.listenerIP(before): `%s`", serv.listenerIP)
-  serv.listenerIP = "127.0.0.1"
+  serv.listenerIP = net.ParseIP("127.0.0.1"),
   Info.Printf("serv.listenerIP(after): `%s`", serv.listenerIP)
   if err != nil {
   	return
