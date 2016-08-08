@@ -57,6 +57,8 @@ func LocalMulticastPacketConn() (conn *ipv4.PacketConn, err error) {
   // going to the let the OS pick the port. `127.0.0.1:5556` used to work!
   localMulticastSpec := "127.0.0.1:"
   Trace.Printf("announce binding to port: `%s`", localMulticastSpec)
+  Info.Printf("announce binding to port: `%s`", localMulticastSpec) //TODO: remove after debug
+
   udpConn, err := net.ListenPacket("udp", localMulticastSpec)
   if err != nil {
     Error.Printf("could not listen to `%s`", localMulticastSpec)
@@ -96,7 +98,7 @@ func IPForAnnouncePacket() (ip net.IP, err error) {
       }
       break
     }
-
+    Info.Printf("IP: %s", ip) //TODO:remove
     if ip != nil {
       break
     }
