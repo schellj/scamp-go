@@ -59,7 +59,7 @@ func (announcer *DiscoveryAnnouncer)doAnnounce() (err error){
     }
     // Info.Printf("serviceDesc: %s", serviceDesc)
     Info.Printf("multicastDest: %s", announcer.multicastDest)
-    Info.Printf("announcer.multicastConn: %s", announcer.multicastConn)
+    Info.Printf("announcer.multicastConn: %s", string(announcer.multicastConn) )
     _,err = announcer.multicastConn.WriteTo(serviceDesc, nil, announcer.multicastDest)
     if err != nil {
       return err
