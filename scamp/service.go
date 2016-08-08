@@ -121,10 +121,13 @@ func (serv *Service)listen() (err error) {
   // serv.listenerIP = serv.listener.Addr().(*net.TCPAddr).IP
   serv.listenerIP, err = IPForAnnouncePacket()
   Trace.Printf("serv.listenerIP: `%s`", serv.listenerIP)
+  Info.Printf("serv.listenerIP(before): `%s`", serv.listenerIP)
+  serv.listenerIP = "127.0.0.1"
+  Info.Printf("serv.listenerIP(after): `%s`", serv.listenerIP)
   if err != nil {
   	return
   }
-  
+
 	serv.listenerPort = serv.listener.Addr().(*net.TCPAddr).Port
 
 	return
@@ -224,13 +227,13 @@ func (serv *Service)Handle(client *Client) {
 	serv.RemoveClient(client)
 
 	Trace.Printf("done handling client")
-	
+
 }
 
 func (serv *Service)RemoveClient(client *Client) (err error){
 	serv.clientsM.Lock()
 	defer serv.clientsM.Unlock()
-	
+
 	index := -1
 	for i,entry := range serv.clients {
 		if client == entry {
