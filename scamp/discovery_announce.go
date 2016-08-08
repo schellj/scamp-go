@@ -19,7 +19,7 @@ func NewDiscoveryAnnouncer() (announcer *DiscoveryAnnouncer, err error) {
 
   config := DefaultConfig()
   announcer.multicastDest = &net.UDPAddr{IP: config.DiscoveryMulticastIP(), Port: config.DiscoveryMulticastPort()}
-
+  // announcer.multicastDest = &net.UDPAddr{IP: 127.0.0.1, Port: config.DiscoveryMulticastPort()}
   announcer.multicastConn,err = LocalMulticastPacketConn()
   if err != nil {
     return
@@ -57,8 +57,9 @@ func (announcer *DiscoveryAnnouncer)doAnnounce() (err error){
     if err != nil {
       Error.Printf("failed to marshal service as text: `%s`. skipping.", err)
     }
-    Info.Printf("serviceDesc: %s", serviceDesc)
+    // Info.Printf("serviceDesc: %s", serviceDesc)
     Info.Printf("multicastDest: %s", announcer.multicastDest)
+    Info.Printf("announcer.multicastConn: %s", announcer.multicastConn)
     _,err = announcer.multicastConn.WriteTo(serviceDesc, nil, announcer.multicastDest)
     if err != nil {
       return err
