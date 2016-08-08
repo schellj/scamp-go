@@ -89,6 +89,7 @@ func IPForAnnouncePacket() (ip net.IP, err error) {
 
     for _,addr := range addrs {
       ip,_,err = net.ParseCIDR(addr.String())
+      Info.Printf("address: %s", addr.String())
       if err != nil {
         Error.Printf("ParseCIDR err: `%s`\n", err)
         continue
