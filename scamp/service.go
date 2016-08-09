@@ -131,7 +131,8 @@ func (serv *Service)listen() (err error) {
 
 	return
 }
-
+// TODO Register must handle name registration better, currenty appends everything before the last dot "."
+//  infornt of all actions
 func (serv *Service)Register(name string, callback ServiceActionFunc) (err error) {
 	if serv.isRunning {
 		err = errors.New("cannot register handlers while server is running")
@@ -142,7 +143,7 @@ func (serv *Service)Register(name string, callback ServiceActionFunc) (err error
 		callback: callback,
 		version: 1,
 	}
-
+    Info.Printf("actions: %+v", &ServiceAction)
 	return
 }
 
