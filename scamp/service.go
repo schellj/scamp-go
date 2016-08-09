@@ -143,7 +143,7 @@ func (serv *Service)Register(name string, callback ServiceActionFunc) (err error
 		callback: callback,
 		version: 1,
 	}
-    Info.Printf("actions: %+v", &ServiceAction)
+    Info.Printf("actions: %+v", serv.actions)
 	return
 }
 
