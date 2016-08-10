@@ -273,7 +273,7 @@ func (serv *Service)MarshalText() (b []byte, err error){
 		return
 	}
     Info.Printf("\nclassRecord: %+v\n", classRecord)
-    
+
 	sig, err := SignSHA256(classRecord, serv.cert.PrivateKey.(*rsa.PrivateKey))
 	if err != nil {
 		return
@@ -293,6 +293,7 @@ func (serv *Service)MarshalText() (b []byte, err error){
 	buf.WriteString("\n")
 
 	b = buf.Bytes()
+    Info.Printf("\n\nbuffer: %s\n\n", string(b))
 	return
 }
 
