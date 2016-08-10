@@ -1,7 +1,7 @@
 package scamp
 
 import (
-  "encoding/json"
+  // "encoding/json"
   "encoding/pem"
   "crypto/x509"
   "crypto/rsa"
