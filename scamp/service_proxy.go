@@ -188,17 +188,19 @@ func ServiceAsServiceProxy(serv *Service) (proxy *ServiceProxy) {
         // Info.Printf("\nnewServiceProxyClass: %+v\n", newServiceProxyClass)
 
 		proxy.classes = append(proxy.classes, newServiceProxyClass)
-        Info.Printf("proxy.classes: %+v", proxy.classes)
+
 	}
 
-	timestamp,err := Gettimeofday()
+    Info.Printf("proxy.classes: %+v", proxy.classes)
+
+    timestamp,err := Gettimeofday()
 	if err != nil {
 		Error.Printf("error with high-res timestamp: `%s`", err)
 		return nil
 	}
 	proxy.timestamp = timestamp
 
-    Info.Printf("\nproxy: %+v\n", newServiceProxyClass)
+    Info.Printf("\nproxy: %+v\n", proxy)
 	return
 }
 

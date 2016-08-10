@@ -275,7 +275,7 @@ func (serv *Service)MarshalText() (b []byte, err error){
 		return
 	}
     Info.Printf("\nclassRecord JSON: %s\n", classRecord)
-    
+
 	sig, err := SignSHA256(classRecord, serv.cert.PrivateKey.(*rsa.PrivateKey))
 	if err != nil {
 		return
