@@ -53,6 +53,9 @@ func (announcer *DiscoveryAnnouncer)AnnounceLoop() {
 
 func (announcer *DiscoveryAnnouncer)doAnnounce() (err error){
   for _,serv := range announcer.services {
+
+    Info.Printf("\n\nserv: %+v\n\n", serv)
+
     serviceDesc,err := serv.MarshalText()
     if err != nil {
       Error.Printf("failed to marshal service as text: `%s`. skipping.", err)
