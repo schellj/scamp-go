@@ -424,22 +424,44 @@ func (proxy *ServiceProxy)MarshalJSON() (b []byte, err error) {
   //
   // Serialize actions in this format:
   // 	["bgdispatcher",["poll","",1],["reboot","",1],["report","",1]]
-  classSpecs := make([][]interface{}, len(proxy.classes), len(proxy.classes))
-  for i,class := range proxy.classes {
-  	entry := make([]interface{}, 1+len(class.actions), 1+len(class.actions))
-  	entry[0] = &class.className
-  	for j,action := range class.actions {
-  		actions := make([]interface{},3,3)
+  // classSpecs := make([][]interface{}, len(proxy.classes), len(proxy.classes))
+  // for i,class := range proxy.classes {
+  // 	entry := make([]interface{}, 1+len(class.actions), 1+len(class.actions))
+  // 	entry[0] = &class.className
+  // 	for j,action := range class.actions {
+  // 		actions := make([]interface{},3,3)
+  //
+  // 		actionNameCopy := make([]byte, len(action.actionName))
+  // 		copy(actionNameCopy, action.actionName)
+  // 		actions[0] = string(actionNameCopy)
+  // 		actions[1] = &action.crudTags
+  // 		actions[2] = &action.version
+  // 		entry[j+1] = &actions
+  // 	}
+  //
+  // 	classSpecs[i] = entry
+  // }
+  // arr[7] = &classSpecs
 
-  		actionNameCopy := make([]byte, len(action.actionName))
-  		copy(actionNameCopy, action.actionName)
-  		actions[0] = string(actionNameCopy)
-  		actions[1] = &action.crudTags
-  		actions[2] = &action.version
-  		entry[j+1] = &actions
-  	}
-
-  	classSpecs[i] = entry
+  // type ServiceProxyClass struct {
+  // 	className string
+  // 	actions []ActionDescription
+  // }
+  //TODO: redo classes and actions
+  classSpecs := make([]ServiceProxyClass, len(proxy.classes), (cap(proxy.classes)+1)*2)
+  for i := range proxy.classes {
+      var newClass ServiceProxyClass
+      newClass.className = proxy.classes[i].className
+      newClass.actions = make([]ActionDescription, len(proxy.classes[i].actions), (cap(proxy.classes[i].actions)+1)*2)
+      for j := range proxy.classes[i].actions {
+          var action ActionDescription
+          actionToCopy := proxy.classes[i].actions[j]
+          action.actionName = actionToCopy.actionName
+          action.crudTags = actionToCopy.crudTags
+          action.version = actionToCopy.version
+          newClass.actions[j] = actionToCopy
+      }
+      classSpecs[i] = newClass
   }
   arr[7] = &classSpecs
 
