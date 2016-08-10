@@ -53,14 +53,10 @@ func (announcer *DiscoveryAnnouncer)AnnounceLoop() {
 
 func (announcer *DiscoveryAnnouncer)doAnnounce() (err error){
   for _,serv := range announcer.services {
-
-    Info.Printf("\n\nserv: %+v\n\n", serv)
-
     serviceDesc,err := serv.MarshalText()
     if err != nil {
       Error.Printf("failed to marshal service as text: `%s`. skipping.", err)
     }
-    Info.Printf("\nserviceDesc: %s\n", serviceDesc)
     // Info.Printf("multicastDest: %s", announcer.multicastDest)
     _,err = announcer.multicastConn.WriteTo(serviceDesc, nil, announcer.multicastDest)
     if err != nil {

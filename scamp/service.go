@@ -275,8 +275,8 @@ func (serv *Service)MarshalText() (b []byte, err error){
 		return
 	}
     Info.Printf("\nclassRecord JSON: %s\n", classRecord)
-
-	sig, err := SignSHA256(classRecord, serv.cert.PrivateKey.(*rsa.PrivateKey))
+    classRecord2 := `'[3,"sdk_service-KdhNHkxWGxURvzIxV+M1IuYF","channelmodule",1,2500,"beepish+tls://127.0.0.1:48386",["json"],[["SDK.orderpull”,[“order_fetch","",1]],["SDK.inventory",["invpush_transmit","",1]]],1470865574.128266]'`
+	sig, err := SignSHA256(classRecord2, serv.cert.PrivateKey.(*rsa.PrivateKey))
 	if err != nil {
 		return
 	}
