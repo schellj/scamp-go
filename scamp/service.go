@@ -282,7 +282,7 @@ func (serv *Service)MarshalText() (b []byte, err error){
 	}
 	sigParts := stringToRows(sig, 76)
 
-	buf.Write(classRecord)
+	buf.Write(classRecord2)
 	buf.WriteString("\n\n")
 	buf.Write(serv.pemCert)
 	buf.WriteString("\n\n")
