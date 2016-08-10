@@ -468,7 +468,7 @@ func (proxy *ServiceProxy)MarshalJSON() (b []byte, err error) {
   if err != nil {
       Info.Printf("err: %s", err)
   }
-  Info.Printf("\n\nclassSpecs: %s", string(test.bytes()))
+  Info.Printf("\n\nclassSpecs: %s\n\n", test)
 
   arr[8] = &proxy.timestamp
 
