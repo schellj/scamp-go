@@ -448,11 +448,11 @@ func (proxy *ServiceProxy)MarshalJSON() (b []byte, err error) {
   // 	actions []ActionDescription
   // }
   //TODO: redo classes and actions
-  classSpecs := make([]ServiceProxyClass, len(proxy.classes), (cap(proxy.classes)+1)*2)
-  for i := range &proxy.classes {
+  classSpecs := make([]interface{}, len(proxy.classes), (cap(proxy.classes)+1))
+  for i := range proxy.classes {
       var newClass ServiceProxyClass
       newClass.className = proxy.classes[i].className
-      newClass.actions = make([]ActionDescription, len(proxy.classes[i].actions), (cap(proxy.classes[i].actions)+1)*2)
+      newClass.actions = make([]interface{},3,3)
       for j := range proxy.classes[i].actions {
           var action ActionDescription
           actionToCopy := proxy.classes[i].actions[j]
