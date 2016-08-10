@@ -464,7 +464,7 @@ func (proxy *ServiceProxy)MarshalJSON() (b []byte, err error) {
       classSpecs[i] = newClass
   }
   arr[7] = &classSpecs
-  err,test := json.Marshal(arr[7])
+  test,err := json.Marshal(arr[7])
   if err != nil {
       Info.Printf("err: %s", err)
   }
