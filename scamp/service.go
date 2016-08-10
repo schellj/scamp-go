@@ -67,7 +67,7 @@ func NewService(sector string, serviceSpec string, humanName string) (serv *Serv
 
 	serv.actions = make(map[string]*ServiceAction)
     Info.Printf("NewService.Actions: %+v", serv.actions)
-    
+
 	crtPath := defaultConfig.ServiceCertPath(serv.humanName)
 	keyPath := defaultConfig.ServiceKeyPath(serv.humanName)
 
@@ -276,6 +276,7 @@ func (serv *Service)MarshalText() (b []byte, err error){
 		return
 	}
 	sigParts := stringToRows(sig, 76)
+    Info.Printf("\nsigParts :%+v \n", sigParts)
 
 	buf.Write(classRecord)
 	buf.WriteString("\n\n")
