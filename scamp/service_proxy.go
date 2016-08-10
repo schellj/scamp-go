@@ -449,17 +449,16 @@ func (proxy *ServiceProxy)MarshalJSON() (b []byte, err error) {
   // }
   //TODO: redo classes and actions
   classSpecs := make([]ServiceProxyClass, len(proxy.classes), (cap(proxy.classes)+1)*2)
-  for i := range proxy.classes {
+  for i,class := range proxy.classes {
       var newClass ServiceProxyClass
-      newClass.className = proxy.classes[i].className
-      newClass.actions = make([]ActionDescription, 3, 3)
-      for j := range proxy.classes[i].actions {
-          var action ActionDescription
-          actionToCopy := proxy.classes[i].actions[j]
-          action.actionName = actionToCopy.actionName
-          action.crudTags = actionToCopy.crudTags
-          action.version = actionToCopy.version
-          newClass.actions[j] = action
+      newClass.className = class.className
+      newClass.actions = make([]ActionDescription, len(proxy.classes[i].actions), cap(proxy.classes[i].actions)+1)
+      for j,action := range proxy.classes[i].actions {
+          var newAction ActionDescription
+          newAction.actionName = action.actionName
+          newAction.crudTags = action.crudTags
+          newAction.version = action.version
+          newClass.actions[j] = newAction
       }
       classSpecs[i] = newClass
   }
@@ -468,7 +467,7 @@ func (proxy *ServiceProxy)MarshalJSON() (b []byte, err error) {
   if err != nil {
       Info.Printf("err: %s", err)
   }
-  Info.Printf("\n\nclassSpecs: %s\n\n", test)
+  Info.Printf("\nTEST: %s\n\n", test)
 
   arr[8] = &proxy.timestamp
 

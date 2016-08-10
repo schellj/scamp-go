@@ -146,7 +146,6 @@ func (serv *Service)Register(name string, callback ServiceActionFunc) (err error
 		callback: callback,
 		version: 1,
 	}
-    Info.Printf("\nactions: %+v\n", serv.actions)
 	return
 }
 
