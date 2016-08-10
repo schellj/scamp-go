@@ -188,6 +188,7 @@ func ServiceAsServiceProxy(serv *Service) (proxy *ServiceProxy) {
         Info.Printf("\nnewServiceProxyClass: %+v\n", newServiceProxyClass)
 
 		proxy.classes = append(proxy.classes, newServiceProxyClass)
+        info.Printf("proxy.classes: %+v", proxy.classes)
 	}
 
 	timestamp,err := Gettimeofday()

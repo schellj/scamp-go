@@ -266,6 +266,8 @@ func (serv *Service)MarshalText() (b []byte, err error){
 	var buf bytes.Buffer
 
 	serviceProxy := ServiceAsServiceProxy(serv)
+    Info.Printf("serviceProxy: %+v", serviceProxy)
+    
 	classRecord,err := json.Marshal(&serviceProxy)
 	if err != nil {
 		return
@@ -276,7 +278,6 @@ func (serv *Service)MarshalText() (b []byte, err error){
 		return
 	}
 	sigParts := stringToRows(sig, 76)
-    Info.Printf("\nsigParts :%+v \n", sigParts)
 
 	buf.Write(classRecord)
 	buf.WriteString("\n\n")
