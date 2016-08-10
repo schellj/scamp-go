@@ -266,13 +266,14 @@ func (serv *Service)MarshalText() (b []byte, err error){
 	var buf bytes.Buffer
 
 	serviceProxy := ServiceAsServiceProxy(serv)
-    Info.Printf("serviceProxy: %+v", serviceProxy)
-    
+    Info.Printf("\nserviceProxy: %+v\n", serviceProxy)
+
 	classRecord,err := json.Marshal(&serviceProxy)
 	if err != nil {
 		return
 	}
-
+    Info.Printf("\nclassRecord: %+v\n", classRecord)
+    
 	sig, err := SignSHA256(classRecord, serv.cert.PrivateKey.(*rsa.PrivateKey))
 	if err != nil {
 		return
