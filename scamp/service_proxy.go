@@ -170,7 +170,7 @@ func ServiceAsServiceProxy(serv *Service) (proxy *ServiceProxy) {
 			panic(fmt.Sprintf("bad action name: `%s` (no dot found)", classAndActionName))
 		}
 		className := classAndActionName[0:actionDotIndex]
-        Info.Printf("\nclassName: %s", className) 
+        Info.Printf("\nclassName: %s", className)
 
 		actionName := classAndActionName[actionDotIndex+1:len(classAndActionName)]
         Info.Printf("actionName: %s\n", actionName)
@@ -179,11 +179,13 @@ func ServiceAsServiceProxy(serv *Service) (proxy *ServiceProxy) {
 			className: className,
 			actions: make([]ActionDescription, 0),
 		}
+
 		newServiceProxyClass.actions = append(newServiceProxyClass.actions, ActionDescription {
 			actionName: actionName,
 			crudTags: serviceAction.crudTags,
 			version: serviceAction.version,
 		})
+        Info.Printf("\nnewServiceProxyClass: %+v\n", newServiceProxyClass)
 
 		proxy.classes = append(proxy.classes, newServiceProxyClass)
 	}
