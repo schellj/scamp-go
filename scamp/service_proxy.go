@@ -185,7 +185,7 @@ func ServiceAsServiceProxy(serv *Service) (proxy *ServiceProxy) {
 			crudTags: serviceAction.crudTags,
 			version: serviceAction.version,
 		})
-        Info.Printf("\nnewServiceProxyClass: %+v\n", newServiceProxyClass)
+        // Info.Printf("\nnewServiceProxyClass: %+v\n", newServiceProxyClass)
 
 		proxy.classes = append(proxy.classes, newServiceProxyClass)
         Info.Printf("proxy.classes: %+v", proxy.classes)
@@ -198,6 +198,7 @@ func ServiceAsServiceProxy(serv *Service) (proxy *ServiceProxy) {
 	}
 	proxy.timestamp = timestamp
 
+    Info.Printf("\nproxy: %+v\n", newServiceProxyClass)
 	return
 }
 

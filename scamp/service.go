@@ -122,8 +122,10 @@ func (serv *Service)listen() (err error) {
   // serv.listenerIP = serv.listener.Addr().(*net.TCPAddr).IP
   serv.listenerIP, err = IPForAnnouncePacket()
   Trace.Printf("serv.listenerIP: `%s`", serv.listenerIP)
+
+  //TODO: remove in production! This is used to force local host in dev
   serv.listenerIP = net.ParseIP("127.0.0.1")
-  Info.Printf("serv.listenerIP(after): %s", serv.listenerIP)
+  // Info.Printf("serv.listenerIP(after): %s", serv.listenerIP)
   if err != nil {
   	return
   }
@@ -266,14 +268,14 @@ func (serv *Service)MarshalText() (b []byte, err error){
 	var buf bytes.Buffer
 
 	serviceProxy := ServiceAsServiceProxy(serv)
-    Info.Printf("\nserviceProxy: %+v\n", serviceProxy)
+    Info.Printf("\nserviceProxy: %s\n", serviceProxy)
 
-	classRecord,err := json.Marshal(&serviceProxy)
+	classRecord,err := json.Marshal(&serviceProxy) //Marshal is mangling service actions
 	if err != nil {
 		return
 	}
     Info.Printf("\nclassRecord JSON: %s\n", classRecord)
-
+    
 	sig, err := SignSHA256(classRecord, serv.cert.PrivateKey.(*rsa.PrivateKey))
 	if err != nil {
 		return
