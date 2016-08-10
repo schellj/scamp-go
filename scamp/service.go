@@ -66,7 +66,8 @@ func NewService(sector string, serviceSpec string, humanName string) (serv *Serv
 	serv.generateRandomName()
 
 	serv.actions = make(map[string]*ServiceAction)
-
+    Info.Printf("NewService.Actions: %+v", serv.actions)
+    
 	crtPath := defaultConfig.ServiceCertPath(serv.humanName)
 	keyPath := defaultConfig.ServiceKeyPath(serv.humanName)
 
@@ -143,7 +144,7 @@ func (serv *Service)Register(name string, callback ServiceActionFunc) (err error
 		callback: callback,
 		version: 1,
 	}
-    Info.Printf("actions: %+v", serv.actions)
+    Info.Printf("\nactions: %+v\n", serv.actions)
 	return
 }
 
