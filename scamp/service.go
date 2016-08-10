@@ -270,7 +270,7 @@ func (serv *Service)MarshalText() (b []byte, err error){
 	serviceProxy := ServiceAsServiceProxy(serv)
     Info.Printf("\nserviceProxy: %s\n", serviceProxy)
 
-	classRecord,err := json.Marshal(&serviceProxy) //Marshal is mangling service actions
+	classRecord,err := serviceProxy.MarshalJSON()//json.Marshal(&serviceProxy) //Marshal is mangling service actions
 	if err != nil {
 		return
 	}
