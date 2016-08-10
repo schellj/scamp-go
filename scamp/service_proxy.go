@@ -410,8 +410,8 @@ func (proxy *ServiceProxy)GetConnection() (client *Client, err error) {
 }
 
 func (proxy *ServiceProxy)MarshalJSON() (b []byte, err error) {
-	arr := make([]interface{},9)
-	arr[0] = &proxy.version
+  arr := make([]interface{},9)
+  arr[0] = &proxy.version
   arr[1] = &proxy.ident
   arr[2] = &proxy.sector
   arr[3] = &proxy.weight
@@ -424,50 +424,50 @@ func (proxy *ServiceProxy)MarshalJSON() (b []byte, err error) {
   //
   // Serialize actions in this format:
   // 	["bgdispatcher",["poll","",1],["reboot","",1],["report","",1]]
-  // classSpecs := make([][]interface{}, len(proxy.classes), len(proxy.classes))
-  // for i,class := range proxy.classes {
-  // 	entry := make([]interface{}, 1+len(class.actions), 1+len(class.actions))
-  // 	entry[0] = &class.className
-  // 	for j,action := range class.actions {
-  // 		actions := make([]interface{},3,3)
-  //
-  // 		actionNameCopy := make([]byte, len(action.actionName))
-  // 		copy(actionNameCopy, action.actionName)
-  // 		actions[0] = string(actionNameCopy)
-  // 		actions[1] = &action.crudTags
-  // 		actions[2] = &action.version
-  // 		entry[j+1] = &actions
-  // 	}
-  //
-  // 	classSpecs[i] = entry
-  // }
-  // arr[7] = &classSpecs
+  classSpecs := make([][]interface{}, len(proxy.classes), len(proxy.classes))
+  for i,class := range proxy.classes {
+  	entry := make([]interface{}, 1+len(class.actions), 1+len(class.actions))
+  	entry[0] = &class.className
+  	for j,action := range class.actions {
+  		actions := make([]interface{},3,3)
+
+  		actionNameCopy := make([]byte, len(action.actionName))
+  		copy(actionNameCopy, action.actionName)
+  		actions[0] = string(actionNameCopy)
+  		actions[1] = &action.crudTags
+  		actions[2] = &action.version
+  		entry[j] = &actions
+  	}
+
+  	classSpecs[i] = entry
+  }
+  arr[7] = &classSpecs
 
   // type ServiceProxyClass struct {
   // 	className string
   // 	actions []ActionDescription
   // }
-  //TODO: redo classes and actions
-  classSpecs := make([]ServiceProxyClass, len(proxy.classes), (cap(proxy.classes)+1)*2)
-  for i,class := range proxy.classes {
-      var newClass ServiceProxyClass
-      newClass.className = class.className
-      newClass.actions = make([]ActionDescription, len(proxy.classes[i].actions), cap(proxy.classes[i].actions)+1)
-      for j,action := range proxy.classes[i].actions {
-          var newAction ActionDescription
-          newAction.actionName = action.actionName
-          newAction.crudTags = action.crudTags
-          newAction.version = action.version
-          newClass.actions[j] = newAction
-      }
-      classSpecs[i] = newClass
-  }
-  arr[7] = &classSpecs
-  test,err := json.Marshal(arr[7])
-  if err != nil {
-      Info.Printf("err: %s", err)
-  }
-  Info.Printf("\nTEST: %s\n\n", test)
+  // //TODO: redo classes and actions
+  // classSpecs := make([]ServiceProxyClass, len(proxy.classes), (cap(proxy.classes)+1)*2)
+  // for i,class := range proxy.classes {
+  //     var newClass ServiceProxyClass
+  //     newClass.className = class.className
+  //     newClass.actions = make([]ActionDescription, len(proxy.classes[i].actions), cap(proxy.classes[i].actions)+1)
+  //     for j,action := range proxy.classes[i].actions {
+  //         var newAction ActionDescription
+  //         newAction.actionName = action.actionName
+  //         newAction.crudTags = action.crudTags
+  //         newAction.version = action.version
+  //         newClass.actions[j] = newAction
+  //     }
+  //     classSpecs[i] = newClass
+  // }
+  // arr[7] = &classSpecs
+  // test,err := json.Marshal(arr[7])
+  // if err != nil {
+  //     Info.Printf("err: %s", err)
+  // }
+  // Info.Printf("\nTEST: %s\n\n", test)
 
   arr[8] = &proxy.timestamp
 
