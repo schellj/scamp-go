@@ -170,7 +170,10 @@ func ServiceAsServiceProxy(serv *Service) (proxy *ServiceProxy) {
 			panic(fmt.Sprintf("bad action name: `%s` (no dot found)", classAndActionName))
 		}
 		className := classAndActionName[0:actionDotIndex]
+        Info.Prinf("\nclassName: %s", className)
+
 		actionName := classAndActionName[actionDotIndex+1:len(classAndActionName)]
+        Info.Printf("actionName: %s\n", actionName)
 
 		newServiceProxyClass := ServiceProxyClass {
 			className: className,
@@ -333,7 +336,7 @@ func NewServiceProxy(classRecordsRaw []byte, certRaw []byte, sigRaw []byte) (pro
 					classes[i].actions[j].version = int(versionInt)
 				}
 			}
-		}	
+		}
 	}
 
 	proxy.client = nil // we connect on demand
