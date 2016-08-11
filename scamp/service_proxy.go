@@ -170,10 +170,8 @@ func ServiceAsServiceProxy(serv *Service) (proxy *ServiceProxy) {
 			panic(fmt.Sprintf("bad action name: `%s` (no dot found)", classAndActionName))
 		}
 		className := classAndActionName[0:actionDotIndex]
-        Info.Printf("\nclassName: %s", className)
 
 		actionName := classAndActionName[actionDotIndex+1:len(classAndActionName)]
-        Info.Printf("actionName: %s\n", actionName)
 
 		newServiceProxyClass := ServiceProxyClass {
 			className: className,
@@ -185,13 +183,10 @@ func ServiceAsServiceProxy(serv *Service) (proxy *ServiceProxy) {
 			crudTags: serviceAction.crudTags,
 			version: serviceAction.version,
 		})
-        // Info.Printf("\nnewServiceProxyClass: %+v\n", newServiceProxyClass)
 
 		proxy.classes = append(proxy.classes, newServiceProxyClass)
 
 	}
-
-    Info.Printf("proxy.classes: %+v", proxy.classes)
 
     timestamp,err := Gettimeofday()
 	if err != nil {
@@ -200,7 +195,6 @@ func ServiceAsServiceProxy(serv *Service) (proxy *ServiceProxy) {
 	}
 	proxy.timestamp = timestamp
 
-    Info.Printf("\nproxy: %+v\n", proxy)
 	return
 }
 
@@ -442,33 +436,6 @@ func (proxy *ServiceProxy)MarshalJSON() (b []byte, err error) {
   	classSpecs[i] = entry
   }
   arr[7] = &classSpecs
-
-  // type ServiceProxyClass struct {
-  // 	className string
-  // 	actions []ActionDescription
-  // }
-  // //TODO: redo classes and actions
-  // classSpecs := make([]ServiceProxyClass, len(proxy.classes), (cap(proxy.classes)+1)*2)
-  // for i,class := range proxy.classes {
-  //     var newClass ServiceProxyClass
-  //     newClass.className = class.className
-  //     newClass.actions = make([]ActionDescription, len(proxy.classes[i].actions), cap(proxy.classes[i].actions)+1)
-  //     for j,action := range proxy.classes[i].actions {
-  //         var newAction ActionDescription
-  //         newAction.actionName = action.actionName
-  //         newAction.crudTags = action.crudTags
-  //         newAction.version = action.version
-  //         newClass.actions[j] = newAction
-  //     }
-  //     classSpecs[i] = newClass
-  // }
-  // arr[7] = &classSpecs
-  // test,err := json.Marshal(arr[7])
-  // if err != nil {
-  //     Info.Printf("err: %s", err)
-  // }
-  // Info.Printf("\nTEST: %s\n\n", test)
-
   arr[8] = &proxy.timestamp
 
 	return json.Marshal(arr)
