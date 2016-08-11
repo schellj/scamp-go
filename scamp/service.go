@@ -95,7 +95,7 @@ func NewService(sector string, serviceSpec string, humanName string) (serv *Serv
 	}
 
 	serv.statsCloseChan = make(chan bool)
-	go PrintStatsLoop(serv, time.Duration(15)*time.Second, serv.statsCloseChan)
+	// go PrintStatsLoop(serv, time.Duration(15)*time.Second, serv.statsCloseChan)
 
 	Trace.Printf("done initializing service")
 
