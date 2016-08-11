@@ -436,7 +436,7 @@ func (proxy *ServiceProxy)MarshalJSON() (b []byte, err error) {
   		actions[0] = string(actionNameCopy)
   		actions[1] = &action.crudTags
   		actions[2] = &action.version
-  		entry[j] = &actions
+  		entry[j+1] = &actions
   	}
 
   	classSpecs[i] = entry
