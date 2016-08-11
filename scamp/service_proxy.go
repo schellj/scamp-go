@@ -427,7 +427,7 @@ func (proxy *ServiceProxy)MarshalJSON() (b []byte, err error) {
   classSpecs := make([][]interface{}, len(proxy.classes), len(proxy.classes))
   for i,class := range proxy.classes {
   	entry := make([]interface{}, 1+len(class.actions), 1+len(class.actions))
-  	entry[0] = &class.className
+  	entry[0] = class.className
   	for j,action := range class.actions {
   		actions := make([]interface{},3,3)
 
