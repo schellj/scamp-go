@@ -66,7 +66,6 @@ func NewService(sector string, serviceSpec string, humanName string) (serv *Serv
 	serv.generateRandomName()
 
 	serv.actions = make(map[string]*ServiceAction)
-    Info.Printf("NewService.Actions: %+v", serv.actions)
 
 	crtPath := defaultConfig.ServiceCertPath(serv.humanName)
 	keyPath := defaultConfig.ServiceKeyPath(serv.humanName)
@@ -123,8 +122,6 @@ func (serv *Service)listen() (err error) {
   serv.listenerIP, err = IPForAnnouncePacket()
   Trace.Printf("serv.listenerIP: `%s`", serv.listenerIP)
 
-  //TODO: remove in production! This is used to force local host in dev
-  // serv.listenerIP = net.ParseIP("127.0.0.1")
   if err != nil {
   	return
   }
@@ -133,8 +130,7 @@ func (serv *Service)listen() (err error) {
 
 	return
 }
-// TODO Register must handle name registration better, currenty appends everything before the last dot "."
-//  infornt of all actions
+
 func (serv *Service)Register(name string, callback ServiceActionFunc) (err error) {
 	if serv.isRunning {
 		err = errors.New("cannot register handlers while server is running")

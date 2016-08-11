@@ -57,7 +57,7 @@ func (announcer *DiscoveryAnnouncer)doAnnounce() (err error){
     if err != nil {
       Error.Printf("failed to marshal service as text: `%s`. skipping.", err)
     }
-    // Info.Printf("multicastDest: %s", announcer.multicastDest)
+
     _,err = announcer.multicastConn.WriteTo(serviceDesc, nil, announcer.multicastDest)
     if err != nil {
       return err
