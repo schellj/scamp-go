@@ -124,7 +124,7 @@ func (serv *Service)listen() (err error) {
   Trace.Printf("serv.listenerIP: `%s`", serv.listenerIP)
 
   //TODO: remove in production! This is used to force local host in dev
-  serv.listenerIP = net.ParseIP("127.0.0.1")
+  // serv.listenerIP = net.ParseIP("127.0.0.1")
   if err != nil {
   	return
   }
