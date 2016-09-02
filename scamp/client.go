@@ -61,6 +61,7 @@ func (client *Client)Send(msg *Message) (responseChan MessageChan, err error){
   // Info.Printf("sending message `%d`", msg.RequestId)
   err = client.conn.Send(msg)
   if err != nil {
+    scamp.Info.Printf("SCAMP send error: %s", err)  
     return
   }
 

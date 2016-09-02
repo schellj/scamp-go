@@ -107,6 +107,7 @@ func (msg *Message)WriteJson(data interface{}) (n int, err error) {
   var buf bytes.Buffer
   err = json.NewEncoder(&buf).Encode(data)
   if err != nil {
+    scamp.Info.Printf("SCAMP Error encoding JSON: %s", err)
     return
   }
 
