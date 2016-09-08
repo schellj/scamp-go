@@ -206,7 +206,7 @@ func (serv *Service)Handle(client *Client) {
 		    reply.SetMessageType(MESSAGE_TYPE_REPLY)
 		    reply.SetEnvelope(ENVELOPE_JSON)
 		    reply.SetRequestId(msg.RequestId)
-		    reply.Write([]byte(`{"error": "no such action"`))
+		    reply.Write([]byte(`{"error": "no such action"}`))
 				_,err := client.Send(reply)
 				if err != nil {
 					client.Close()
@@ -215,7 +215,8 @@ func (serv *Service)Handle(client *Client) {
 
 			}
 		case <- time.After(msgTimeout):
-			Error.Printf("timeout... dying!")
+            reqIDString := strconv.Itoa(msg.RequestId)
+			Error.Printf("\n%s - %s timeout... dying!", msg.Action, reqIDString) //TODO: include msg ID or # so that we can debug
 			break HandlerLoop
 		}
 	}
