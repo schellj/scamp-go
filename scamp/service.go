@@ -12,7 +12,7 @@ import (
 	"bytes"
 	"io/ioutil"
 	"time"
-
+    "strconv"
 	"sync"
 	"sync/atomic"
 )
@@ -216,7 +216,8 @@ func (serv *Service)Handle(client *Client) {
 			}
 		case <- time.After(msgTimeout):
             reqIDString := strconv.Itoa(msg.RequestId)
-			Error.Printf("\n%s - %s timeout... dying!", msg.Action, reqIDString) //TODO: include msg ID or # so that we can debug
+			// Error.Printf("\n%s - %s timeout... dying!", msg.Action, reqIDString) //TODO: include msg ID or # so that we can debug
+            Error.Printf("imeout... dying!")
 			break HandlerLoop
 		}
 	}
