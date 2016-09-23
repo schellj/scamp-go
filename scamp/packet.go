@@ -1,12 +1,12 @@
 package scamp
 
 import (
-	"io"
 	"bufio"
-	"errors"
 	"bytes"
-	"fmt"
 	"encoding/json"
+	"errors"
+	"fmt"
+	"io"
 )
 
 const (
@@ -55,7 +55,7 @@ func ReadPacket(reader *bufio.ReadWriter) (pkt *Packet, err error) {
 	// 	writeTeeTarget.file.Write(hdrBytes)
 	// 	writeTeeTarget.file.Write([]byte("\n"))
 	// }
-	
+
 	if err != nil {
 		return nil, fmt.Errorf("readline error: %s", err)
 	}
@@ -92,7 +92,7 @@ func ReadPacket(reader *bufio.ReadWriter) (pkt *Packet, err error) {
 	}
 
 	theRest := make([]byte, the_rest_size)
-	bytesRead, err = io.ReadFull(reader,theRest)
+	bytesRead, err = io.ReadFull(reader, theRest)
 	if bytesRead != the_rest_size || !bytes.Equal(theRest, []byte("END\r\n")) {
 		return nil, fmt.Errorf("packet was missing trailing bytes")
 	}
@@ -100,7 +100,7 @@ func ReadPacket(reader *bufio.ReadWriter) (pkt *Packet, err error) {
 	if pkt.packetType == HEADER {
 		err := pkt.parseHeader()
 		if err != nil {
-			return nil, fmt.Errorf("parseHeader err: `%s`",err)
+			return nil, fmt.Errorf("parseHeader err: `%s`", err)
 		}
 		pkt.body = nil
 	}
@@ -110,10 +110,12 @@ func ReadPacket(reader *bufio.ReadWriter) (pkt *Packet, err error) {
 	return pkt, nil
 }
 
+//TODO: why are we unmarshalling pkt.body here?
 func (pkt *Packet) parseHeader() (err error) {
 	Trace.Printf("PARSING HEADER (%s)", pkt.body)
 	err = json.Unmarshal(pkt.body, &pkt.packetHeader)
 	if err != nil {
+		Error.Printf("Error parseing scamp msg: %s ", err)
 		return
 	}
 
@@ -137,7 +139,7 @@ func (pkt *Packet) Write(writer io.Writer) (written int, err error) {
 	case ACK:
 		packetTypeBytes = ack_bytes
 	default:
-		err = errors.New( fmt.Sprintf("unknown packetType `%d`", pkt.packetType) )
+		err = errors.New(fmt.Sprintf("unknown packetType `%d`", pkt.packetType))
 		Error.Printf("unknown packetType `%d`", pkt.packetType)
 		return
 	}
@@ -151,11 +153,11 @@ func (pkt *Packet) Write(writer io.Writer) (written int, err error) {
 			err = fmt.Errorf("err writing packet header: `%s`", err)
 			return
 		}
-	// } else if pkt.packetType == ACK {
-	// 	_, err = fmt.Fprintf(bodyBuf, "%d", pkt.ackRequestId)
-	// 	if err != nil {
-	// 		return
-	// 	}
+		// } else if pkt.packetType == ACK {
+		// 	_, err = fmt.Fprintf(bodyBuf, "%d", pkt.ackRequestId)
+		// 	if err != nil {
+		// 		return
+		// 	}
 	} else {
 		bodyBuf.Write(pkt.body)
 	}
