@@ -5,15 +5,18 @@ import "errors"
 import "bufio"
 import "bytes"
 
+// AuthorizedServiceSpec contains service's fingerprint and registered actions
 type AuthorizedServiceSpec struct {
 	Fingerprint []byte
-	Actions []ServiceProxyClass
+	Actions     []ServiceProxyClass
 }
 
+// AuthorizedServicesCache contains array of service's AuthorizedServiceSpec
 type AuthorizedServicesCache struct {
 	services []AuthorizedServiceSpec
 }
 
+// NewAuthorizedServicesCache Initializes amd returns a pointesr to a new AuthorizedServicesCache
 func NewAuthorizedServicesCache() (cache *AuthorizedServicesCache) {
 	cache = new(AuthorizedServicesCache)
 	cache.services = make([]AuthorizedServiceSpec, 100)
@@ -21,7 +24,8 @@ func NewAuthorizedServicesCache() (cache *AuthorizedServicesCache) {
 	return
 }
 
-func (cache *AuthorizedServicesCache)LoadAuthorizedServices(s *bufio.Scanner) (err error) {
+// LoadAuthorizedServices calls NewAuthorizedServicesCache() if *bufio.Scanner bytes are > 0
+func (cache *AuthorizedServicesCache) LoadAuthorizedServices(s *bufio.Scanner) (err error) {
 	var read bool
 	count := 1
 
@@ -30,12 +34,15 @@ func (cache *AuthorizedServicesCache)LoadAuthorizedServices(s *bufio.Scanner) (e
 
 		if !read {
 			break
-		// Skip empty lines
+			// Skip empty lines
 		} else if len(s.Bytes()) == 0 {
 			continue
 		}
 
-		_,_ = NewAuthorizedServicesSpec(s.Bytes())
+		_, err = NewAuthorizedServicesSpec(s.Bytes())
+		if err != nil {
+			Trace.Printf("Error creating AuthorizedServicesCache: %s", err)
+		}
 
 		count = count + 1
 	}
@@ -43,6 +50,7 @@ func (cache *AuthorizedServicesCache)LoadAuthorizedServices(s *bufio.Scanner) (e
 	return
 }
 
+// NewAuthorizedServicesSpec returns a pointer to an AuthorizedServiceSpec which contains the service's fingerprint and svailable actions
 func NewAuthorizedServicesSpec(line []byte) (spec *AuthorizedServiceSpec, err error) {
 	s := bufio.NewScanner(bytes.NewReader(line))
 	s.Split(bufio.ScanWords)

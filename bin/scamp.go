@@ -7,9 +7,10 @@ import "io/ioutil"
 import "bytes"
 
 import (
-  "github.com/gudtech/scamp-go/scamp"
 	"crypto/x509"
 	"encoding/pem"
+
+	"github.com/gudtech/scamp-go/scamp"
 )
 
 var announcePath string
@@ -18,7 +19,7 @@ var keyPath string
 var fingerprintPath string
 
 func main() {
-  gtConfigPathPtr := flag.String("config", "/backplane/discovery/discovery", "path to the discovery file")
+	gtConfigPathPtr := flag.String("config", "/backplane/discovery/discovery", "path to the discovery file")
 
 	flag.StringVar(&announcePath, "announcepath", "", "payload to be signed")
 	flag.StringVar(&certPath, "certpath", "", "path to cert used for signing")
@@ -42,13 +43,13 @@ func main() {
 
 }
 
-func doFakeDiscoveryCache(){
-	keyRawBytes,err := ioutil.ReadFile(keyPath)
+func doFakeDiscoveryCache() {
+	keyRawBytes, err := ioutil.ReadFile(keyPath)
 	if err != nil {
 		scamp.Error.Fatalf("could not read key at %s", keyPath)
 	}
 
-	block,_ := pem.Decode(keyRawBytes)
+	block, _ := pem.Decode(keyRawBytes)
 
 	if block == nil {
 		scamp.Error.Fatalf("could not decode key data (%s)", block.Type)
@@ -57,21 +58,21 @@ func doFakeDiscoveryCache(){
 		scamp.Error.Fatalf("expected key type 'RSA PRIVATE KEY' but got '%s'", block.Type)
 	}
 
-	privKey,err := x509.ParsePKCS1PrivateKey(block.Bytes)
+	privKey, err := x509.ParsePKCS1PrivateKey(block.Bytes)
 	if err != nil {
 		scamp.Error.Fatalf("could not parse key from %s (%s)", keyPath, block.Type)
 	}
 
-	announceData,err := ioutil.ReadFile(announcePath)
+	announceData, err := ioutil.ReadFile(announcePath)
 	if err != nil {
 		scamp.Error.Fatalf("could not read announce data from %s", announcePath)
 	}
-	announceSig,err := scamp.SignSHA256( []byte(announceData), privKey)
+	announceSig, err := scamp.SignSHA256([]byte(announceData), privKey)
 	if err != nil {
 		scamp.Error.Fatalf("could not sign announce data: %s", err)
 	}
 
-	certData,err := ioutil.ReadFile(certPath)
+	certData, err := ioutil.ReadFile(certPath)
 	if err != nil {
 		scamp.Error.Fatalf("could not read cert from %s", certPath)
 	}
@@ -79,19 +80,19 @@ func doFakeDiscoveryCache(){
 	fmt.Printf("\n%%%%%%\n%s\n\n%s\n\n%s\n", announceData, bytes.TrimSpace(certData), announceSig)
 }
 
-func doCertFingerprint(){
-	certData,err := ioutil.ReadFile(fingerprintPath)
+func doCertFingerprint() {
+	certData, err := ioutil.ReadFile(fingerprintPath)
 	if err != nil {
 		scamp.Error.Fatalf("could not read cert from %s", fingerprintPath)
 	}
 
-	decoded,_ := pem.Decode(certData)
+	decoded, _ := pem.Decode(certData)
 	if decoded == nil {
 		scamp.Error.Fatalf("could not decode cert. is it PEM encoded?")
 	}
 
 	// Put pem in form useful for fingerprinting
-	cert,err := x509.ParseCertificate(decoded.Bytes)
+	cert, err := x509.ParseCertificate(decoded.Bytes)
 	if err != nil {
 		scamp.Error.Fatalf("could not parse certificate. is it valid x509?")
 	}

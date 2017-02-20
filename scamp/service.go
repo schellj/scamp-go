@@ -20,7 +20,10 @@ import (
 // Two minute timeout on clients
 var msgTimeout = time.Second * 120
 
+// ServiceActionFunc represents a service callback
 type ServiceActionFunc func(*Message, *Client)
+
+// ServiceAction interface
 type ServiceAction struct {
 	callback ServiceActionFunc
 	crudTags string
@@ -53,6 +56,7 @@ type Service struct {
 	connectionsAccepted uint64
 }
 
+// NewService intializes and returns pointer to a new scamp service
 func NewService(sector string, serviceSpec string, humanName string) (serv *Service, err error) {
 	if len(humanName) > 18 {
 		err = fmt.Errorf("name `%s` is too long, must be less than 18 bytes", humanName)
@@ -131,6 +135,7 @@ func (serv *Service) listen() (err error) {
 	return
 }
 
+// Register registers a service handler callback
 func (serv *Service) Register(name string, callback ServiceActionFunc) (err error) {
 	if serv.isRunning {
 		err = errors.New("cannot register handlers while server is running")
@@ -144,18 +149,20 @@ func (serv *Service) Register(name string, callback ServiceActionFunc) (err erro
 	return
 }
 
+//Run starts a scamp service
 func (serv *Service) Run() {
 
 forLoop:
 	for {
 		netConn, err := serv.listener.Accept()
 		if err != nil {
-			Info.Printf("exiting service service Run(): `%s`", err)
+			Info.Printf("exiting service Run(): `%s`", err)
 			break forLoop
 		}
 		Trace.Printf("accepted new connection...")
 
-		var tlsConn (*tls.Conn) = (netConn).(*tls.Conn)
+		//var tlsConn (*tls.Conn) = (netConn).(*tls.Conn)
+		tlsConn := (netConn).(*tls.Conn)
 		if tlsConn == nil {
 			Error.Fatalf("could not create tlsConn")
 			break forLoop
@@ -184,6 +191,7 @@ forLoop:
 	serv.statsCloseChan <- true
 }
 
+//Handle handles incoming client messages received via the cient MessageChan
 func (serv *Service) Handle(client *Client) {
 	var action *ServiceAction
 
@@ -212,7 +220,6 @@ HandlerLoop:
 					client.Close()
 					break HandlerLoop
 				}
-
 			}
 		case <-time.After(msgTimeout):
 			Error.Printf("timeout... dying!")
@@ -227,6 +234,7 @@ HandlerLoop:
 
 }
 
+// RemoveClient removes a client from the scamp service
 func (serv *Service) RemoveClient(client *Client) (err error) {
 	serv.clientsM.Lock()
 	defer serv.clientsM.Unlock()
@@ -250,6 +258,7 @@ func (serv *Service) RemoveClient(client *Client) (err error) {
 	return nil
 }
 
+// Stop closes the service's net.Listener
 func (serv *Service) Stop() {
 	// Sometimes we Stop() before service after service has been init but before it is started
 	// The usual case is a bad config in another plugin
@@ -258,6 +267,7 @@ func (serv *Service) Stop() {
 	}
 }
 
+// MarshalText serializes a scamp service
 func (serv *Service) MarshalText() (b []byte, err error) {
 	var buf bytes.Buffer
 
@@ -297,7 +307,7 @@ func stringToRows(input string, rowlen int) (output []string) {
 	} else {
 		substr := input[:]
 		var row string
-		var done bool = false
+		done := false
 		for {
 			if len(substr) > 76 {
 				row = substr[0:76]
