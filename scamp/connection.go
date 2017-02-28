@@ -1,43 +1,43 @@
 package scamp
 
 import (
+	"bufio"
 	"crypto/tls"
 	"fmt"
 	"io"
-	"bufio"
 
-	"sync/atomic"
-	"sync"
 	"strings"
+	"sync"
+	"sync/atomic"
 )
 
 type IncomingMsgNo uint64
 type OutgoingMsgNo uint64
 
 type Connection struct {
-	conn         *tls.Conn
-	Fingerprint  string
+	conn        *tls.Conn
+	Fingerprint string
 
 	// reader         *bufio.Reader
 	// writer         *bufio.Writer
 	readWriter     *bufio.ReadWriter
 	readWriterLock sync.Mutex
 
-	incomingmsgno  IncomingMsgNo
-	outgoingmsgno  OutgoingMsgNo
+	incomingmsgno IncomingMsgNo
+	outgoingmsgno OutgoingMsgNo
 
-	pktToMsg       map[IncomingMsgNo](*Message)
-	msgs           MessageChan
+	pktToMsg map[IncomingMsgNo](*Message)
+	msgs     MessageChan
 
-	client         *Client
+	client *Client
 
-	isClosed       bool
-	closedMutex    sync.Mutex
+	isClosed    bool
+	closedMutex sync.Mutex
 
-	scampDebugger  *ScampDebugger
+	scampDebugger *ScampDebugger
 }
 
-// Used by Client to establish a secure connection to the remote service.
+// DialConnection Used by Client to establish a secure connection to the remote service.
 // TODO: You must use the *connection.Fingerprint to verify the
 // remote host
 func DialConnection(connspec string) (conn *Connection, err error) {
@@ -52,12 +52,12 @@ func DialConnection(connspec string) (conn *Connection, err error) {
 		return
 	}
 	Info.Printf("Past TLS")
-	conn = NewConnection(tlsConn,"client")
+	conn = NewConnection(tlsConn, "client")
 
 	return
 }
 
-// Used by Service
+// NewConnection Used by Service
 func NewConnection(tlsConn *tls.Conn, connType string) (conn *Connection) {
 	conn = new(Connection)
 	conn.conn = tlsConn
@@ -73,7 +73,7 @@ func NewConnection(tlsConn *tls.Conn, connType string) (conn *Connection) {
 	var writer io.Writer = conn.conn
 	if enableWriteTee {
 		var err error
-		conn.scampDebugger,err = NewScampDebugger(conn.conn, connType)
+		conn.scampDebugger, err = NewScampDebugger(conn.conn, connType)
 		if err != nil {
 			panic(fmt.Sprintf("could not create debugger: %s", err))
 		}
@@ -86,20 +86,21 @@ func NewConnection(tlsConn *tls.Conn, connType string) (conn *Connection) {
 		// nothing
 	}
 
-	conn.readWriter       = bufio.NewReadWriter(bufio.NewReader(reader), bufio.NewWriter(writer))
+	conn.readWriter = bufio.NewReadWriter(bufio.NewReader(reader), bufio.NewWriter(writer))
 	conn.incomingmsgno = 0
 	conn.outgoingmsgno = 0
 
-	conn.pktToMsg      = make(map[IncomingMsgNo](*Message))
-	conn.msgs          = make(MessageChan)
+	conn.pktToMsg = make(map[IncomingMsgNo](*Message))
+	conn.msgs = make(MessageChan)
 
-	conn.isClosed      = false
+	conn.isClosed = false
 
 	go conn.packetReader()
 
 	return
 }
 
+// SetClient sets the client for a *Connection
 func (conn *Connection) SetClient(client *Client) {
 	conn.client = client
 }
@@ -113,11 +114,11 @@ func (conn *Connection) packetReader() (err error) {
 	// Trace.Printf("starting packetrouter")
 	var pkt *Packet
 
-	PacketReaderLoop:
+PacketReaderLoop:
 	for {
 		Trace.Printf("reading packet...")
 
-		pkt,err = ReadPacket(conn.readWriter)
+		pkt, err = ReadPacket(conn.readWriter)
 		if err != nil {
 			if strings.Contains(err.Error(), "readline error: EOF") {
 			} else if strings.Contains(err.Error(), "use of closed network connection") {
@@ -141,88 +142,89 @@ func (conn *Connection) packetReader() (err error) {
 }
 
 func (conn *Connection) routePacket(pkt *Packet) (err error) {
-		var msg *Message
+	var msg *Message
 
-		Trace.Printf("routing packet...")
-		switch {
-			case pkt.packetType == HEADER:
-				Trace.Printf("HEADER")
-				// Allocate new msg
-				// First verify it's the expected incoming msgno
-				incomingmsgno := atomic.LoadUint64((*uint64)(&conn.incomingmsgno))
-				if pkt.msgNo != incomingmsgno {
-					err = fmt.Errorf("out of sequence msgno: expected %d but got %d", incomingmsgno, pkt.msgNo)
-					Error.Printf("%s", err)
-					return err
-				}
-
-				msg = conn.pktToMsg[IncomingMsgNo(pkt.msgNo)]
-				if msg != nil {
-					err = fmt.Errorf("Bad HEADER; already tracking msgno %d", pkt.msgNo)
-					Error.Printf("%s", err)
-					return err
-				}
-
-				// Allocate message and copy over header values so we don't have to track them
-				// We copy out the packetHeader values and then we can discard it
-				msg = NewMessage()
-				msg.SetAction(pkt.packetHeader.Action)
-				msg.SetEnvelope(pkt.packetHeader.Envelope)
-				msg.SetVersion(pkt.packetHeader.Version)
-				msg.SetMessageType(pkt.packetHeader.MessageType)
-				msg.SetRequestId(pkt.packetHeader.RequestId)
-				msg.SetError(pkt.packetHeader.Error)
-				msg.SetErrorCode(pkt.packetHeader.ErrorCode)
-				msg.SetTicket(pkt.packetHeader.Ticket)
-				// TODO: Do we need the requestId?
-
-				conn.pktToMsg[IncomingMsgNo(pkt.msgNo)] = msg
-				// This is for sending out data
-				// conn.incomingNotifiers[pktMsgNo] = &make((chan *Message),1)
-
-				atomic.AddUint64((*uint64)(&conn.incomingmsgno), 1)
-			case pkt.packetType == 	DATA:
-				Trace.Printf("DATA")
-				// Append data
-				// Verify we are tracking that message
-				msg = conn.pktToMsg[IncomingMsgNo(pkt.msgNo)]
-				if msg == nil {
-					err = fmt.Errorf("not tracking msgno %d", pkt.msgNo)
-					Error.Printf("unexpected error: `%s`", err)
-					return err
-				}
-
-				msg.Write(pkt.body)
-				conn.ackBytes(IncomingMsgNo(pkt.msgNo), msg.BytesWritten())
-			case pkt.packetType == EOF:
-				Trace.Printf("EOF")
-				// Deliver message
-				msg = conn.pktToMsg[IncomingMsgNo(pkt.msgNo)]
-				if msg == nil {
-					err = fmt.Errorf("cannot process EOF for unknown msgno %d", pkt.msgNo)
-					Error.Printf("err: `%s`", err)
-					return
-				}
-
-				delete(conn.pktToMsg, IncomingMsgNo(pkt.msgNo))
-				Trace.Printf("delivering msgno %d up the stack", pkt.msgNo)
-				conn.msgs <- msg
-			case pkt.packetType == 	TXERR:
-				Trace.Printf("TXERR")
-				delete(conn.pktToMsg, IncomingMsgNo(pkt.msgNo))
-				conn.msgs <- msg
-				// TODO: add 'error' path on connection
-				// Kill connection
-			case pkt.packetType == 	ACK:
-				Trace.Printf("ACK `%d` for msgno %d", pkt.msgNo, len(pkt.body))
-				// panic("Xavier needs to support this")
-				// Add bytes to message stream tally
+	Trace.Printf("routing packet...")
+	switch {
+	case pkt.packetType == HEADER:
+		Trace.Printf("HEADER")
+		// Allocate new msg
+		// First verify it's the expected incoming msgno
+		incomingmsgno := atomic.LoadUint64((*uint64)(&conn.incomingmsgno))
+		if pkt.msgNo != incomingmsgno {
+			err = fmt.Errorf("out of sequence msgno: expected %d but got %d", incomingmsgno, pkt.msgNo)
+			Error.Printf("%s", err)
+			return err
 		}
 
-		return
+		msg = conn.pktToMsg[IncomingMsgNo(pkt.msgNo)]
+		if msg != nil {
+			err = fmt.Errorf("Bad HEADER; already tracking msgno %d", pkt.msgNo)
+			Error.Printf("%s", err)
+			return err
+		}
+
+		// Allocate message and copy over header values so we don't have to track them
+		// We copy out the packetHeader values and then we can discard it
+		msg = NewMessage()
+		msg.SetAction(pkt.packetHeader.Action)
+		msg.SetEnvelope(pkt.packetHeader.Envelope)
+		msg.SetVersion(pkt.packetHeader.Version)
+		msg.SetMessageType(pkt.packetHeader.MessageType)
+		msg.SetRequestId(pkt.packetHeader.RequestId)
+		msg.SetError(pkt.packetHeader.Error)
+		msg.SetErrorCode(pkt.packetHeader.ErrorCode)
+		msg.SetTicket(pkt.packetHeader.Ticket)
+		// TODO: Do we need the requestId?
+
+		conn.pktToMsg[IncomingMsgNo(pkt.msgNo)] = msg
+		// This is for sending out data
+		// conn.incomingNotifiers[pktMsgNo] = &make((chan *Message),1)
+
+		atomic.AddUint64((*uint64)(&conn.incomingmsgno), 1)
+	case pkt.packetType == DATA:
+		Trace.Printf("DATA")
+		// Append data
+		// Verify we are tracking that message
+		msg = conn.pktToMsg[IncomingMsgNo(pkt.msgNo)]
+		if msg == nil {
+			err = fmt.Errorf("not tracking message number %d", pkt.msgNo)
+			Error.Printf("unexpected error: `%s`", err)
+			return err
+		}
+
+		msg.Write(pkt.body)
+		conn.ackBytes(IncomingMsgNo(pkt.msgNo), msg.BytesWritten())
+	case pkt.packetType == EOF:
+		Trace.Printf("EOF")
+		// Deliver message
+		msg = conn.pktToMsg[IncomingMsgNo(pkt.msgNo)]
+		if msg == nil {
+			err = fmt.Errorf("cannot process EOF for unknown msgno %d", pkt.msgNo)
+			Error.Printf("err: `%s`", err)
+			return
+		}
+
+		delete(conn.pktToMsg, IncomingMsgNo(pkt.msgNo))
+		Trace.Printf("Delivering message number %d up the stack", pkt.msgNo)
+		conn.msgs <- msg
+	case pkt.packetType == TXERR:
+		Trace.Printf("TXERR")
+		delete(conn.pktToMsg, IncomingMsgNo(pkt.msgNo))
+		conn.msgs <- msg
+		// TODO: add 'error' path on connection
+		// Kill connection
+	case pkt.packetType == ACK:
+		Trace.Printf("ACK `%d` for msgno %d", pkt.msgNo, len(pkt.body))
+		// panic("Xavier needs to support this")
+		// TODO: Add bytes to message stream tally
+	}
+
+	return
 }
 
-func (conn *Connection)Send(msg *Message) (err error) {
+// Send sends a scamp message using the current *Connection
+func (conn *Connection) Send(msg *Message) (err error) {
 	conn.readWriterLock.Lock()
 	defer conn.readWriterLock.Unlock()
 	if msg.RequestId == 0 {
@@ -231,11 +233,11 @@ func (conn *Connection)Send(msg *Message) (err error) {
 	}
 
 	outgoingmsgno := atomic.LoadUint64((*uint64)(&conn.outgoingmsgno))
-	atomic.AddUint64((*uint64)(&conn.outgoingmsgno),1)
+	atomic.AddUint64((*uint64)(&conn.outgoingmsgno), 1)
 
 	Trace.Printf("sending msgno %d", outgoingmsgno)
 
-	for i,pkt := range msg.toPackets(outgoingmsgno) {
+	for i, pkt := range msg.toPackets(outgoingmsgno) {
 		Trace.Printf("sending pkt %d", i)
 
 		if enableWriteTee {
@@ -258,7 +260,6 @@ func (conn *Connection)Send(msg *Message) (err error) {
 			}
 		}
 
-
 	}
 	conn.readWriter.Flush()
 	Trace.Printf("done sending msg")
@@ -266,14 +267,14 @@ func (conn *Connection)Send(msg *Message) (err error) {
 	return
 }
 
-func (conn *Connection)ackBytes(msgno IncomingMsgNo, unackedByteCount uint64) (err error) {
+func (conn *Connection) ackBytes(msgno IncomingMsgNo, unackedByteCount uint64) (err error) {
 	conn.readWriterLock.Lock()
 	defer conn.readWriterLock.Unlock()
 
 	ackPacket := Packet{
 		packetType: ACK,
-		msgNo: uint64(msgno),
-		body: []byte(fmt.Sprintf("%d", unackedByteCount)),
+		msgNo:      uint64(msgno),
+		body:       []byte(fmt.Sprintf("%d", unackedByteCount)),
 	}
 
 	var thisWriter io.Writer
@@ -293,14 +294,14 @@ func (conn *Connection)ackBytes(msgno IncomingMsgNo, unackedByteCount uint64) (e
 	return
 }
 
-func (conn *Connection)Close() {
+// Close closes the current *Connection
+func (conn *Connection) Close() {
 	conn.closedMutex.Lock()
 	if conn.isClosed {
 		Trace.Printf("connection already closed. skipping shutdown.")
 		conn.closedMutex.Unlock()
 		return
 	}
-
 
 	Trace.Printf("connection is closing")
 
