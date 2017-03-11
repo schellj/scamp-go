@@ -79,11 +79,19 @@ func (conf *Config) doLoad(scanner *bufio.Scanner) (err error) {
 }
 
 func (conf *Config) ServiceKeyPath(serviceName string) (keyPath []byte) {
-	return conf.values[serviceName+".soa_key"]
+	path := conf.values[serviceName+".soa_key"]
+	if path == nil {
+		path = []byte("/etc/GT_private/services/" + serviceName + ".key")
+	}
+	return path
 }
 
 func (conf *Config) ServiceCertPath(serviceName string) (certPath []byte) {
-	return conf.values[serviceName+".soa_cert"]
+	path := conf.values[serviceName+".soa_cert"]
+	if path == nil {
+		path = []byte("/etc/GT_private/services/" + serviceName + ".crt")
+	}
+	return path
 }
 
 func (conf *Config) DiscoveryMulticastIP() (ip net.IP) {
